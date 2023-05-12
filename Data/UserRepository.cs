@@ -1,29 +1,15 @@
-﻿using SD_340_W22SD_Final_Project_Group6.Models;
+﻿using Microsoft.AspNetCore.Identity;
+using SD_340_W22SD_Final_Project_Group6.Models;
 
 namespace SD_340_W22SD_Final_Project_Group6.Data
 {
-    public class UserRepository : IRepository<ApplicationUser>
+    public class UserRepository : IUserRepository
     {
         private ApplicationDbContext _context;
 
         public UserRepository(ApplicationDbContext context)
         {
             _context = context;
-        }
-
-        public void Create(ApplicationUser entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Delete(ApplicationUser entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ApplicationUser? Get(int? id)
-        {
-            throw new NotImplementedException();
         }
 
         public ApplicationUser? Get(string? id)
@@ -37,9 +23,14 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
             return _context.Users.ToHashSet<ApplicationUser>();
         }
 
-        public void Update(ApplicationUser entity)
+        public IdentityRole GetRole(string? id)
         {
-            throw new NotImplementedException();
+            return _context.Roles.Find(id);
+        }
+
+        public async void SaveChangesAsync()
+        {
+           await _context.SaveChangesAsync();
         }
     }
 }

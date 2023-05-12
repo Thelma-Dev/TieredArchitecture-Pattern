@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer;
 using SD_340_W22SD_Final_Project_Group6.Data;
 using SD_340_W22SD_Final_Project_Group6.Models;
 using SD_340_W22SD_Final_Project_Group6.Models.ViewModel;
@@ -11,76 +12,71 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _users;
+        private readonly AdminBusinessLogic _adminBusinessLogic;
 
-        public AdminController(ApplicationDbContext context, UserManager<ApplicationUser> users)
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+
+        public AdminController(IUserRepository userRepository, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roles)
         {
-            _context = context;
-            _users = users;
+            _userManager = userManager;
+            _adminBusinessLogic = new AdminBusinessLogic(userManager, userRepository);
+            _roleManager = roles;
         }
+
+
         public async Task<IActionResult> Index()
         {
-            ProjectManagersAndDevelopersViewModels vm = new ProjectManagersAndDevelopersViewModels();
-
-            List<ApplicationUser> pmUsers = (List<ApplicationUser>)await _users.GetUsersInRoleAsync("ProjectManager");
-
-            List<ApplicationUser> devUsers = (List<ApplicationUser>)await _users.GetUsersInRoleAsync("Developer");
-
-            List<ApplicationUser> allUsers = _context.Users.ToList();
+            ProjectManagersAndDevelopersVm vm = new ProjectManagersAndDevelopersVm();
 
 
+            List<ApplicationUser> ProjectManagers = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync("ProjectManager");
 
-            vm.pms = pmUsers;
-            vm.devs = devUsers;
-            vm.allUsers = allUsers;
+            List<ApplicationUser> Developers = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync("Developer");
+
+            List<ApplicationUser> AllUsers = _adminBusinessLogic.GetAllUsers().ToList();
+
+
+
+            vm.ProjectManagers = ProjectManagers;
+            vm.devs = Developers;
+            vm.allUsers = AllUsers;
+
             return View(vm);
         }
 
-        public async Task<IActionResult> ReassignRoleAsync()
+        public IActionResult AssignRole()
         {
-            List<ApplicationUser> allUsers = _context.Users.ToList();
-
-
-            List<SelectListItem> users = new List<SelectListItem>();
-
-            allUsers.ForEach(u =>
+            try
             {
-                users.Add(new SelectListItem(u.UserName, u.Id.ToString()));
-            });
+                List<ApplicationUser> allUsers = _adminBusinessLogic.GetAllUsers().ToList();
+                HashSet<IdentityRole> AllRoles = _roleManager.Roles.ToHashSet();
 
-            ViewBag.Users = users;
+                AssignRoleVm vm = new AssignRoleVm(AllRoles, allUsers);
 
-            return View(allUsers);
+                return View(vm);
+            }
+            catch(Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ReassignRole(string role, string userId)
+        public async Task<IActionResult> AssignRole(AssignRoleVm vm)
         {
 
-            ApplicationUser user = _users.Users.First(u => u.Id == userId);
-
-
-            ICollection<string> roleUser = await _users.GetRolesAsync(user);
-
-
-            if (roleUser.Count == 0)
+            try
             {
-                await _users.AddToRoleAsync(user, role);
+                _adminBusinessLogic.AssignRole(vm.RoleId, vm.UserId);
 
                 return RedirectToAction("Index", "Admin", new { area = "" });
-
-            } 
-            else
+            }
+            catch (Exception ex)
             {
-
-                await _users.RemoveFromRoleAsync(user, roleUser.First());
-                await _users.AddToRoleAsync(user, role);
-
-
-                return RedirectToAction("Index", "Admin", new { area = "" });
+                return Problem(ex.Message);
             }
         }
     }
