@@ -24,7 +24,9 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             ProjectManagersAndDevelopersViewModels vm = new ProjectManagersAndDevelopersViewModels();
 
             List<ApplicationUser> pmUsers = (List<ApplicationUser>)await _users.GetUsersInRoleAsync("ProjectManager");
+
             List<ApplicationUser> devUsers = (List<ApplicationUser>)await _users.GetUsersInRoleAsync("Developer");
+
             List<ApplicationUser> allUsers = _context.Users.ToList();
 
 
@@ -39,15 +41,19 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         {
             List<ApplicationUser> allUsers = _context.Users.ToList();
 
+
             List<SelectListItem> users = new List<SelectListItem>();
+
             allUsers.ForEach(u =>
             {
                 users.Add(new SelectListItem(u.UserName, u.Id.ToString()));
             });
+
             ViewBag.Users = users;
 
             return View(allUsers);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -55,15 +61,25 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         {
 
             ApplicationUser user = _users.Users.First(u => u.Id == userId);
+
+
             ICollection<string> roleUser = await _users.GetRolesAsync(user);
+
+
             if (roleUser.Count == 0)
             {
                 await _users.AddToRoleAsync(user, role);
+
                 return RedirectToAction("Index", "Admin", new { area = "" });
-            } else
+
+            } 
+            else
             {
+
                 await _users.RemoveFromRoleAsync(user, roleUser.First());
                 await _users.AddToRoleAsync(user, role);
+
+
                 return RedirectToAction("Index", "Admin", new { area = "" });
             }
         }

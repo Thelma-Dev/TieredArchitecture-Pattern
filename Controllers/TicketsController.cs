@@ -22,15 +22,20 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             _context = context;
         }
 
+
         // GET: Tickets
         public async Task<IActionResult> Index()
         {
               return _context.Tickets != null ? 
-                          View(await _context.Tickets.Include(t => t.Project).Include(t => t.Owner).ToListAsync()) :
+                          View(await _context.Tickets
+                          .Include(t => t.Project)
+                          .Include(t => t.Owner)
+                          .ToListAsync()) :
                           Problem("Entity set 'ApplicationDbContext.Tickets'  is null.");
         }
 
-        // GET: Tickets/Details/5
+
+
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Tickets == null)
@@ -38,13 +43,23 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                 return NotFound();
             }
 
-            var ticket = await _context.Tickets.Include(t => t.Project).Include(t => t.TicketWatchers).ThenInclude(tw => tw.Watcher).Include(u => u.Owner).Include(t => t.Comments).ThenInclude(c => c.CreatedBy)
+            var ticket = await _context.Tickets
+                .Include(t => t.Project)
+                .Include(t => t.TicketWatchers).ThenInclude(tw => tw.Watcher)
+                .Include(u => u.Owner)
+                .Include(t => t.Comments).ThenInclude(c => c.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
+
             List<SelectListItem> currUsers = new List<SelectListItem>();
+
+
             ticket.Project.AssignedTo.ToList().ForEach(t =>
             {
-                currUsers.Add(new SelectListItem(t.ApplicationUser.UserName, t.ApplicationUser.Id.ToString()));
+                currUsers.Add(new SelectListItem(t.User.UserName, t.User.Id.ToString()));
             });
+
+
             ViewBag.Users = currUsers;
 
             if (ticket == null)
@@ -55,16 +70,20 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             return View(ticket);
         }
 
-        // GET: Tickets/Create
+       
+
         [Authorize(Roles = "ProjectManager")]
         public IActionResult Create(int projId)
         {
-            Project currProject = _context.Projects.Include(p => p.AssignedTo).ThenInclude(at => at.ApplicationUser).FirstOrDefault(p => p.Id == projId);
+            Project currProject = _context.Projects
+                .Include(p => p.AssignedTo).ThenInclude(at => at.User)
+                .FirstOrDefault(p => p.Id == projId);
 
             List<SelectListItem> currUsers = new List<SelectListItem>();
+
             currProject.AssignedTo.ToList().ForEach(t =>
             {
-                currUsers.Add(new SelectListItem(t.ApplicationUser.UserName, t.ApplicationUser.Id.ToString()));
+                currUsers.Add(new SelectListItem(t.User.UserName, t.User.Id.ToString()));
             });
 
             ViewBag.Projects = currProject;
@@ -74,9 +93,8 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 
         }
 
-        // POST: Tickets/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "ProjectManager")]
@@ -85,15 +103,24 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             if (ModelState.IsValid)
             { 
                 ticket.Project = await _context.Projects.FirstAsync(p => p.Id == projId);
+
                 Project currProj = await _context.Projects.FirstOrDefaultAsync(p => p.Id == projId);
+
                 ApplicationUser owner = _context.Users.FirstOrDefault(u => u.Id == userId);
+
+
                 ticket.Owner = owner;
                 _context.Add(ticket);
                 currProj.Tickets.Add(ticket);
+
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index","Projects", new { area = ""});
             }
-            return View(ticket);
+            else
+            {
+                return View(ticket);
+            }
+            
         }
 
         // GET: Tickets/Edit/5
@@ -190,7 +217,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                     ApplicationUser user = _context.Users.First(u => u.UserName == userName);
                     Ticket ticket = _context.Tickets.FirstOrDefault(t => t.Id == TaskId);
 
-                    newComment.CreatedBy = user;
+                    newComment.User = user;
                     newComment.Description = TaskText;
                     newComment.Ticket = ticket;
                     user.Comments.Add(newComment);
@@ -242,7 +269,9 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                     Ticket ticket = _context.Tickets.FirstOrDefault(t => t.Id == id);
 
                     newTickWatch.Ticket = ticket;
+                    newTickWatch.TicketId = ticket.Id;
                     newTickWatch.Watcher = user;
+                    newTickWatch.WatcherId = user.Id;
                     user.TicketWatching.Add(newTickWatch);
                     ticket.TicketWatchers.Add(newTickWatch);
                     _context.Add(newTickWatch);

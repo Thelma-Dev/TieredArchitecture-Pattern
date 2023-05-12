@@ -31,10 +31,10 @@
 @foreach (var item in Model.AssignedTo) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.ApplicationUser.UserName)
+                @Html.DisplayFor(modelItem => item.User.UserName)
             </td>
             <td>
-                <a asp-action="RemoveAssignedUser" asp-controller="Projects" asp-route-id="@item.ApplicationUser.Id" asp-route-projId="@Model.Id">Remove</a>
+                <a asp-action="RemoveAssignedUser" asp-controller="Projects" asp-route-id="@item.User.Id" asp-route-projId="@Model.Id">Remove</a>
             </td>
         </tr>
 }
