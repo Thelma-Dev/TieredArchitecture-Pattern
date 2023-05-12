@@ -4,6 +4,7 @@
     {
         void Create(T entity);
         T? Get(int? id);
+        T? Get(string? id);
         ICollection<T> GetAll();
         void Update(T entity);
         void Delete(T entity);
