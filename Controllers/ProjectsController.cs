@@ -22,13 +22,16 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ProjectBusinessLogic _projectBusinessLogic;
-        private IRepository<Project> _projectRepository;
+        private readonly IUserProjectRepository _userProjectRepository;
+        private readonly IRepository<Project> _projectRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IRepository<Ticket> _ticketRepository;
 
-        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository)
+        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository)
         {
             _context = context;
             _userManager = userManager;
-            _projectBusinessLogic = new ProjectBusinessLogic(userManager, projectRepository);
+            _projectBusinessLogic = new ProjectBusinessLogic(userManager, projectRepository, userProjectRepository, userRepository, ticketRepository);
         }
 
 

@@ -12,14 +12,15 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         private IRepository<Project> _projectRepository;
         private IUserProjectRepository _userProjectRepository;
         private IUserRepository _userRepository;
+        private IRepository<Ticket> _ticketRepository;
 
-        public ProjectBusinessLogic(UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository)
+        public ProjectBusinessLogic(UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository)
         {
             _userManager = userManager;
             _projectRepository = projectRepository;
             _userProjectRepository = userProjectRepository;
             _userRepository = userRepository;
-
+            _ticketRepository = ticketRepository;
         }
 
         public Project GetProjectDetails(int id)
@@ -50,9 +51,11 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             }
         }
 
-        public void ConfirmProjectDelete(int id)
+        public void ConfirmProjectDelete(int projectId)
         {
-            Project project = _projectRepository.Get(id);
+            Project project = _projectRepository.Get(projectId);
+
+            HashSet<Ticket> ticketList = _ticketRepository.GetAll().ToHashSet();
 
             if (project == null)
             {
@@ -60,29 +63,46 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             }
             else
             {
-                List<Ticket> tickets = project.Tickets.ToList();
+                List<Ticket> tickets = GetTicketsInProject(projectId);
 
-                tickets.ForEach(ticket =>
+                List<UserProject> userProjects = new List<UserProject>();
+
+                if(tickets.Count != 0)
                 {
-                    _context.Tickets.Remove(ticket);
-                });
+                    tickets.ForEach(ticket =>
+                    {
+                        _ticketRepository.Delete(ticket);
+                    });
 
+                    userProjects = _userProjectRepository.GetProjects(projectId);
 
-                List<UserProject> userProjects = _userProjectRepository.GetProjects(id);
+                    userProjects.ForEach(userProj =>
+                    {
+                        _userProjectRepository.RemoveUserProject(userProj);
+                    });
 
-
-                userProjects.ForEach(userProj =>
+                }
+                else
                 {
-                    _userProjectRepository.RemoveUserProject(userProj);
-                });
+                    userProjects = _userProjectRepository.GetProjects(projectId);
+
+                    userProjects.ForEach(userProj =>
+                    {
+                        _userProjectRepository.RemoveUserProject(userProj);
+                    });
+                }
 
                 _projectRepository.Delete(project);
-
 
             }
 
             
             
+        }
+
+        public void CreateProject()
+        {
+
         }
 
         public void  RemoveAssignedUser(string userId, int projectId)
@@ -107,6 +127,20 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
                 }
             }
            
+        }
+
+        private List<Ticket> GetTicketsInProject(int projectId)
+        {
+            Project project = _projectRepository.Get(projectId);
+
+            List<Ticket> tickets = new List<Ticket>();
+
+            foreach(Ticket t in project.Tickets)
+            {
+                tickets.Add(t);
+            }
+
+            return tickets;
         }
     }
 }
