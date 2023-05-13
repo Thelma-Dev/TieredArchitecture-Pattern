@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer;
 using SD_340_W22SD_Final_Project_Group6.Data;
 using SD_340_W22SD_Final_Project_Group6.Models;
 using X.PagedList;
@@ -19,12 +20,15 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
     public class ProjectsController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _users;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ProjectBusinessLogic _projectBusinessLogic;
+        private IRepository<Project> _projectRepository;
 
-        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> users)
+        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository)
         {
             _context = context;
-            _users = users;
+            _userManager = userManager;
+            _projectBusinessLogic = new ProjectBusinessLogic(userManager, projectRepository);
         }
 
 
@@ -34,7 +38,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         {
             List<Project> SortedProjs = new List<Project>();
 
-            List<ApplicationUser> allUsers = (List<ApplicationUser>)await _users.GetUsersInRoleAsync("Developer");
+            List<ApplicationUser> allUsers = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync("Developer");
 
             List<SelectListItem> users = new List<SelectListItem>();
 
@@ -146,7 +150,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 
             var user = _context.Users.FirstOrDefault(u => u.UserName == LogedUserName);
 
-            var rolenames = await _users.GetRolesAsync(user);
+            var rolenames = await _userManager.GetRolesAsync(user);
 
             var AssinedProject = new List<Project>();
 
@@ -172,38 +176,34 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 
 
         // GET: Projects/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null || _context.Projects == null)
+            try
             {
-                return NotFound();
+                return View(_projectBusinessLogic.GetProjectDetails(id));
+            }
+            catch(Exception ex)
+            {
+                return Problem(ex.Message);
             }
 
-            var project = await _context.Projects
-                .FirstOrDefaultAsync(m => m.Id == id);
-
-            if (project == null)
-            {
-                return NotFound();
-            }
-
-            return View(project);
+            
         }
 
-        public async Task<IActionResult> RemoveAssignedUser(string id, int projId)
+        public async Task<IActionResult> RemoveAssignedUser(string userid, int projectid)
         {
-            if (id == null)
+            try
             {
-                return NotFound();
+                _projectBusinessLogic.RemoveAssignedUser(userid, projectid);
+
+                return RedirectToAction("Edit", new { id = projectid });
+            }
+            catch(Exception exe)
+            {
+                return Problem(exe.Message);
             }
 
-            UserProject currUserProj = await _context.UserProjects.FirstAsync(up => up.ProjectId == projId && up.UserId == id);
-
-
-            _context.UserProjects.Remove(currUserProj);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Edit", new { id = projId });
+            
         }
 
 
@@ -211,7 +211,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         [Authorize(Roles = "ProjectManager")]
         public async Task<IActionResult> CreateAsync()
         {
-            List<ApplicationUser> allUsers = (List<ApplicationUser>)await _users.GetUsersInRoleAsync("Developer");
+            List<ApplicationUser> allUsers = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync("Developer");
 
             List<SelectListItem> users = new List<SelectListItem>();
 
@@ -348,21 +348,16 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 
         // GET: Projects/Delete/5
         [Authorize(Roles = "ProjectManager")]
-        public async Task<IActionResult> Delete(int? id)
+        public IActionResult Delete(int id)
         {
-            if (id == null || _context.Projects == null)
+            try
             {
-                return NotFound();
+                return View(_projectBusinessLogic.DeleteProject(id));
             }
-
-            var project = await _context.Projects
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (project == null)
+            catch(Exception exe)
             {
-                return NotFound();
+                return Problem(exe.Message);
             }
-
-            return View(project);
         }
 
         
@@ -372,45 +367,16 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         [Authorize(Roles = "ProjectManager")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Projects == null)
+            try
             {
-                return Problem("Entity set 'ApplicationDbContext.Projects'  is null.");
+                _projectBusinessLogic.ConfirmProjectDelete(id);
+
+                return RedirectToAction(nameof(Index));
             }
-            var project = await _context.Projects
-                .Include(p => p.Tickets)
-                .FirstAsync(p => p.Id == id);
-
-
-            if (project != null)
+            catch(Exception exe)
             {
-                List<Ticket> tickets = project.Tickets.ToList();
-
-                tickets.ForEach(ticket =>
-                {
-                    _context.Tickets.Remove(ticket);
-                });
-
-
-                await _context.SaveChangesAsync();
-
-
-                List<UserProject> userProjects = _context.UserProjects
-                    .Where(up => up.ProjectId == project.Id)
-                    .ToList();
-
-
-                userProjects.ForEach(userProj =>
-                {
-                    _context.UserProjects.Remove(userProj);
-                });
-
-                _context.Projects.Remove(project);
-
-
+                return Problem(exe.Message);
             }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
         }
 
         private bool ProjectExists(int id)
