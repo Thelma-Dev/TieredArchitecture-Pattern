@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer;
 using SD_340_W22SD_Final_Project_Group6.Data;
 using SD_340_W22SD_Final_Project_Group6.Models;
+using SD_340_W22SD_Final_Project_Group6.Models.ViewModel;
 using X.PagedList;
 using X.PagedList.Mvc;
 
@@ -26,12 +27,14 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         private readonly IRepository<Project> _projectRepository;
         private readonly IUserRepository _userRepository;
         private readonly IRepository<Ticket> _ticketRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository)
+        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _userManager = userManager;
-            _projectBusinessLogic = new ProjectBusinessLogic(userManager, projectRepository, userProjectRepository, userRepository, ticketRepository);
+            _projectBusinessLogic = new ProjectBusinessLogic(userManager, projectRepository, userProjectRepository, userRepository, ticketRepository, httpContextAccessor);
+            
         }
 
 
@@ -212,20 +215,13 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 
         
         [Authorize(Roles = "ProjectManager")]
-        public async Task<IActionResult> CreateAsync()
+        public async Task<IActionResult> Create()
         {
             List<ApplicationUser> allUsers = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync("Developer");
 
-            List<SelectListItem> users = new List<SelectListItem>();
+            CreateProjectVm vm = new CreateProjectVm(allUsers);
 
-            allUsers.ForEach(au =>
-            {
-                users.Add(new SelectListItem(au.UserName, au.Id.ToString()));
-            });
-
-            ViewBag.Users = users;
-
-            return View();
+            return View(vm);
         }
 
         
@@ -233,42 +229,25 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "ProjectManager")]
-        public async Task<IActionResult> Create([Bind("Id,ProjectName")] Project project, List<string> userIds)
+        public async Task<IActionResult> Create([Bind("Id,ProjectName,AssignedUserId")] CreateProjectVm vm)
         {
-            string userName = User.Identity.Name;
-
-            ApplicationUser createdBy = _context.Users.First(u => u.UserName == userName);
-            project.CreatedById = createdBy.Id;
-            project.CreatedBy = createdBy;
-
-            ModelState.ClearValidationState(nameof(project.CreatedById));
-            
-
-            if (TryValidateModel(project))
+            try
             {
-                _context.Add(project);
-                await _context.SaveChangesAsync();
+                _projectBusinessLogic.CreateProject(vm);
 
-                userIds.ForEach((user) =>
+                if(ModelState.IsValid)
                 {
-                    ApplicationUser currUser = _context.Users.FirstOrDefault(u => u.Id == user);
-                    UserProject newUserProj = new UserProject();
-                    newUserProj.User = currUser;
-                    newUserProj.UserId = currUser.Id;
-                    newUserProj.Project = project;
-                    newUserProj.ProjectId = project.Id;
-
-                    project.AssignedTo.Add(newUserProj);
-                    _context.UserProjects.Add(newUserProj);
-                   
-                });
-
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    return View(vm);
+                }
+                
             }
-            else
+            catch(Exception ex)
             {
-                return View(project);
+                return Problem(ex.Message);
             }
             
         }

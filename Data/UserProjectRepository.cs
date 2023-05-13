@@ -26,5 +26,11 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
             _context.UserProjects.Remove(userProject);
             _context.SaveChanges();
         }
+
+        public void CreateUserProject(UserProject userProject)
+        {
+            _context.UserProjects.Add(userProject);
+            _context.SaveChanges();
+        }
     }
 }

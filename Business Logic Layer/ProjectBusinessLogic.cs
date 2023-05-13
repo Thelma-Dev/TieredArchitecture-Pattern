@@ -1,8 +1,14 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SD_340_W22SD_Final_Project_Group6.Data;
 using SD_340_W22SD_Final_Project_Group6.Models;
-using System.Runtime.InteropServices;
+using SD_340_W22SD_Final_Project_Group6.Models.ViewModel;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
+using System.Security.Claims;
+using System.Web.Mvc;
 
 namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 {
@@ -13,14 +19,16 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         private IUserProjectRepository _userProjectRepository;
         private IUserRepository _userRepository;
         private IRepository<Ticket> _ticketRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ProjectBusinessLogic(UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository)
+        public ProjectBusinessLogic(UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository, IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
             _projectRepository = projectRepository;
             _userProjectRepository = userProjectRepository;
             _userRepository = userRepository;
             _ticketRepository = ticketRepository;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public Project GetProjectDetails(int id)
@@ -100,9 +108,41 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             
         }
 
-        public void CreateProject()
+        public void CreateProject(CreateProjectVm vm)
         {
+            string userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            ApplicationUser user = _userRepository.Get(userId);
+
+
+            Project newProject = new Project();
+
+            newProject.ProjectName = vm.ProjectName;
+            newProject.CreatedBy = user;
+            newProject.CreatedById = user.Id;
+
+            if (newProject != null)
+            {
+                _projectRepository.Create(newProject);
+
+                ApplicationUser developer = _userRepository.Get(vm.AssignedUserId);
+
+                UserProject newUserProject = new UserProject();
+
+                newUserProject.User = developer;
+                newUserProject.UserId = developer.Id;
+                newUserProject.Project = newProject;
+                newUserProject.ProjectId = newProject.Id;
+
+                newProject.AssignedTo.Add(newUserProject);
+                    
+                _userProjectRepository.CreateUserProject(newUserProject);
+                
+            }
+            else
+            {
+                throw new Exception("Error Creating Project");
+            }
         }
 
         public void  RemoveAssignedUser(string userId, int projectId)

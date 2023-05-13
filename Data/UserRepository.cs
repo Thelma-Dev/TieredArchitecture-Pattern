@@ -55,5 +55,6 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
         {
             return _context.UserRoles.Any(ur => ur.UserId == userId);
         }
+
     }
 }
