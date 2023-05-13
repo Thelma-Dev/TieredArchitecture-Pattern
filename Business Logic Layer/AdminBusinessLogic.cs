@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SD_340_W22SD_Final_Project_Group6.Data;
@@ -13,8 +14,9 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private IUserRepository _userRepository;
-
-        public AdminBusinessLogic(UserManager<ApplicationUser> userManager, IUserRepository userRepository)
+        private ApplicationDbContext _context;
+        
+        public AdminBusinessLogic(IUserRepository userRepository, UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
             _userRepository = userRepository;
@@ -22,7 +24,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
         public ICollection<ApplicationUser> GetAllUsers()
         {
-           return _userRepository.GetAll();
+            return _userRepository.GetAll();
         }
 
         public ApplicationUser GetUser(string userId)
@@ -30,30 +32,35 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             return _userRepository.Get(userId);
         }
 
-        public async void AssignRole(string roleId, string userId)
-        {
+        public void AssignRole(string roleId, string userId)
+        {            
             ApplicationUser user = _userRepository.Get(userId);
 
             IdentityRole role = _userRepository.GetRole(roleId);
+            string CurrentRoleName;
 
-            string roleName = role.Name;
-
-            ICollection<string> roleUser = await _userManager.GetRolesAsync(user);
-
-            
-
-            if (roleUser.Count == 0)
+            if (role == null)
             {
-                await _userManager.AddToRoleAsync(user, roleName);
-
-                _userRepository.SaveChangesAsync();
-
+                throw new Exception("No roles selected");
             }
             else
             {
-                await _userManager.RemoveFromRoleAsync(user, roleUser.First());
+                CurrentRoleName = role.Name;
 
-                await _userManager.AddToRoleAsync(user, roleName);
+                if (_userRepository.IsInAnyRole(user.Id) == false)
+                {
+                    _userManager.AddToRoleAsync(user, CurrentRoleName);
+                }
+                else
+                {
+                    IdentityUserRole<string> roleUser = _userRepository.GetUsersRole(user.Id);
+
+                    IdentityRole roleToChange = _userRepository.GetRole(roleUser.RoleId);
+
+                    string roleNameToChange = roleToChange.Name;
+
+                    _userRepository.UpdateUserRole(user, roleNameToChange, CurrentRoleName);
+                }
             }
         }
 

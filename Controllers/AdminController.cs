@@ -20,7 +20,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         public AdminController(IUserRepository userRepository, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roles)
         {
             _userManager = userManager;
-            _adminBusinessLogic = new AdminBusinessLogic(userManager, userRepository);
+            _adminBusinessLogic = new AdminBusinessLogic(userRepository, userManager);
             _roleManager = roles;
         }
 
@@ -72,7 +72,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             {
                 _adminBusinessLogic.AssignRole(vm.RoleId, vm.UserId);
 
-                return RedirectToAction("Index", "Admin", new { area = "" });
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
