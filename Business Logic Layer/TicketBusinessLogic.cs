@@ -71,5 +71,62 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
                 }
             }
         }
+
+        public Ticket DeleteTicket(int? id)
+        {
+            if (id == null )
+            {
+                throw new Exception("Ticket not found");
+            }
+            else
+            {
+                Ticket? ticket = _ticketRepository.Get(id);
+
+                if (ticket == null)
+                {
+                    throw new Exception("Ticket not found");
+                }
+                else
+                {
+                    return ticket;
+                }
+
+                
+            }            
+        }
+
+        public void ConfirmDeleteTicket(int ticketId, int ProjectId)
+        {
+            if(ticketId == null)
+            {
+                throw new Exception("Ticket not found");
+            }
+            else
+            {
+                Ticket? ticket = _ticketRepository.Get(ticketId);
+
+                if (ticket == null)
+                {
+                    throw new Exception("Ticket not found");
+                }
+                else
+                {
+                    Project? projectWithTicket = _projectRepository.Get(ProjectId);
+
+                    if(projectWithTicket == null)
+                    {
+                        throw new Exception("Project not found");
+                    }
+                    else
+                    {
+                        projectWithTicket.Tickets.Remove(ticket);
+
+                        _ticketRepository.Delete(ticket);
+                    }
+                }
+
+            }
+            
+        }
     }
 }

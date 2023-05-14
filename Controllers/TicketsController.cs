@@ -358,45 +358,37 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         }
 
 
-        // GET: Tickets/Delete/5
+        
         [Authorize(Roles = "ProjectManager")]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Tickets == null)
+            try
             {
-                return NotFound();
+                return View(_ticketBusinessLogic.DeleteTicket(id););
             }
-
-            var ticket = await _context.Tickets.Include(t => t.Project)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (ticket == null)
+            catch(Exception ex)
             {
-                return NotFound();
+                return RedirectToAction("Error", "Home");
             }
-
-            return View(ticket);
         }
 
-        // POST: Tickets/Delete/5
+        
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "ProjectManager")]
-        public async Task<IActionResult> DeleteConfirmed(int id, int projId)
+        public async Task<IActionResult> DeleteConfirmed(int id, int projectId)
         {
-            if (_context.Tickets == null)
+            try
             {
-                return Problem("Entity set 'ApplicationDbContext.Tickets'  is null.");
+                _ticketBusinessLogic.ConfirmDeleteTicket(id, projectId);
+                return RedirectToAction("Index", "Projects");
             }
-            var ticket = await _context.Tickets.Include(t => t.Project).FirstAsync(p => p.Id == id);
-            Project currProj = await _context.Projects.FirstAsync(p => p.Id.Equals(projId));
-            if (ticket != null)
+            catch (Exception ex)
             {
-                currProj.Tickets.Remove(ticket);
-                _context.Tickets.Remove(ticket);
+                return RedirectToAction("Error", "Home");
             }
+
             
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Index", "Projects");
         }
 
         private bool TicketExists(int id)
