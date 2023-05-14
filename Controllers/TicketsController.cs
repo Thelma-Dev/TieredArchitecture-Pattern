@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer;
 using SD_340_W22SD_Final_Project_Group6.Data;
 using SD_340_W22SD_Final_Project_Group6.Models;
 using SD_340_W22SD_Final_Project_Group6.Models.ViewModel;
@@ -16,10 +18,21 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
     public class TicketsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ProjectBusinessLogic _projectBusinessLogic;
+        private readonly IRepository<Project> _projectRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IRepository<Ticket> _ticketRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly TicketBusinessLogic _ticketBusinessLogic;
 
-        public TicketsController(ApplicationDbContext context)
+        public TicketsController(ApplicationDbContext context, IRepository<Project> projectRepository, IRepository<Ticket> ticketRepository, IUserRepository userRepository, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _projectRepository = projectRepository;
+            _ticketRepository = ticketRepository;
+            _userRepository = userRepository;
+            _ticketBusinessLogic = new TicketBusinessLogic(userManager, projectRepository, userRepository, ticketRepository);
         }
 
 
@@ -167,9 +180,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             return RedirectToAction("Edit", new { id = ticketId });
         }
 
-        // POST: Tickets/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "ProjectManager")]
@@ -317,44 +328,33 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 
         public async Task<IActionResult> MarkAsCompleted(int id)
         {
-            if (id != null)
+            
+            try
             {
-                try
-                {
-                    Ticket ticket = _context.Tickets.FirstOrDefault(t => t.Id == id);
-                    ticket.Completed = true;
+                _ticketBusinessLogic.MarkASCompleted(id);
 
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction("Details", new { id });
+                return RedirectToAction("Details", new { id });
 
-                }
-                catch (Exception ex)
-                {
-                    return RedirectToAction("Error", "Home");
-                }
             }
-            return RedirectToAction("Index");
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home");
+            }
         }
 
         public async Task<IActionResult> UnMarkAsCompleted(int id)
         {
-            if (id != null)
+            try
             {
-                try
-                {
-                    Ticket ticket = _context.Tickets.FirstOrDefault(t => t.Id == id);
-                    ticket.Completed = false;
+                _ticketBusinessLogic.MarkASCompleted(id);
 
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction("Details", new { id });
+                return RedirectToAction("Details", new { id });
 
-                }
-                catch (Exception ex)
-                {
-                    return RedirectToAction("Error", "Home");
-                }
             }
-            return RedirectToAction("Index");
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home");
+            }
         }
 
 
