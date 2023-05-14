@@ -1,51 +1,53 @@
-﻿@model SD_340_W22SD_Final_Project_Group6.Models.Project
+﻿@model SD_340_W22SD_Final_Project_Group6.Models.ViewModel.EditProjectVm
 
 @{
     ViewData["Title"] = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Edit</h1>
+<h1>Edit Project</h1>
 
-<h4>Project</h4>
+
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ProjectId" />
             <div class="form-group">
                 <label asp-for="ProjectName" class="control-label"></label>
                 <input asp-for="ProjectName" class="form-control" />
                 <span asp-validation-for="ProjectName" class="text-danger"></span>
             </div>
             <table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.AssignedTo)
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model.AssignedTo) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.UserName)
-            </td>
-            <td>
-                <a asp-action="RemoveAssignedUser" asp-controller="Projects" asp-route-id="@item.User.Id" asp-route-projId="@Model.Id">Remove</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
-                <div class="form-group">
-                    <input type="hidden" value=@Model.Id name="ticketId" />
-                    <label asp-for="AssignedTo" class="control-label">Select Users:</label>
-                    <select name="userIds" asp-for="AssignedTo" asp-items=@ViewBag.Users></select>
-                    <span asp-validation-for="AssignedTo" class="text-danger"></span>
-                </div>
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Project.AssignedTo)
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Project.AssignedTo) {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.User.UserName)
+                            </td>
+                            <td>
+                                <a asp-action="RemoveAssignedUser" asp-controller="Projects" asp-route-userid="@item.User.Id" asp-route-projectid="@Model.Project.Id">Remove</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div class="form-group">
+                <input type="hidden" value=@Model.Project.Id name="ticketId" />
+                <label asp-for="AssignedUserId" class="control-label"></label>
+                <br />
+                <select asp-for="AssignedUserId" asp-items="Model.AllDevelopers" class="mt-2" style="border-radius: 5px; width:180px; height: 46px; padding: 5px">
+                    <option value="" hidden disabled selected>Select a User</option>
+                </select>
+            </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>

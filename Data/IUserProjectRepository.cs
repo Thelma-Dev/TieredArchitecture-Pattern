@@ -11,5 +11,9 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
         List<UserProject> GetProjects(int projectId);
 
         void CreateUserProject(UserProject userProject);
+
+        void UpdateUserProject(UserProject userProject);
+
+        UserProject GetProject(int projectId);
     }
 }

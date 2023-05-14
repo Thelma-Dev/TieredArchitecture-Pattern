@@ -212,14 +212,13 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             
         }
 
-
         
         [Authorize(Roles = "ProjectManager")]
         public async Task<IActionResult> Create()
         {
-            List<ApplicationUser> allUsers = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync("Developer");
+            List<ApplicationUser> allDevelopers = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync("Developer");
 
-            CreateProjectVm vm = new CreateProjectVm(allUsers);
+            CreateProjectVm vm = new CreateProjectVm(allDevelopers);
 
             return View(vm);
         }
@@ -241,6 +240,8 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                 }
                 else
                 {
+                    vm.PopulateLists((List<ApplicationUser>)await _userManager.GetUsersInRoleAsync("Developer"));
+
                     return View(vm);
                 }
                 
@@ -257,30 +258,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         [Authorize(Roles = "ProjectManager")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Projects == null)
-            {
-                return NotFound();
-            }
-
-            var project = await _context.Projects.Include(p => p.AssignedTo).FirstAsync(p => p.Id == id);
-
-            if (project == null)
-            {
-                return NotFound();
-            }
-
-            List<ApplicationUser> results = _context.Users.ToList();
-
-            List<SelectListItem> currUsers = new List<SelectListItem>();
-
-            results.ForEach(r =>
-            {
-                currUsers.Add(new SelectListItem(r.UserName, r.Id.ToString()));
-            });
-
-            ViewBag.Users = currUsers;
-
-            return View(project);
+               return View(_projectBusinessLogic.EditProject(id));
         }
 
         
@@ -289,43 +267,20 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "ProjectManager")]
-        public async Task<IActionResult> Edit(int id, List<string> userIds, [Bind("Id,ProjectName")] Project project)
+        public async Task<IActionResult> Edit([Bind("ProjectId,ProjectName,AssignedUserId")] EditProjectVm vm)
         {
-            if (id != project.Id)
+            try
+            {            
+                _projectBusinessLogic.UpdateProject(vm);
+                
+                 return View("Index");
+            }
+            catch(Exception ex)
             {
-                return NotFound();
+                return Problem(ex.Message);
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    userIds.ForEach((user) =>
-                    {
-                        ApplicationUser currUser = _context.Users.FirstOrDefault(u => u.Id == user);
-                        UserProject newUserProj = new UserProject();
-                        newUserProj.User = currUser;
-                        newUserProj.UserId = currUser.Id;
-                        newUserProj.Project = project;
-                        project.AssignedTo.Add(newUserProj);
-                    });
-                    _context.Update(project);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProjectExists(project.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Edit), new { id = id });
-            }
-            return View(project);
+            
         }
 
         // GET: Projects/Delete/5

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Security.Claims;
 using System.Web.Mvc;
+using Microsoft.CodeAnalysis.Differencing;
 
 namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 {
@@ -143,6 +144,81 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             {
                 throw new Exception("Error Creating Project");
             }
+        }
+
+        public EditProjectVm EditProject(int? id)
+        {
+            if (id == null)
+            {
+                throw new Exception("Project not found");
+            }
+            else
+            {
+                Project project = _projectRepository.Get(id);
+
+                if(project == null)
+                {
+                    throw new Exception("Project not found");
+                }
+                else
+                {
+                    List<UserProject> usersProjects = _userProjectRepository.GetProjects(project.Id);
+
+                    List<ApplicationUser> allUsers = _userRepository.GetAll().ToList();
+
+                    EditProjectVm vm = new EditProjectVm(allUsers);
+                    vm.Project = project;
+                    vm.ProjectId = project.Id;
+
+                    return vm;
+                }
+            }
+            
+        }
+
+        public void UpdateProject(EditProjectVm vm)
+        {
+
+            Project project = _projectRepository.Get(vm.ProjectId);
+
+            if(project == null )
+            {
+                throw new Exception("Project not found");
+            }
+            else
+            {
+                ApplicationUser developer = _userRepository.Get(vm.AssignedUserId);
+
+                UserProject? OldUserProject = _userProjectRepository.GetProject(project.Id);
+
+                if (OldUserProject == null)
+                {
+                    project.ProjectName = vm.ProjectName;
+                    _projectRepository.Update(project);
+
+                    UserProject newUserProject = new UserProject();
+                    newUserProject.ProjectId = project.Id;
+                    newUserProject.Project = project;
+                    newUserProject.User = developer;
+                    newUserProject.UserId = developer.Id;
+
+                    project.AssignedTo.Add(newUserProject);
+                    _userProjectRepository.CreateUserProject(newUserProject);
+                }
+                else
+                {
+                    project.ProjectName = vm.ProjectName;
+                    _projectRepository.Update(project);
+
+
+                    OldUserProject.User = developer;
+                    OldUserProject.UserId = developer.Id;
+                    OldUserProject.Project = project;
+                    OldUserProject.ProjectId = project.Id;
+
+                    _userProjectRepository.UpdateUserProject(OldUserProject);
+                }                
+            }    
         }
 
         public void  RemoveAssignedUser(string userId, int projectId)
