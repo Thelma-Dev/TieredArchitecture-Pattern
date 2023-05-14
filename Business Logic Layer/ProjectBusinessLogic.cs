@@ -189,6 +189,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             {
                 ApplicationUser developer = _userRepository.Get(vm.AssignedUserId);
 
+                // The code below throws an error
                 UserProject? OldUserProject = _userProjectRepository.GetProject(project.Id);
 
                 if (OldUserProject == null)
