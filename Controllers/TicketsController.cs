@@ -6,11 +6,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer;
 using SD_340_W22SD_Final_Project_Group6.Data;
 using SD_340_W22SD_Final_Project_Group6.Models;
 using SD_340_W22SD_Final_Project_Group6.Models.ViewModel;
+using Project = SD_340_W22SD_Final_Project_Group6.Models.Project;
 
 namespace SD_340_W22SD_Final_Project_Group6.Controllers
 {
@@ -25,13 +27,15 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         private readonly IRepository<Ticket> _ticketRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly TicketBusinessLogic _ticketBusinessLogic;
+        private readonly IUserProjectRepository _userProjectRepository;
 
-        public TicketsController(ApplicationDbContext context, IRepository<Project> projectRepository, IRepository<Ticket> ticketRepository, IUserRepository userRepository, UserManager<ApplicationUser> userManager)
+        public TicketsController(ApplicationDbContext context, IRepository<Project> projectRepository, IRepository<Ticket> ticketRepository, IUserRepository userRepository, UserManager<ApplicationUser> userManager, IUserProjectRepository userProjectRepository)
         {
             _context = context;
             _projectRepository = projectRepository;
             _ticketRepository = ticketRepository;
             _userRepository = userRepository;
+            _userProjectRepository = userProjectRepository;
             _ticketBusinessLogic = new TicketBusinessLogic(userManager, projectRepository, userRepository, ticketRepository);
         }
 
@@ -86,23 +90,26 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
        
 
         [Authorize(Roles = "ProjectManager")]
-        public IActionResult Create(int projId)
+        public IActionResult Create(int projectId)
         {
-            Project currProject = _context.Projects
-                .Include(p => p.AssignedTo).ThenInclude(at => at.User)
-                .FirstOrDefault(p => p.Id == projId);
-
-            List<SelectListItem> currUsers = new List<SelectListItem>();
-
-            currProject.AssignedTo.ToList().ForEach(t =>
+            try
             {
-                currUsers.Add(new SelectListItem(t.User.UserName, t.User.Id.ToString()));
-            });
+                Project CurrentProject = _projectRepository.Get(projectId);
 
-            ViewBag.Projects = currProject;
-            ViewBag.Users = currUsers;
+                UserProject userProject = _userProjectRepository.GetProject(projectId);
 
-            return View();
+                List<ApplicationUser> DevelopersAssignedToProject = _userProjectRepository.GetUsersAssignedToProject(CurrentProject);
+
+
+                CreateTicketVm vm = new CreateTicketVm(DevelopersAssignedToProject);
+
+                return View(vm);
+            }
+            catch(Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+            
 
         }
 
@@ -111,27 +118,22 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "ProjectManager")]
-        public async Task<IActionResult> Create([Bind("Id,Title,Body,RequiredHours,TicketPriority")] Ticket ticket, int projId, string userId)
+        public async Task<IActionResult> Create([Bind("Id,Title,Body,RequiredHours,TicketPriority,OwnerId")] CreateTicketVm vm)
         {
             if (ModelState.IsValid)
-            { 
-                ticket.Project = await _context.Projects.FirstAsync(p => p.Id == projId);
+            {
+                _ticketBusinessLogic.CreateTicket(vm);
 
-                Project currProj = await _context.Projects.FirstOrDefaultAsync(p => p.Id == projId);
-
-                ApplicationUser owner = _context.Users.FirstOrDefault(u => u.Id == userId);
-
-
-                ticket.Owner = owner;
-                _context.Add(ticket);
-                currProj.Tickets.Add(ticket);
-
-                await _context.SaveChangesAsync();
                 return RedirectToAction("Index","Projects", new { area = ""});
             }
             else
             {
-                return View(ticket);
+				
+				List<ApplicationUser> DevelopersAssignedToProject = _userProjectRepository.GetUsersAssignedToProject(vm.Project);
+
+				CreateTicketVm newVm = new CreateTicketVm(DevelopersAssignedToProject);
+
+				return View(newVm);
             }
             
         }

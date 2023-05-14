@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using SD_340_W22SD_Final_Project_Group6.Data;
 using SD_340_W22SD_Final_Project_Group6.Models;
+using SD_340_W22SD_Final_Project_Group6.Models.ViewModel;
+using System.Web.Mvc;
+using Project = SD_340_W22SD_Final_Project_Group6.Models.Project;
 
 namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 {
@@ -20,6 +24,35 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             _projectRepository = projectRepository;
             _userRepository = userRepository;
             _ticketRepository = ticketRepository;
+        }
+
+        public void CreateTicket(CreateTicketVm vm)
+        {
+            Project CurrentProject = _projectRepository.Get(vm.Project.Id);
+
+            if (CurrentProject == null)
+            {
+                throw new Exception("Project not found");
+            }
+            else
+            {
+
+                ApplicationUser owner = _userRepository.Get(vm.OwnerId);
+
+                Ticket newTicket = new Ticket();
+
+                newTicket.Title = vm.Title;
+                newTicket.Body = vm.Body;
+                newTicket.RequiredHours = vm.RequiredHours;
+                newTicket.Project = vm.Project;
+                newTicket.TicketPriority = vm.TicketPriority;
+                newTicket.Owner = owner;
+                newTicket.Completed = false;
+
+                _ticketRepository.Create(newTicket);
+                CurrentProject.Tickets.Add(newTicket);
+                _userProjectRepository.SaveChangesToDatabase();
+            }           
         }
 
         public void MarkASCompleted(int id)

@@ -26,6 +26,11 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
             return _context.UserProjects.Where(up => up.ProjectId == projectId).ToList();
         }
 
+        public List<ApplicationUser> GetUsersAssignedToProject(Project project)
+        {
+            return _context.UserProjects.Where(up => up.ProjectId == project.Id).Select(up => up.User).ToList();
+        }
+
         public void RemoveUserProject(UserProject userProject)
         {
             _context.UserProjects.Remove(userProject);
@@ -41,6 +46,11 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
         public void UpdateUserProject(UserProject userProject)
         {
             _context.UserProjects.Update(userProject);
+            _context.SaveChanges();
+        }
+
+        public void SaveChangesToDatabase()
+        {
             _context.SaveChanges();
         }
     }
