@@ -38,18 +38,18 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         }
 
 
-        // GET: Projects
+        
         [Authorize]
         public async Task<IActionResult> Index(string? sortOrder, int? page, bool? sort, string? userId)
         {
-            List<Project> SortedProjs = new List<Project>();
+            List<Project> SortedProjects = new List<Project>();
 
-            List<ApplicationUser> allUsers = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync("Developer");
+            List<ApplicationUser> AllUsers = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync("Developer");
 
             List<SelectListItem> users = new List<SelectListItem>();
 
 
-            allUsers.ForEach(au =>
+            AllUsers.ForEach(au =>
             {
                 users.Add(new SelectListItem(au.UserName, au.Id.ToString()));
             });
@@ -63,7 +63,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                 case "Priority":
                     if (sort == true)
                     {
-                        SortedProjs =
+                        SortedProjects =
                         await _context.Projects
                         .Include(p => p.CreatedBy)
                         .Include(p => p.AssignedTo)
@@ -74,7 +74,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                     }
                     else
                     {
-                        SortedProjs =
+                        SortedProjects =
                         await _context.Projects
                         .Include(p => p.CreatedBy)
                         .Include(p => p.AssignedTo)
@@ -88,7 +88,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                 case "RequiredHrs":
                     if (sort == true)
                     {
-                        SortedProjs =
+                        SortedProjects =
                         await _context.Projects
                         .Include(p => p.CreatedBy)
                         .Include(p => p.AssignedTo)
@@ -99,7 +99,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                     }
                     else
                     {
-                        SortedProjs =
+                        SortedProjects =
                         await _context.Projects
                         .Include(p => p.CreatedBy)
                         .Include(p => p.AssignedTo)
@@ -111,7 +111,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 
                     break;
                 case "Completed":
-                    SortedProjs =
+                    SortedProjects =
                         await _context.Projects
                         .Include(p => p.CreatedBy)
                         .Include(p => p.AssignedTo)
@@ -123,7 +123,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                 default:
                     if (userId != null)
                     {
-                        SortedProjs =
+                        SortedProjects =
                         await _context.Projects
                         .OrderBy(p => p.ProjectName)
                         .Include(p => p.CreatedBy)
@@ -136,7 +136,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                     }
                     else
                     {
-                        SortedProjs =
+                        SortedProjects =
                         await _context.Projects
                         .OrderBy(p => p.ProjectName)
                         .Include(p => p.CreatedBy)
@@ -164,7 +164,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 
             if (rolenames.Contains("Developer"))
             {
-                AssinedProject = SortedProjs
+                AssinedProject = SortedProjects
                     .Where(p => p.AssignedTo
                     .Select(projectUser => projectUser.UserId)
                     .Contains(user.Id))
@@ -172,7 +172,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             }
             else
             {
-                AssinedProject = SortedProjs;
+                AssinedProject = SortedProjects;
             }
 
             X.PagedList.IPagedList<Project> projList = AssinedProject.ToPagedList(page ?? 1, 3);
@@ -180,9 +180,37 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             return View(projList);
         }
 
+		public async Task<IActionResult> Read(string? sortOrder, int? page, bool? sort, string? userId)
+        {
+            try
+            {
+				List<ApplicationUser> AllUsers = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync("Developer");
 
-        // GET: Projects/Details/5
-        public async Task<IActionResult> Details(int id)
+				List<SelectListItem> users = new List<SelectListItem>();
+
+
+				AllUsers.ForEach(au =>
+				{
+					users.Add(new SelectListItem(au.UserName, au.Id.ToString()));
+				});
+
+
+				ViewBag.Users = users;
+
+                return View(_projectBusinessLogic.Read(sortOrder, page, sort, userId));
+			}
+            catch(Exception ex)
+            {
+                return BadRequest();
+            }
+			
+
+
+		}
+
+
+		// GET: Projects/Details/5
+		public async Task<IActionResult> Details(int id)
         {
             try
             {

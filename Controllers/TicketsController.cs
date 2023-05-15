@@ -36,7 +36,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             _ticketRepository = ticketRepository;
             _userRepository = userRepository;
             _userProjectRepository = userProjectRepository;
-            _ticketBusinessLogic = new TicketBusinessLogic(userManager, projectRepository, userRepository, ticketRepository, httpContextAccessor, ticketWatcherRepository);
+            _ticketBusinessLogic = new TicketBusinessLogic(userManager, projectRepository, userRepository, ticketRepository, httpContextAccessor, ticketWatcherRepository, userProjectRepository);
         }
 
 
@@ -74,8 +74,12 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 
                 List<ApplicationUser> DevelopersAssignedToProject = _userProjectRepository.GetUsersAssignedToProject(CurrentProject);
 
+                ViewBag.Project = CurrentProject.ProjectName;
+                ViewBag.ProjectId = CurrentProject.Id;
 
                 CreateTicketVm vm = new CreateTicketVm(DevelopersAssignedToProject);
+                vm.Project = CurrentProject;
+                vm.ProjectId = CurrentProject.Id;
 
                 return View(vm);
             }
@@ -92,7 +96,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "ProjectManager")]
-        public async Task<IActionResult> Create([Bind("Id,Title,Body,RequiredHours,TicketPriority,OwnerId")] CreateTicketVm vm)
+        public async Task<IActionResult> Create([Bind("Id,Title,Body,RequiredHours,TicketPriority,OwnerId,ProjectId")] CreateTicketVm vm)
         {
             if (ModelState.IsValid)
             {
@@ -138,7 +142,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                 {
                     _ticketBusinessLogic.UpdateTicket(vm);
 
-                    return View("Index");
+                    return RedirectToAction("Index", "Projects");
                 }
                 else
                 {
@@ -307,7 +311,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         {
             try
             {
-                return View(_ticketBusinessLogic.DeleteTicket(id););
+                return View(_ticketBusinessLogic.DeleteTicket(id));
             }
             catch(Exception ex)
             {

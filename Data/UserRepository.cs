@@ -51,6 +51,11 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
             return _context.UserRoles.First(ur => ur.UserId == userId);
         }
 
+        public string GetUserRole(string userId)
+        {
+            return _context.UserRoles.First(ur => ur.UserId == userId).RoleId;
+        }
+
         public bool IsInAnyRole(string userId)
         {
             return _context.UserRoles.Any(ur => ur.UserId == userId);

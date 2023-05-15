@@ -23,7 +23,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRepository<TicketWatcher> _ticketWatcherRepository;
 
-        public TicketBusinessLogic(UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository, IHttpContextAccessor httpContextAccessor, IRepository<TicketWatcher> ticketWatcherRepository)
+        public TicketBusinessLogic(UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository, IHttpContextAccessor httpContextAccessor, IRepository<TicketWatcher> ticketWatcherRepository, IUserProjectRepository userProjectRepository)
         {
             _userManager = userManager;
             _projectRepository = projectRepository;
@@ -31,6 +31,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             _ticketRepository = ticketRepository;
             _httpContextAccessor = httpContextAccessor;
             _ticketWatcherRepository = ticketWatcherRepository;
+            _userProjectRepository = userProjectRepository;
         }
 
         public List<Ticket> Read()
@@ -66,12 +67,29 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
                 }
                 else
                 {
-                    Project ticketProject = ticket.Project;
+                    // Including related project and Application User tables
+                    List<Project> allProjects = _projectRepository.GetAll().ToList();
+
+                    List<ApplicationUser> allUsers = _userRepository.GetAll().ToList();
+
+
                     TicketWatcher ticketWatcher = ticket.TicketWatchers.FirstOrDefault(tw => tw.TicketId == ticket.Id);
-                    ApplicationUser watcher = ticketWatcher.Watcher;
-                    ApplicationUser TicketOwber = ticket.Owner;
-                    Comment TicketComments = ticket.Comments.FirstOrDefault(c => c.TicketId == ticket.Id);
-                    ApplicationUser TicketCommenter = TicketComments.User;
+
+                    if (ticketWatcher != null)
+                    {
+						ApplicationUser watcher = ticketWatcher.Watcher;
+					}
+                    else
+                    {
+						ApplicationUser TicketOwner = ticket.Owner;
+						Comment TicketComments = ticket.Comments.FirstOrDefault(c => c.TicketId == ticket.Id);
+
+                        if (TicketComments != null)
+                        {
+							ApplicationUser TicketCommenter = TicketComments.User;
+						}
+						
+					}
 
                     return ticket;
                 }
@@ -80,7 +98,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
         public void CreateTicket(CreateTicketVm vm)
         {
-            Project CurrentProject = _projectRepository.Get(vm.Project.Id);
+            Project CurrentProject = _projectRepository.Get(vm.ProjectId);
 
             if (CurrentProject == null)
             {
@@ -96,10 +114,10 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
                 newTicket.Title = vm.Title;
                 newTicket.Body = vm.Body;
                 newTicket.RequiredHours = vm.RequiredHours;
-                newTicket.Project = vm.Project;
+                newTicket.Project = CurrentProject;
                 newTicket.TicketPriority = vm.TicketPriority;
                 newTicket.Owner = owner;
-                newTicket.Completed = false;
+                
 
                 _ticketRepository.Create(newTicket);
                 CurrentProject.Tickets.Add(newTicket);
@@ -117,6 +135,9 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             {
                 Ticket ticket = _ticketRepository.Get(id);
 
+               List<ApplicationUser> user = _userRepository.GetAll().ToList();
+                
+
                 if(ticket == null)
                 {
                     throw new Exception("Ticket not found");
@@ -130,6 +151,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
                     EditTicketVm vm = new EditTicketVm(DevelopersNotInTicket);
                     vm.Ticket = ticket;
                     vm.TicketId = ticket.Id;
+                    vm.Owner = owner;
 
                     return vm;
 

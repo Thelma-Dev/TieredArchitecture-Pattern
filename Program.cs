@@ -23,6 +23,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRepository<Project>, ProjectRepository>();
 builder.Services.AddScoped<IRepository<Ticket>, TicketRepository>();
 builder.Services.AddScoped<IUserProjectRepository, UserProjectRepository>();
+builder.Services.AddScoped<IRepository<TicketWatcher>, TicketWatchersRepository>();
 
 var app = builder.Build();
 

@@ -25,7 +25,9 @@ namespace SD_340_W22SD_Final_Project_Group6.Models.ViewModel
         public int RequiredHours { get; set; }
 
 
-        public string OwnerId { get; set; }
+		[DisplayName("Owner :")]
+		public string OwnerId { get; set; }
+
 
         [ForeignKey("ApplicationUser")]
         [DisplayName("Owner :")]

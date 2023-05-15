@@ -8,7 +8,8 @@
 
 <h1>Create Ticket</h1>
 
-<h4>Ticket for @ViewBag.Projects.ProjectName</h4>
+<h4>Ticket for @ViewBag.Project</h4>
+
 <hr />
 <div class="row">
 	<div>
@@ -34,9 +35,9 @@
 						<span asp-validation-for="RequiredHours" class="text-danger"></span>
 					</div>
 					<div class="form-group">
-						<label asp-for="Project" class="control-label"></label>
-						<input type="hidden" value="@ViewBag.Projects.Id" name="projectId" />
-						<p style="font-weight: bold; display: inline">@ViewBag.Projects.ProjectName</p>
+						<label asp-for="ProjectId" class="control-label"></label>
+						<input type="hidden" value="@ViewBag.ProjectId" name="projectId" />
+						<p style="font-weight: bold; display: inline">@ViewBag.Project</p>
 						<span asp-validation-for="Project" class="text-danger"></span>
 					</div>
 
