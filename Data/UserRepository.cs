@@ -46,7 +46,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
 
             await AddUserToRole(user, roleName);
             _context.SaveChanges();
-
+        }
         
         public IdentityUserRole<string> GetUsersRole(string userId)
         {
