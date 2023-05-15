@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 using SD_340_W22SD_Final_Project_Group6.Data;
 using SD_340_W22SD_Final_Project_Group6.Models;
 using SD_340_W22SD_Final_Project_Group6.Models.ViewModel;
@@ -15,7 +16,6 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         private readonly UserManager<ApplicationUser> _userManager;
         private IUserRepository _userRepository;
 
-        
         public AdminBusinessLogic(IUserRepository userRepository, UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
@@ -32,8 +32,8 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             return _userRepository.Get(userId);
         }
 
-        public void AssignRole(string roleId, string userId)
-        {            
+        public async Task AssignRole(string roleId, string userId)
+        {
             ApplicationUser user = _userRepository.Get(userId);
 
             IdentityRole role = _userRepository.GetRole(roleId);
@@ -49,7 +49,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
                 if (_userRepository.IsInAnyRole(user.Id) == false)
                 {
-                    _userManager.AddToRoleAsync(user, CurrentRoleName);
+                    await _userRepository.AddUserToRole(user, CurrentRoleName);
                 }
                 else
                 {
@@ -59,7 +59,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
                     string roleNameToChange = roleToChange.Name;
 
-                    _userRepository.UpdateUserRole(user, roleNameToChange, CurrentRoleName);
+                    await _userRepository.UpdateUserRole(user, roleNameToChange, CurrentRoleName);
                 }
             }
         }

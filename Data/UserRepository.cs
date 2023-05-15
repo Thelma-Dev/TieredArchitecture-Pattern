@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SD_340_W22SD_Final_Project_Group6.Models;
 
 namespace SD_340_W22SD_Final_Project_Group6.Data
@@ -17,10 +18,10 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
 
         public ApplicationUser? Get(string? id)
         {
-            return _context.Users.First( u => u.Id == id);
+            return _context.Users.First(u => u.Id == id);
 
         }
-       
+
         public ICollection<ApplicationUser> GetAll()
         {
             return _context.Users.ToHashSet<ApplicationUser>();
@@ -31,20 +32,22 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
             return _context.Roles.Find(id);
         }
 
-        private void AddUserToRole(ApplicationUser user, string roleName)
+
+        public async Task AddUserToRole(ApplicationUser user, string roleName)
         {
-            _userManager.AddToRoleAsync(user, roleName);
+            await _userManager.AddToRoleAsync(user, roleName);
             _context.SaveChanges();
-            
         }
 
-        public void UpdateUserRole(ApplicationUser user, string oldRole, string newRoleName)
+
+        public async Task UpdateUserRole(ApplicationUser user, string oldRole, string roleName)
         {
-           _userManager.RemoveFromRoleAsync(user, oldRole);
-            
-            AddUserToRole(user, newRoleName);
-        }
+            await _userManager.RemoveFromRoleAsync(user, oldRole);
 
+            await AddUserToRole(user, roleName);
+            _context.SaveChanges();
+
+        
         public IdentityUserRole<string> GetUsersRole(string userId)
         {
             return _context.UserRoles.First(ur => ur.UserId == userId);

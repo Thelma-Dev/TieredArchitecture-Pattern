@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using SD_340_W22SD_Final_Project_Group6.Models;
+using System.Runtime.CompilerServices;
 
 namespace SD_340_W22SD_Final_Project_Group6.Data
 {
@@ -11,9 +12,9 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
 
         IdentityRole GetRole(string? id);
 
-        void AddUserToRole(ApplicationUser user, string roleName);
+        Task AddUserToRole(ApplicationUser user, string roleName);
 
-        void UpdateUserRole(ApplicationUser user, string oldRole, string roleName);
+        Task UpdateUserRole(ApplicationUser user, string oldRole, string roleName);
 
         IdentityUserRole<string> GetUsersRole(string userId);
 

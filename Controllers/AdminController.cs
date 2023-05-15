@@ -70,7 +70,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 
             try
             {
-                _adminBusinessLogic.AssignRole(vm.RoleId, vm.UserId);
+               await _adminBusinessLogic.AssignRole(vm.RoleId, vm.UserId);
 
                 return RedirectToAction("Index");
             }
