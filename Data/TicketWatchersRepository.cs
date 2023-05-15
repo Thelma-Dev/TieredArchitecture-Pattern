@@ -32,7 +32,12 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
             return _context.TicketWatchers.ToList();
         }
 
-        public void Update(TicketWatcher entity)
+		public void SaveChanges()
+		{
+			_context.SaveChanges();
+		}
+
+		public void Update(TicketWatcher entity)
         {
             _context.TicketWatchers.Update(entity);
             _context.SaveChanges();

@@ -254,16 +254,24 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
         public Project DeleteProject(int id)
         {
-            Project project = _projectRepository.Get(id);
-
-            if (project == null)
+            if(id == null)
             {
                 throw new Exception("Project not found");
             }
             else
             {
-                return project;
-            }
+				Project project = _projectRepository.Get(id);
+
+				if (project == null)
+				{
+					throw new Exception("Project not found");
+				}
+				else
+				{
+					return project;
+				}
+			}
+            
         }
 
         public void ConfirmProjectDelete(int projectId)
@@ -334,6 +342,8 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
                 ApplicationUser developer = _userRepository.Get(vm.AssignedUserId);
 
+
+                // Iterate over a list of userId string and create a user project for each.
                 UserProject newUserProject = new UserProject();
 
                 newUserProject.User = developer;
@@ -393,6 +403,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             }
             else
             {
+                // Can we make the Vm.AssignedUserId a list of application user
                 ApplicationUser developer = _userRepository.Get(vm.AssignedUserId);
 
                 // The code below throws an error
@@ -430,25 +441,33 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
         public void  RemoveAssignedUser(string userId, int projectId)
         {
-            ApplicationUser user = _userRepository.Get(userId);
-
-            if (user == null)
+            if(userId == null)
             {
-                throw new Exception("User not found");
+                throw new Exception("No user found");
             }
             else
             {
-                UserProject currentUserProject = _userProjectRepository.GetUserProject(projectId, userId);
+				ApplicationUser user = _userRepository.Get(userId);
 
-                if (currentUserProject == null)
-                {
-                    throw new Exception("User Project not found");
-                }
-                else
-                {
-                    _userProjectRepository.RemoveUserProject(currentUserProject);
-                }
-            }
+				if (user == null)
+				{
+					throw new Exception("User not found");
+				}
+				else
+				{
+					UserProject currentUserProject = _userProjectRepository.GetUserProject(projectId, userId);
+
+					if (currentUserProject == null)
+					{
+						throw new Exception("User Project not found");
+					}
+					else
+					{
+						_userProjectRepository.RemoveUserProject(currentUserProject);
+					}
+				}
+			}
+            
            
         }
 

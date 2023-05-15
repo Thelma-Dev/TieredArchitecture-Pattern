@@ -26,7 +26,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
 
         public Project? Get(int? id)
         {
-            return _context.Projects.Find(id);
+            return _context.Projects.First(p => p.Id == id);
         }
 
 
@@ -35,7 +35,12 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
             return _context.Projects.ToHashSet();
         }
 
-        public void Update(Project entity)
+		public void SaveChanges()
+		{
+			_context.SaveChanges();
+		}
+
+		public void Update(Project entity)
         {
             _context.Projects.Update(entity);
             _context.SaveChanges();

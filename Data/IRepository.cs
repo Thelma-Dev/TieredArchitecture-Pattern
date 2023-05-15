@@ -12,5 +12,7 @@
 
         void Delete(T entity);
 
+        void SaveChanges();
+
     }
 }

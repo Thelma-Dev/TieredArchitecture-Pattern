@@ -55,7 +55,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         {
             if (id == null)
             {
-                throw new Exception("Ticket not found");
+                throw new ArgumentNullException("Ticket not found");
             }
             else
             {
@@ -129,7 +129,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         {
             if (id == null)
             {
-                throw new Exception("Ticket not found");
+                throw new ArgumentNullException("Ticket not found");
             }
             else
             {
@@ -184,7 +184,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         {
             if (id == null)
             {
-                throw new Exception("User not found");
+                throw new  ArgumentNullException("User not found");
             }
             else
             {
@@ -216,7 +216,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         {
             if (id == null)
             {
-                throw new Exception("Ticket not found");
+                throw new ArgumentNullException("Ticket not found");
                 
             }
             else
@@ -241,7 +241,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         {
             if (id == null)
             {
-                throw new Exception("Ticket not found");
+                throw new ArgumentNullException("Ticket not found");
 
             }
             else
@@ -281,6 +281,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
                 user.Comments.Add(newComment);
                 ticket.Comments.Add(newComment);
+                
                 //_context.comment.Add(newComment);
             }
             
@@ -351,6 +352,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
                     _ticketWatcherRepository.Delete(currentTicketWatcher);
                     ticket.TicketWatchers.Remove(currentTicketWatcher);
                     userLoggedIn.TicketWatching.Remove(currentTicketWatcher);
+                    _ticketWatcherRepository.SaveChanges();
 
                     // Save changes to the database
                 }
@@ -367,7 +369,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         {
             if (id == null )
             {
-                throw new Exception("Ticket not found");
+                throw new ArgumentNullException("Ticket not found");
             }
             else
             {
@@ -394,25 +396,25 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             }
             else
             {
-                Ticket? ticket = _ticketRepository.Get(ticketId);
+                Ticket? currentTicket = _ticketRepository.Get(ticketId);
 
-                if (ticket == null)
+                if (currentTicket == null)
                 {
                     throw new Exception("Ticket not found");
                 }
                 else
                 {
-                    Project? projectWithTicket = _projectRepository.Get(ProjectId);
+                    Project? projectWithCurrentTicket = _projectRepository.Get(ProjectId);
 
-                    if(projectWithTicket == null)
+                    if(projectWithCurrentTicket == null)
                     {
                         throw new Exception("Project not found");
                     }
                     else
                     {
-                        projectWithTicket.Tickets.Remove(ticket);
+                        projectWithCurrentTicket.Tickets.Remove(currentTicket);
 
-                        _ticketRepository.Delete(ticket);
+                        _ticketRepository.Delete(currentTicket);
                     }
                 }
 

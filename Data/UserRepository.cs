@@ -31,19 +31,18 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
             return _context.Roles.Find(id);
         }
 
-        public void AddUserToRole(ApplicationUser user, string roleName)
+        private void AddUserToRole(ApplicationUser user, string roleName)
         {
             _userManager.AddToRoleAsync(user, roleName);
             _context.SaveChanges();
             
         }
 
-        public void UpdateUserRole(ApplicationUser user, string oldRole, string roleName)
+        public void UpdateUserRole(ApplicationUser user, string oldRole, string newRoleName)
         {
            _userManager.RemoveFromRoleAsync(user, oldRole);
             
-            AddUserToRole(user, roleName);
-            _context.SaveChanges();
+            AddUserToRole(user, newRoleName);
         }
 
         public IdentityUserRole<string> GetUsersRole(string userId)

@@ -25,7 +25,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
 
         public Ticket? Get(int? id)
         {
-            return _context.Tickets.Find(id);
+            return _context.Tickets.First(t => t.Id ==  id);
         }
 
         public ICollection<Ticket> GetAll()
@@ -33,7 +33,12 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
             return _context.Tickets.ToHashSet();
         }
 
-        public void Update(Ticket entity)
+		public void SaveChanges()
+		{
+            _context.SaveChanges();
+		}
+
+		public void Update(Ticket entity)
         {
            _context.Tickets.Update(entity);
             _context.SaveChanges();
