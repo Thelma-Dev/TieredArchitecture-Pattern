@@ -85,7 +85,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					@foreach (var ticket in item.Tickets)
+					@foreach (Ticket ticket in item.Tickets)
 					{
 						<tr>
 							<td><a asp-action="Details" asp-controller="Tickets" asp-route-id="@ticket.Id">@ticket.Title</a></td>
@@ -130,5 +130,6 @@
 <div>
 	@Html.PagedListPager(Model, page => Url.Action("Index", new { page }), Bootstrap4PagedListRenderOptions.PageNumbersOnly)
 </div>
+
 
 

@@ -14,7 +14,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private IUserRepository _userRepository;
-        private ApplicationDbContext _context;
+
         
         public AdminBusinessLogic(IUserRepository userRepository, UserManager<ApplicationUser> userManager)
         {
