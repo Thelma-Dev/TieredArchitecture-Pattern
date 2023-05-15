@@ -32,11 +32,13 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
             return _context.Roles.Find(id);
         }
 
+
         public async Task AddUserToRole(ApplicationUser user, string roleName)
         {
             await _userManager.AddToRoleAsync(user, roleName);
             _context.SaveChanges();
         }
+
 
         public async Task UpdateUserRole(ApplicationUser user, string oldRole, string roleName)
         {
@@ -44,16 +46,22 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
 
             await AddUserToRole(user, roleName);
             _context.SaveChanges();
-        }
 
+        
         public IdentityUserRole<string> GetUsersRole(string userId)
         {
             return _context.UserRoles.First(ur => ur.UserId == userId);
+        }
+
+        public string GetUserRole(string userId)
+        {
+            return _context.UserRoles.First(ur => ur.UserId == userId).RoleId;
         }
 
         public bool IsInAnyRole(string userId)
         {
             return _context.UserRoles.Any(ur => ur.UserId == userId);
         }
+
     }
 }

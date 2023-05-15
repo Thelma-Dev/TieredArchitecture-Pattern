@@ -18,6 +18,9 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
 
         IdentityUserRole<string> GetUsersRole(string userId);
 
-        bool IsInAnyRole(string userId);
+        string GetUserRole(string userId);
+
+
+		bool IsInAnyRole(string userId);
     }
 }

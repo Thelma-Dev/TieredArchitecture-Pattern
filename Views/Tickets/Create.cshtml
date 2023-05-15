@@ -1,4 +1,4 @@
-﻿@model SD_340_W22SD_Final_Project_Group6.Models.Ticket
+﻿@model SD_340_W22SD_Final_Project_Group6.Models.ViewModel.CreateTicketVm
 
 
 @{
@@ -6,9 +6,10 @@
 	Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
+<h1>Create Ticket</h1>
 
-<h4>Ticket for @ViewBag.Projects.ProjectName</h4>
+<h4>Ticket for @ViewBag.Project</h4>
+
 <hr />
 <div class="row">
 	<div>
@@ -34,9 +35,9 @@
 						<span asp-validation-for="RequiredHours" class="text-danger"></span>
 					</div>
 					<div class="form-group">
-						<label asp-for="Project" class="control-label"></label>
-						<input type="hidden" value="@ViewBag.Projects.Id" name="projId" />
-						<p style="font-weight: bold; display: inline">@ViewBag.Projects.ProjectName</p>
+						<label asp-for="ProjectId" class="control-label"></label>
+						<input type="hidden" value="@ViewBag.ProjectId" name="projectId" />
+						<p style="font-weight: bold; display: inline">@ViewBag.Project</p>
 						<span asp-validation-for="Project" class="text-danger"></span>
 					</div>
 
@@ -48,10 +49,12 @@
 						<select asp-for="TicketPriority" asp-items="Html.GetEnumSelectList<Ticket.Priority>()"></select>
 						<span asp-validation-for="TicketPriority" class="text-danger"></span>
 					</div>
-					<div class="form-group">
-						<label asp-for="Owner" class="control-label"></label>
-						<select name="userId" asp-for="Owner" asp-items=@ViewBag.Users></select>
-						<span asp-validation-for="Owner" class="text-danger"></span>
+					<div class="form-group mt-4">
+						<label asp-for="OwnerId" class="control-label"></label>
+						<br />
+						<select asp-for="OwnerId" asp-items="Model.AllDevelopers" class="mt-2" style="border-radius: 5px; width:180px; height: 46px; padding: 5px">
+							<option value="" hidden disabled selected>Select a User</option>
+						</select>
 					</div>
 				</div>
 			</div>

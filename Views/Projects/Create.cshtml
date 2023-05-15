@@ -1,4 +1,4 @@
-﻿@model SD_340_W22SD_Final_Project_Group6.Models.Project
+﻿@model SD_340_W22SD_Final_Project_Group6.Models.ViewModel.CreateProjectVm
 
 
 
@@ -7,9 +7,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
-
-<h4>Project</h4>
+<h1>Create Project</h1>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -20,12 +18,15 @@
                 <input asp-for="ProjectName" class="form-control" />
                 <span asp-validation-for="ProjectName" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <p>Assigned User</p>
-				<label class="control-label"></label>
-                 <select name="userIds" asp-for="AssignedTo" asp-items=@ViewBag.Users></select>
-				<span class="text-danger"></span>
-			</div>
+
+            <div class="form-group mt-4">
+                <label asp-for="AssignedUserId" class="control-label"></label>
+                <br />
+                <select asp-for="AssignedUserId" asp-items="Model.AllUsers" class="mt-2" style="border-radius: 5px; width:180px; height: 46px; padding: 5px">
+                    <option value="" hidden disabled selected>Select a User</option>
+                </select>
+            </div>
+            
             <div class="form-group">
                 <input type="submit" value="Create" class="btn" style="background-color: #E4BCB9" />
             </div>
