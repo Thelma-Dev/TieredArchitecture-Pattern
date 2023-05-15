@@ -301,7 +301,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             {            
                 _projectBusinessLogic.UpdateProject(vm);
                 
-                 return View("Index");
+                  return RedirectToAction("Index");
             }
             catch(Exception ex)
             {

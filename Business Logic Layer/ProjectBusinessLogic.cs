@@ -423,19 +423,19 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
                     project.AssignedTo.Add(newUserProject);
                     _userProjectRepository.CreateUserProject(newUserProject);
                 }
-                else
-                {
-                    project.ProjectName = vm.ProjectName;
-                    _projectRepository.Update(project);
+                //else
+                //{
+                //    project.ProjectName = vm.ProjectName;
+                //    _projectRepository.Update(project);
 
 
-                    OldUserProject.User = developer;
-                    OldUserProject.UserId = developer.Id;
-                    OldUserProject.Project = project;
-                    OldUserProject.ProjectId = project.Id;
+                //    OldUserProject.User = developer;
+                //    OldUserProject.UserId = developer.Id;
+                //    OldUserProject.Project = project;
+                //    OldUserProject.ProjectId = project.Id;
 
-                    _userProjectRepository.UpdateUserProject(OldUserProject);
-                }                
+                //    _userProjectRepository.UpdateUserProject(OldUserProject);
+                //}                
             }    
         }
 
