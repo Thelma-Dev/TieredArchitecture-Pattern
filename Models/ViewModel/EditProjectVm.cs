@@ -14,25 +14,22 @@ namespace SD_340_W22SD_Final_Project_Group6.Models.ViewModel
 
         public int ProjectId { get; set; }
 
-        public Project Project { get; set; }
+        public Project? Project { get; set; }
 
         
         [DisplayName("Assign User :")]
-        public string AssignedUserId { get; set; }
+        public string? AssignedUserId { get; set; }
 
         public ApplicationUser? AssignedUser { get; set; }
 
+        public List<string> ProjectDevelopersId { get; set; } = new List<string>();
 
         public void PopulateLists(List<ApplicationUser> users)
         {
-            //users.ForEach(u =>
-            //{
-            //    AllDevelopers.Add(new SelectListItem(u.UserName, u.Id.ToString()));
-            //});
-            foreach (ApplicationUser u in users)
+            users.ForEach(u =>
             {
                 AllDevelopers.Add(new SelectListItem(u.UserName, u.Id.ToString()));
-            }
+            });
         }
 
 

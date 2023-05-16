@@ -20,6 +20,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
 
         string GetUserRole(string userId);
 
+        ApplicationUser GetUserByUserName(string userName);
 
 		bool IsInAnyRole(string userId);
     }

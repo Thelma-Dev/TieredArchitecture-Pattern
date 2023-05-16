@@ -243,13 +243,21 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             
         }
 
+
+
+        public CreateProjectVm ReturnCreateProjectVm(List<ApplicationUser> AllDevelopers)
+        {
+            CreateProjectVm vm = new CreateProjectVm(AllDevelopers);
+
+            return vm;
+        }
+
+
+        
         public async Task CreateProject(CreateProjectVm vm)
         {
-            List<ApplicationUser> allDevelopers = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync("Developer");
 
-            string userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            ApplicationUser user = _userRepository.Get(userId);
+            ApplicationUser user = _userRepository.GetUserByUserName(vm.LoggedInUsername);
 
             List<string> ProjectDevelopersId = vm.ProjectDevelopersId.ToList();
 
@@ -330,6 +338,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         {
 
             Project project = _projectRepository.Get(vm.ProjectId);
+            
 
             if(project == null )
             {
@@ -337,39 +346,57 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             }
             else
             {
-                // Can we make the Vm.AssignedUserId a list of application user
-                ApplicationUser developer = _userRepository.Get(vm.AssignedUserId);
+                List<string> ProjectDevelopersId = vm.ProjectDevelopersId.ToList();
 
-                // The code below throws an error
-                UserProject? OldUserProject = _userProjectRepository.GetProject(project.Id);
-
-                if (OldUserProject == null)
+                if (ProjectDevelopersId.Count == 0)
                 {
+                    List<string> DevelopersAlreadyInProject = GetUsersInProject(project.Id).ToList();
+
+                    if (DevelopersAlreadyInProject.Count > 0)
+                    {
+                        project.ProjectName = vm.ProjectName;
+                        _projectRepository.Update(project);
+                    }
+                }
+                else
+                {
+                    List<ApplicationUser> ProjectDevelopers = new List<ApplicationUser>();
+
+                    foreach (string pd in ProjectDevelopersId)
+                    {
+
+                        ApplicationUser developer = _userRepository.Get(pd);
+
+                        if (developer != null)
+                        {
+                            ProjectDevelopers.Add(developer);
+                        }
+                    }
+
+                    foreach (ApplicationUser dev in ProjectDevelopers)
+                    {
+                        UserProject newUserProject = new UserProject();
+
+                        newUserProject.User = dev;
+                        newUserProject.UserId = dev.Id;
+                        newUserProject.Project = project;
+                        newUserProject.ProjectId = project.Id;
+
+                        project.AssignedTo.Add(newUserProject);
+                        _userProjectRepository.CreateUserProject(newUserProject);
+                    }
+
                     project.ProjectName = vm.ProjectName;
                     _projectRepository.Update(project);
 
-                    UserProject newUserProject = new UserProject();
-                    newUserProject.ProjectId = project.Id;
-                    newUserProject.Project = project;
-                    newUserProject.User = developer;
-                    newUserProject.UserId = developer.Id;
 
-                    project.AssignedTo.Add(newUserProject);
-                    _userProjectRepository.CreateUserProject(newUserProject);
+                    // Repopulate the vm list incase of error
+                    List<ApplicationUser> allUsers = _userRepository.GetAll().ToList();
+                    vm.PopulateLists(allUsers);
+                    vm.Project = project;
+                    vm.ProjectId = project.Id;
                 }
-                //else
-                //{
-                //    project.ProjectName = vm.ProjectName;
-                //    _projectRepository.Update(project);
 
-
-                //    OldUserProject.User = developer;
-                //    OldUserProject.UserId = developer.Id;
-                //    OldUserProject.Project = project;
-                //    OldUserProject.ProjectId = project.Id;
-
-                //    _userProjectRepository.UpdateUserProject(OldUserProject);
-                //}                
             }    
         }
 
@@ -400,8 +427,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 						_userProjectRepository.RemoveUserProject(currentUserProject);
 					}
 				}
-			}
-            
+			}          
            
         }
 
@@ -418,6 +444,17 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
             return tickets;
         }
+
+        private List<string> GetUsersInProject(int projectId)
+        {
+            Project project = _projectRepository.Get(projectId);
+
+            List<string> DevelopersInProject = _userProjectRepository.GetAll().Where(up => up.ProjectId == project.Id).Select(up => up.UserId).ToList();
+
+            return DevelopersInProject.ToList();
+        }
+
+        
 
         
     }
