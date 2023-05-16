@@ -20,7 +20,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         public AdminController(IUserRepository userRepository, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roles)
         {
             _userManager = userManager;
-            _adminBusinessLogic = new AdminBusinessLogic(userRepository, userManager);
+            _adminBusinessLogic = new AdminBusinessLogic(userRepository);
             _roleManager = roles;
         }
 

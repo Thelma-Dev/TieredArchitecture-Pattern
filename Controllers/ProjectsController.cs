@@ -20,7 +20,6 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
     [Authorize(Roles = "ProjectManager, Developer")]
     public class ProjectsController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ProjectBusinessLogic _projectBusinessLogic;
         private readonly IUserProjectRepository _userProjectRepository;
@@ -30,9 +29,8 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRepository<TicketWatcher> _ticketWatcherRepository;
 
-        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository, IHttpContextAccessor httpContextAccessor, IRepository<TicketWatcher> ticketWatcherRepository)
+        public ProjectsController(UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository, IHttpContextAccessor httpContextAccessor, IRepository<TicketWatcher> ticketWatcherRepository)
         {
-            _context = context;
             _userManager = userManager;
             _projectBusinessLogic = new ProjectBusinessLogic(userManager, projectRepository, userProjectRepository, userRepository, ticketRepository, httpContextAccessor, ticketWatcherRepository);
             
@@ -170,7 +168,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             
         }
 
-        // GET: Projects/Delete/5
+        
         [Authorize(Roles = "ProjectManager")]
         public IActionResult Delete(int id)
         {
@@ -201,11 +199,6 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             {
                 return Problem(exe.Message);
             }
-        }
-
-        private bool ProjectExists(int id)
-        {
-            return (_context.Projects?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }
