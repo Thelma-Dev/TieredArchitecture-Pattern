@@ -11,6 +11,7 @@ using System.Security.Claims;
 using System.Web.Mvc;
 using Microsoft.CodeAnalysis.Differencing;
 using X.PagedList;
+using System.Collections.Immutable;
 
 namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 {
@@ -38,7 +39,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         public IPagedList<Project> Read(string? sortOrder, int? page, bool? sort, string? userId)
         {
             List<Project> SortedProjects = new List<Project>();
-			List<Project> Projects = _projectRepository.GetAll().ToList();
+            List<Project> Projects = _projectRepository.GetAll().ToList();
 			List<ApplicationUser> ProjectCreatedBy = _userRepository.GetAll().ToList();
 			List<UserProject> ProjectAssignedTo = _userProjectRepository.GetAll().ToList();
 			List<Ticket> ProjectTicket = _ticketRepository.GetAll().ToList();
@@ -49,68 +50,63 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
                 case "Priority":
                     if (sort == true)
                     {
-                        foreach(Project p in Projects)
-                        {
-                            p.Tickets.OrderByDescending(t => t.TicketPriority);
-                        }
+						Projects.ForEach(p =>
+						{
+							p.Tickets = p.Tickets.OrderByDescending(t => t.TicketPriority).ToList();
+						});
 
-                        SortedProjects = Projects.ToList();
-                        
-                    }
+					}
                     else
                     {
-						foreach (Project p in Projects)
+						Projects.ForEach(p =>
 						{
-							p.Tickets.OrderBy(t => t.TicketPriority);
-						}
-
-                        
-
-						SortedProjects = Projects.ToList();
+							p.Tickets = p.Tickets.OrderBy(t => t.TicketPriority).ToList();
+						});
 					}
 
                     break;
                 case "RequiredHrs":
                     if (sort == true)
                     {
-						foreach (Project p in Projects)
-						{
-							p.Tickets.OrderByDescending(t => t.RequiredHours);
-						}
-                        
-						SortedProjects = Projects.ToList();
-					}
+                        Projects.ForEach(p =>
+                        {
+                            p.Tickets = p.Tickets.OrderByDescending(t => t.RequiredHours).ToList();
+                        });
+
+
+                    }
                     else
                     {
-						foreach (Project p in Projects)
-						{
-							p.Tickets.OrderBy(t => t.RequiredHours);
-						}
-
-						SortedProjects = Projects.ToList();
-					}
+                        Projects.ForEach(p =>
+                        {
+                            p.Tickets = p.Tickets.OrderBy(t => t.RequiredHours).ToList();
+                        });
+                    }
 
                     break;
                 case "Completed":
 
-					foreach (Project p in Projects)
+					Projects.ForEach(p =>
 					{
-						p.Tickets.OrderByDescending(t => t.Completed == true);
-					}
-
-					SortedProjects = Projects.ToList();
+						p.Tickets = p.Tickets.OrderByDescending(t => t.Completed).ToList();
+					});
 					break;
                 default:
                     if (userId != null)
                     {
 						Projects.OrderBy(p => p.ProjectName).ToList();
 
-						foreach (Project p in Projects)
+						Projects.ForEach(p =>
 						{
-							p.Tickets.Where(t => t.Owner.Id == userId);
-						}
+							p.Tickets = p.Tickets.Where(t => t.Owner.Id == userId).ToList();
+						});
+
+						//foreach (Project p in Projects)
+						//{
+						//	p.Tickets.Where(t => t.Owner.Id == userId);
+						//}
                         
-						SortedProjects = Projects.ToList();
+						//SortedProjects = Projects.ToList();
 
 						
                     }
@@ -157,7 +153,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
                 AssinedProject = SortedProjects;
             }
 
-            X.PagedList.IPagedList<Project> projList = AssinedProject.ToPagedList(page ?? 1, 3);
+            X.PagedList.IPagedList<Project> projList = Projects.ToPagedList(page ?? 1, 3);
 
             return projList;
         }
@@ -248,6 +244,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         }
 
 
+
         public CreateProjectVm ReturnCreateProjectVm(List<ApplicationUser> AllDevelopers)
         {
             CreateProjectVm vm = new CreateProjectVm(AllDevelopers);
@@ -256,6 +253,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         }
 
 
+        
         public async Task CreateProject(CreateProjectVm vm)
         {
 

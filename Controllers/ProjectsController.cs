@@ -41,29 +41,30 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         {
             try
             {
-				List<ApplicationUser> AllUsers = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync("Developer");
+                List<ApplicationUser> AllUsers = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync("Developer");
 
-				List<SelectListItem> users = new List<SelectListItem>();
-
-
-				AllUsers.ForEach(au =>
-				{
-					users.Add(new SelectListItem(au.UserName, au.Id.ToString()));
-				});
+                List<SelectListItem> users = new List<SelectListItem>();
 
 
-				ViewBag.Users = users;
+                AllUsers.ForEach(au =>
+                {
+                    users.Add(new SelectListItem(au.UserName, au.Id.ToString()));
+                });
+
+
+                ViewBag.Users = users;
+
 
                 return View(_projectBusinessLogic.Read(sortOrder, page, sort, userId));
-			}
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest();
             }
-			
 
 
-		}
+
+        }
 
 
 		
@@ -101,9 +102,12 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         [Authorize(Roles = "ProjectManager")]
         public async Task<IActionResult> Create()
         {
+
             List<ApplicationUser> allDevelopers = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync("Developer");
 
             return View(_projectBusinessLogic.ReturnCreateProjectVm(allDevelopers));
+
+            
         }
 
         
