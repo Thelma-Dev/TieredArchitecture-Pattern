@@ -22,8 +22,9 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         private IUserRepository _userRepository;
         private IRepository<Ticket> _ticketRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IRepository<TicketWatcher> _ticketWatcherRepository;
 
-        public ProjectBusinessLogic(UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository, IHttpContextAccessor httpContextAccessor)
+        public ProjectBusinessLogic(UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository, IHttpContextAccessor httpContextAccessor, IRepository<TicketWatcher> ticketWatcherRepository)
         {
             _userManager = userManager;
             _projectRepository = projectRepository;
@@ -31,31 +32,26 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             _userRepository = userRepository;
             _ticketRepository = ticketRepository;
             _httpContextAccessor = httpContextAccessor;
+            _ticketWatcherRepository = ticketWatcherRepository;
         }
 
         public IPagedList<Project> Read(string? sortOrder, int? page, bool? sort, string? userId)
         {
             List<Project> SortedProjects = new List<Project>();
-            
-            switch (sortOrder)
+			List<Project> Projects = _projectRepository.GetAll().ToList();
+			List<ApplicationUser> ProjectCreatedBy = _userRepository.GetAll().ToList();
+			List<UserProject> ProjectAssignedTo = _userProjectRepository.GetAll().ToList();
+			List<Ticket> ProjectTicket = _ticketRepository.GetAll().ToList();
+            List<TicketWatcher> ProjectTicketWatcher = _ticketWatcherRepository.GetAll().ToList();
+
+			switch (sortOrder)
             {
                 case "Priority":
                     if (sort == true)
                     {
-                        List<Project> Projects = _projectRepository.GetAll().ToList();
-                        List<ApplicationUser> ProjectCreatedBy = new List<ApplicationUser>();
-                        List<UserProject> ProjectAssignedTo = new List<UserProject>();
-                        List<ApplicationUser>ProjectUser = new List<ApplicationUser>();
-                        List<ApplicationUser> ProjectOwner = new List<ApplicationUser>();
-                        List<Ticket> ProjectTicket = new List<Ticket>();
-
                         foreach(Project p in Projects)
                         {
-                            ProjectCreatedBy.Add(p.CreatedBy);
-                            ProjectAssignedTo = p.AssignedTo.ToList();
-                            ProjectUser = p.AssignedTo.Select(x => x.User).ToList();
-                            ProjectOwner = p.Tickets.Select(x => x.Owner).ToList();
-                            ProjectTicket = p.Tickets.OrderByDescending(t => t.TicketPriority).ToList();
+                            p.Tickets.OrderByDescending(t => t.TicketPriority);
                         }
 
                         SortedProjects = Projects.ToList();
@@ -63,21 +59,12 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
                     }
                     else
                     {
-						List<Project> Projects = _projectRepository.GetAll().ToList();
-						List<ApplicationUser> ProjectCreatedBy = new List<ApplicationUser>();
-						List<UserProject> ProjectAssignedTo = new List<UserProject>();
-						List<ApplicationUser> ProjectUser = new List<ApplicationUser>();
-						List<ApplicationUser> ProjectOwner = new List<ApplicationUser>();
-						List<Ticket> ProjectTicket = new List<Ticket>();
-
 						foreach (Project p in Projects)
 						{
-							ProjectCreatedBy.Add(p.CreatedBy);
-							ProjectAssignedTo = p.AssignedTo.ToList();
-							ProjectUser = p.AssignedTo.Select(x => x.User).ToList();
-							ProjectOwner = p.Tickets.Select(x => x.Owner).ToList();
-							ProjectTicket = p.Tickets.OrderBy(t => t.TicketPriority).ToList();
+							p.Tickets.OrderBy(t => t.TicketPriority);
 						}
+
+                        
 
 						SortedProjects = Projects.ToList();
 					}
@@ -86,115 +73,52 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
                 case "RequiredHrs":
                     if (sort == true)
                     {
-						List<Project> AllProject = _projectRepository.GetAll().ToList();
-						List<ApplicationUser> ProjCreatedBy = new List<ApplicationUser>();
-						List<UserProject> ProjAssignedTo = new List<UserProject>();
-						List<ApplicationUser> ProjUser = new List<ApplicationUser>();
-						List<ApplicationUser> ProjOwner = new List<ApplicationUser>();
-						List<Ticket> ProjTicket = new List<Ticket>();
-
-						foreach (Project p in AllProject)
+						foreach (Project p in Projects)
 						{
-							ProjCreatedBy.Add(p.CreatedBy);
-							ProjAssignedTo = p.AssignedTo.ToList();
-							ProjUser = p.AssignedTo.Select(x => x.User).ToList();
-							ProjOwner = p.Tickets.Select(x => x.Owner).ToList();
-							ProjTicket = p.Tickets.OrderByDescending(t => t.RequiredHours).ToList();
+							p.Tickets.OrderByDescending(t => t.RequiredHours);
 						}
-
-						SortedProjects = AllProject.ToList();
+                        
+						SortedProjects = Projects.ToList();
 					}
                     else
                     {
-						List<Project> AllProject = _projectRepository.GetAll().ToList();
-						List<ApplicationUser> ProjCreatedBy = new List<ApplicationUser>();
-						List<UserProject> ProjAssignedTo = new List<UserProject>();
-						List<ApplicationUser> ProjUser = new List<ApplicationUser>();
-						List<ApplicationUser> ProjOwner = new List<ApplicationUser>();
-						List<Ticket> ProjTicket = new List<Ticket>();
-
-						foreach (Project p in AllProject)
+						foreach (Project p in Projects)
 						{
-							ProjCreatedBy.Add(p.CreatedBy);
-							ProjAssignedTo = p.AssignedTo.ToList();
-							ProjUser = p.AssignedTo.Select(x => x.User).ToList();
-							ProjOwner = p.Tickets.Select(x => x.Owner).ToList();
-							ProjTicket = p.Tickets.OrderBy(t => t.RequiredHours).ToList();
+							p.Tickets.OrderBy(t => t.RequiredHours);
 						}
 
-						SortedProjects = AllProject.ToList();
+						SortedProjects = Projects.ToList();
 					}
 
                     break;
                 case "Completed":
-					List<Project> AllProjects = _projectRepository.GetAll().ToList();
-					List<ApplicationUser> CreatedBy = new List<ApplicationUser>();
-					List<UserProject> AssignedTo = new List<UserProject>();
-					List<ApplicationUser> User = new List<ApplicationUser>();
-					List<ApplicationUser> Owner = new List<ApplicationUser>();
-					List<Ticket> Ticket = new List<Ticket>();
 
-					foreach (Project p in AllProjects)
+					foreach (Project p in Projects)
 					{
-						CreatedBy.Add(p.CreatedBy);
-						AssignedTo = p.AssignedTo.ToList();
-						User = p.AssignedTo.Select(x => x.User).ToList();
-						Owner = p.Tickets.Select(x => x.Owner).ToList();
-						Ticket = p.Tickets.OrderByDescending(t => t.Completed == true).ToList();
+						p.Tickets.OrderByDescending(t => t.Completed == true);
 					}
 
-					SortedProjects = AllProjects.ToList();
+					SortedProjects = Projects.ToList();
 					break;
                 default:
                     if (userId != null)
                     {
-						AllProjects = _projectRepository.GetAll().ToList();
-						CreatedBy = new List<ApplicationUser>();
-						AssignedTo = new List<UserProject>();
-						User = new List<ApplicationUser>();
-						Owner = new List<ApplicationUser>();
-						Ticket = new List<Ticket>();
-                        List<TicketWatcher> TicketWatchers = new List<TicketWatcher>();
-                        List<ApplicationUser> Watcher = new List<ApplicationUser>();
+						Projects.OrderBy(p => p.ProjectName).ToList();
 
-						foreach (Project p in AllProjects)
+						foreach (Project p in Projects)
 						{
-							CreatedBy.Add(p.CreatedBy);
-							AssignedTo = p.AssignedTo.ToList();
-							User = p.AssignedTo.Select(x => x.User).ToList();
-							Owner = p.Tickets.Select(x => x.Owner).ToList();
-							Ticket = p.Tickets.Where(t => t.Owner.Id == userId).ToList();
-							//TicketWatchers = p.Tickets.Select(t => t.TicketWatchers).ToList();
-							//Watcher = TicketWatchers.Select(tw => tw.Watcher).ToList();
+							p.Tickets.Where(t => t.Owner.Id == userId);
 						}
-
-						SortedProjects = AllProjects.ToList();
+                        
+						SortedProjects = Projects.ToList();
 
 						
                     }
                     else
                     {
-						AllProjects = _projectRepository.GetAll().ToList();
-						CreatedBy = new List<ApplicationUser>();
-						AssignedTo = new List<UserProject>();
-						User = new List<ApplicationUser>();
-						Owner = new List<ApplicationUser>();
-						Ticket = new List<Ticket>();
-						List<TicketWatcher> TicketWatchers = new List<TicketWatcher>();
-						List<ApplicationUser> Watcher = new List<ApplicationUser>();
+                        Projects.OrderBy(p => p.ProjectName).ToList();
 
-						foreach (Project p in AllProjects)
-						{
-							CreatedBy.Add(p.CreatedBy);
-							AssignedTo = p.AssignedTo.ToList();
-							User = p.AssignedTo.Select(x => x.User).ToList();
-							Owner = p.Tickets.Select(x => x.Owner).ToList();
-							Ticket = p.Tickets.ToList();
-							//TicketWatchers = p.Tickets.Select(t => t.TicketWatchers).ToList();
-							//Watcher = TicketWatchers.Select(tw => tw.Watcher).ToList();
-						}
-
-						SortedProjects = AllProjects.ToList();
+						SortedProjects = Projects.ToList();
 					}
 
                     break;
@@ -205,7 +129,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
 			string LoggedUserId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-			ApplicationUser user = _userRepository.Get(userId);
+			ApplicationUser user = _userRepository.Get(LoggedUserId);
 
 
             // Get the role the user is in
@@ -329,6 +253,19 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
             ApplicationUser user = _userRepository.Get(userId);
 
+            List<string> ProjectDevelopersId = vm.ProjectDevelopersId.ToList();
+
+            List<ApplicationUser> ProjectDevelopers = new List<ApplicationUser>();
+
+            foreach (string pd in ProjectDevelopersId)
+            {
+                ApplicationUser developer = _userRepository.Get(pd);
+
+                if (developer != null)
+                {
+                    ProjectDevelopers.Add(developer);
+                }
+            }
 
             Project newProject = new Project();
 
@@ -340,20 +277,19 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             {
                 _projectRepository.Create(newProject);
 
-                ApplicationUser developer = _userRepository.Get(vm.AssignedUserId);
+                foreach (ApplicationUser dev in ProjectDevelopers)
+                {
+                    UserProject newUserProject = new UserProject();
 
+                    newUserProject.User = dev;
+                    newUserProject.UserId = dev.Id;
+                    newUserProject.Project = newProject;
+                    newUserProject.ProjectId = newProject.Id;
 
-                // Iterate over a list of userId string and create a user project for each.
-                UserProject newUserProject = new UserProject();
+                    newProject.AssignedTo.Add(newUserProject);
 
-                newUserProject.User = developer;
-                newUserProject.UserId = developer.Id;
-                newUserProject.Project = newProject;
-                newUserProject.ProjectId = newProject.Id;
-
-                newProject.AssignedTo.Add(newUserProject);
-                    
-                _userProjectRepository.CreateUserProject(newUserProject);
+                    _userProjectRepository.CreateUserProject(newUserProject);
+                }
                 
             }
             else
