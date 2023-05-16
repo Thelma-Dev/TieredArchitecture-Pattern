@@ -66,7 +66,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 		}
 
 
-		// GET: Projects/Details/5
+		
 		public async Task<IActionResult> Details(int id)
         {
             try
@@ -103,9 +103,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         {
             List<ApplicationUser> allDevelopers = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync("Developer");
 
-            CreateProjectVm vm = new CreateProjectVm(allDevelopers);
-
-            return View(vm);
+            return View(_projectBusinessLogic.ReturnCreateProjectVm(allDevelopers));
         }
 
         
@@ -117,9 +115,12 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         {
             try
             {
-                vm.ProjectDevelopersId = Request.Form["AssignedUserId"].ToList();
+                string userName = User.Identity.Name;
 
-                _projectBusinessLogic.CreateProject(vm);
+                vm.ProjectDevelopersId = Request.Form["AssignedUserId"].ToList();
+                vm.LoggedInUsername = userName;
+
+                await _projectBusinessLogic.CreateProject(vm);
 
                 if(ModelState.IsValid)
                 {
@@ -157,10 +158,19 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         public async Task<IActionResult> Edit([Bind("ProjectId,ProjectName,AssignedUserId")] EditProjectVm vm)
         {
             try
-            {            
+            {
+                vm.ProjectDevelopersId = Request.Form["AssignedUserId"].ToList();
+
                 _projectBusinessLogic.UpdateProject(vm);
-                
-                  return RedirectToAction("Index");
+
+                if (ModelState.IsValid)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    return View(vm);
+                }
             }
             catch(Exception ex)
             {

@@ -40,7 +40,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         }
 
 
-        // GET: Tickets
+       
         public IActionResult Index()
         {
             return View(_ticketBusinessLogic.Read());
@@ -68,20 +68,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         {
             try
             {
-                Project CurrentProject = _projectRepository.Get(projectId);
-
-                UserProject userProject = _userProjectRepository.GetProject(projectId);
-
-                List<ApplicationUser> DevelopersAssignedToProject = _userProjectRepository.GetUsersAssignedToProject(CurrentProject);
-
-                ViewBag.Project = CurrentProject.ProjectName;
-                ViewBag.ProjectId = CurrentProject.Id;
-
-                CreateTicketVm vm = new CreateTicketVm(DevelopersAssignedToProject);
-                vm.Project = CurrentProject;
-                vm.ProjectId = CurrentProject.Id;
-
-                return View(vm);
+                return View(_ticketBusinessLogic.InitializeCreateTicketMethod(projectId));
             }
             catch(Exception ex)
             {
@@ -106,12 +93,8 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             }
             else
             {
-				
-				List<ApplicationUser> DevelopersAssignedToProject = _userProjectRepository.GetUsersAssignedToProject(vm.Project);
 
-				CreateTicketVm newVm = new CreateTicketVm(DevelopersAssignedToProject);
-
-				return View(newVm);
+				return View(_ticketBusinessLogic.RepopulateDevelopersInProjectList(vm));
             }
             
         }
@@ -140,24 +123,14 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    Ticket ticket = _ticketRepository.Get(vm.TicketId);
+                    
                     _ticketBusinessLogic.UpdateTicket(vm);
 
-					return RedirectToAction(nameof(Edit), new { id = ticket.Id });
+					return RedirectToAction(nameof(Edit), new { id = vm.TicketId });
 				}
                 else
                 {
-                    Ticket ticket = _ticketRepository.Get(vm.TicketId);
-
-                    ApplicationUser owner = ticket.Owner;
-
-                    List<ApplicationUser> DevelopersNotInTicket = _userRepository.GetAll().Where(u => u != ticket.Owner).ToList();
-
-                    EditTicketVm newVm = new EditTicketVm(DevelopersNotInTicket);
-                    newVm.Ticket = ticket;
-                    newVm.TicketId = ticket.Id;
-
-                    return View(newVm);
+                    return View(_ticketBusinessLogic.RepopulateDevelopersNotInTicket(vm));
                 }
             }
             catch(Exception exe)

@@ -96,6 +96,28 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             }  
         }
 
+        public CreateTicketVm InitializeCreateTicketMethod(int projectId)
+        {
+            Project CurrentProject = _projectRepository.Get(projectId);
+
+            if(CurrentProject == null)
+            {
+                throw new Exception("Project is null");
+            }
+            else
+            {
+                UserProject userProject = _userProjectRepository.GetProject(projectId);
+
+                List<ApplicationUser> DevelopersAssignedToProject = _userProjectRepository.GetUsersAssignedToProject(CurrentProject);
+
+                CreateTicketVm vm = new CreateTicketVm(DevelopersAssignedToProject);
+                vm.Project = CurrentProject;
+                vm.ProjectId = CurrentProject.Id;
+
+                return vm;
+            }           
+        }
+
         public void CreateTicket(CreateTicketVm vm)
         {
             Project CurrentProject = _projectRepository.Get(vm.ProjectId);
@@ -123,6 +145,19 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
                 CurrentProject.Tickets.Add(newTicket);
                 _ticketRepository.SaveChanges();
             }           
+        }
+
+        public CreateTicketVm RepopulateDevelopersInProjectList(CreateTicketVm vm)
+        {
+            Project currentProject = _projectRepository.Get(vm.ProjectId);
+
+            List<ApplicationUser> DevelopersAssignedToProject = _userProjectRepository.GetUsersAssignedToProject(currentProject);
+
+            vm.PopulateLists(DevelopersAssignedToProject);
+            vm.Project = currentProject;
+            vm.ProjectId = currentProject.Id;
+
+            return vm;
         }
 
         public EditTicketVm EditTicket(int? id)
@@ -178,6 +213,24 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
                 _ticketRepository.Update(ticket);
             }
+
+            vm.TicketId= ticket.Id;
+            vm.Ticket = ticket;
+        }
+
+        public EditTicketVm RepopulateDevelopersNotInTicket(EditTicketVm vm)
+        {
+            Ticket ticket = _ticketRepository.Get(vm.TicketId);
+
+            ApplicationUser owner = ticket.Owner;
+
+            List<ApplicationUser> DevelopersNotInTicket = _userRepository.GetAll().Where(u => u != ticket.Owner).ToList();
+
+            vm.PopulateLists(DevelopersNotInTicket);
+            vm.Ticket = ticket;
+            vm.TicketId = ticket.Id;
+
+            return vm;
         }
 
         public void RemoveAssignedUser(string id, int ticketId)
@@ -426,5 +479,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             }
             
         }
+
+        
     }
 }
