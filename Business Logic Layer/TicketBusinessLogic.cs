@@ -121,7 +121,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
                 _ticketRepository.Create(newTicket);
                 CurrentProject.Tickets.Add(newTicket);
-                _userProjectRepository.SaveChangesToDatabase();
+                _ticketRepository.SaveChanges();
             }           
         }
 
@@ -212,7 +212,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             
         }
 
-        public void MarkASCompleted(int id)
+        public void MarkAsCompleted(int id)
         {
             if (id == null)
             {
@@ -276,8 +276,10 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
                 Ticket ticket = _ticketRepository.Get(TaskId);
 
                 newComment.User = user;
+                newComment.UserId = user.Id;
                 newComment.Description = TaskText;
                 newComment.Ticket = ticket;
+                newComment.TicketId = ticket.Id;
 
                 user.Comments.Add(newComment);
                 ticket.Comments.Add(newComment);
@@ -375,7 +377,10 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             {
                 Ticket? ticket = _ticketRepository.Get(id);
 
-                if (ticket == null)
+                // To allow population of related table
+				List<Project> AllProjects = _projectRepository.GetAll().ToList();
+
+				if (ticket == null)
                 {
                     throw new Exception("Ticket not found");
                 }

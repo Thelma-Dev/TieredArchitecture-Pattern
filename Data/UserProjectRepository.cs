@@ -31,7 +31,12 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
             return _context.UserProjects.Where(up => up.ProjectId == project.Id).Select(up => up.User).ToList();
         }
 
-        public void RemoveUserProject(UserProject userProject)
+		public ICollection<UserProject> GetAll()
+		{
+			return _context.UserProjects.ToHashSet();
+		}
+
+		public void RemoveUserProject(UserProject userProject)
         {
             _context.UserProjects.Remove(userProject);
             _context.SaveChanges();

@@ -140,10 +140,11 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    Ticket ticket = _ticketRepository.Get(vm.TicketId);
                     _ticketBusinessLogic.UpdateTicket(vm);
 
-                    return RedirectToAction("Index", "Projects");
-                }
+					return RedirectToAction(nameof(Edit), new { id = ticket.Id });
+				}
                 else
                 {
                     Ticket ticket = _ticketRepository.Get(vm.TicketId);
@@ -209,14 +210,14 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                         
             try
             {
-                if (id != null || hrs != null)
+                if (id == null || hrs == null)
                 {
                     return RedirectToAction("Index");
                 }
                 
                 _ticketBusinessLogic.UpdateRequiredHours(id, hrs);
 
-                return RedirectToAction("Details", new { id });
+                return RedirectToAction("Details", new { id = id  });
 
             }
             catch (Exception ex)
@@ -239,7 +240,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 
                 _ticketBusinessLogic.AddToWatch(id);
                 
-                return RedirectToAction("Details", new { id });
+                return RedirectToAction("Details", new { id = id });
 
             }
             catch (Exception ex)
@@ -262,7 +263,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 
                 _ticketBusinessLogic.Unwatch(id);
 
-                return RedirectToAction("Details", new { id });
+                return RedirectToAction("Details", new { id = id });
 
             }
             catch (Exception ex)
@@ -278,7 +279,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             
             try
             {
-                _ticketBusinessLogic.MarkASCompleted(id);
+                _ticketBusinessLogic.MarkAsCompleted(id);
 
                 return RedirectToAction("Details", new { id });
 
@@ -293,9 +294,9 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         {
             try
             {
-                _ticketBusinessLogic.MarkASCompleted(id);
+                _ticketBusinessLogic.UnMarkAsCompleted(id);
 
-                return RedirectToAction("Details", new { id });
+                return RedirectToAction("Details", new { id = id  });
 
             }
             catch (Exception ex)
