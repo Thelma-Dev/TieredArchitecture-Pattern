@@ -25,10 +25,14 @@ namespace SD_340_W22SD_Final_Project_Group6.Models.ViewModel
 
         public void PopulateLists(List<ApplicationUser> users)
         {
-            users.ForEach(u =>
+            //users.ForEach(u =>
+            //{
+            //    AllDevelopers.Add(new SelectListItem(u.UserName, u.Id.ToString()));
+            //});
+            foreach (ApplicationUser u in users)
             {
                 AllDevelopers.Add(new SelectListItem(u.UserName, u.Id.ToString()));
-            });
+            }
         }
 
 
