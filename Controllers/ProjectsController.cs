@@ -117,6 +117,8 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         {
             try
             {
+                vm.ProjectDevelopersId = Request.Form["AssignedUserId"].ToList();
+
                 _projectBusinessLogic.CreateProject(vm);
 
                 if(ModelState.IsValid)

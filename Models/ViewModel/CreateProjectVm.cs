@@ -8,7 +8,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Models.ViewModel
 {
     public class CreateProjectVm
     {
-        public List<SelectListItem> AllUsers = new List<SelectListItem>();
+        public List<SelectListItem> AllDevelopers = new List<SelectListItem>();
 
         [Required]
         [DisplayName("Project Name :")]
@@ -20,12 +20,14 @@ namespace SD_340_W22SD_Final_Project_Group6.Models.ViewModel
 
         public ApplicationUser? AssignedUser { get; set; }
 
+        public List<string> ProjectDevelopersId { get; set; } = new List<string>();
+
 
         public void PopulateLists(List<ApplicationUser> users)
         {
             users.ForEach(u =>
             {
-                AllUsers.Add(new SelectListItem(u.UserName, u.Id.ToString()));
+                AllDevelopers.Add(new SelectListItem(u.UserName, u.Id.ToString()));
             });
         }
 

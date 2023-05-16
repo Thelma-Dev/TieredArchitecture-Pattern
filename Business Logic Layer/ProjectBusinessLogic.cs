@@ -253,6 +253,19 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
             ApplicationUser user = _userRepository.Get(userId);
 
+            List<string> ProjectDevelopersId = vm.ProjectDevelopersId.ToList();
+
+            List<ApplicationUser> ProjectDevelopers = new List<ApplicationUser>();
+
+            foreach (string pd in ProjectDevelopersId)
+            {
+                ApplicationUser developer = _userRepository.Get(pd);
+
+                if (developer != null)
+                {
+                    ProjectDevelopers.Add(developer);
+                }
+            }
 
             Project newProject = new Project();
 
@@ -264,20 +277,19 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             {
                 _projectRepository.Create(newProject);
 
-                ApplicationUser developer = _userRepository.Get(vm.AssignedUserId);
+                foreach (ApplicationUser dev in ProjectDevelopers)
+                {
+                    UserProject newUserProject = new UserProject();
 
+                    newUserProject.User = dev;
+                    newUserProject.UserId = dev.Id;
+                    newUserProject.Project = newProject;
+                    newUserProject.ProjectId = newProject.Id;
 
-                // Iterate over a list of userId string and create a user project for each.
-                UserProject newUserProject = new UserProject();
+                    newProject.AssignedTo.Add(newUserProject);
 
-                newUserProject.User = developer;
-                newUserProject.UserId = developer.Id;
-                newUserProject.Project = newProject;
-                newUserProject.ProjectId = newProject.Id;
-
-                newProject.AssignedTo.Add(newUserProject);
-                    
-                _userProjectRepository.CreateUserProject(newUserProject);
+                    _userProjectRepository.CreateUserProject(newUserProject);
+                }
                 
             }
             else
