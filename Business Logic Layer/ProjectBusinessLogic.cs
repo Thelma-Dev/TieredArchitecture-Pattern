@@ -124,7 +124,6 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 					else
 					{
 						Projects = Projects.OrderBy(p => p.ProjectName).ToList();
-						//SortedProjects = Projects.ToList();
 					}
 
 					break;
