@@ -78,9 +78,6 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             
 
         }
-
-        
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "ProjectManager")]

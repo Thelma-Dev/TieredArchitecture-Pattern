@@ -150,6 +150,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 
                 if (ModelState.IsValid)
                 {
+
                     return RedirectToAction(nameof(Index));
                 }
                 else

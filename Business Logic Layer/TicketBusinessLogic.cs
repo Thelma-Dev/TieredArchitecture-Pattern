@@ -57,7 +57,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         {
             if (id == null)
             {
-                throw new ArgumentNullException("Ticket not found");
+                throw new Exception("Ticket not found");
             }
             else
             {
@@ -167,7 +167,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         {
             if (id == null)
             {
-                throw new ArgumentNullException("Ticket not found");
+                throw new Exception("Ticket not found");
             }
             else
             {
@@ -240,7 +240,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         {
             if (id == null)
             {
-                throw new  ArgumentNullException("User not found");
+                throw new  Exception("User not found");
             }
             else
             {
@@ -272,7 +272,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         {
             if (id == null)
             {
-                throw new ArgumentNullException("Ticket not found");
+                throw new Exception("Ticket not found");
                 
             }
             else
@@ -297,7 +297,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         {
             if (id == null)
             {
-                throw new ArgumentNullException("Ticket not found");
+                throw new Exception("Ticket not found");
 
             }
             else
@@ -429,7 +429,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         {
             if (id == null )
             {
-                throw new ArgumentNullException("Ticket not found");
+                throw new Exception("Ticket not found");
             }
             else
             {
@@ -455,7 +455,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         {
             if(ticketId == null)
             {
-                throw new ArgumentNullException("Ticket not found");
+                throw new Exception("Ticket not found");
             }
             else
             {
