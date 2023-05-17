@@ -13,48 +13,27 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
     public class AdminController : Controller
     {
         private readonly AdminBusinessLogic _adminBusinessLogic;
-
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
         public AdminController(IUserRepository userRepository, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roles)
         {
             _userManager = userManager;
-            _adminBusinessLogic = new AdminBusinessLogic(userRepository);
-            _roleManager = roles;
+            _adminBusinessLogic = new AdminBusinessLogic(userRepository, roles, userManager);
+           
         }
 
 
         public async Task<IActionResult> Index()
         {
-            ProjectManagersAndDevelopersVm vm = new ProjectManagersAndDevelopersVm();
-
-
-            List<ApplicationUser> ProjectManagers = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync("ProjectManager");
-
-            List<ApplicationUser> Developers = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync("Developer");
-
-            List<ApplicationUser> AllUsers = _adminBusinessLogic.GetAllUsers().ToList();
-
-
-
-            vm.ProjectManagers = ProjectManagers;
-            vm.devs = Developers;
-            vm.allUsers = AllUsers;
-
-            return View(vm);
+            return View(_adminBusinessLogic.GetAllProjectManagersAndDevelopers());
         }
 
         public IActionResult AssignRole()
         {
             try
             {
-                List<ApplicationUser> allUsers = _adminBusinessLogic.GetAllUsers().ToList();
-                HashSet<IdentityRole> AllRoles = _roleManager.Roles.ToHashSet();
-
-                AssignRoleVm vm = new AssignRoleVm(AllRoles, allUsers);
-
-                return View(vm);
+                return View(_adminBusinessLogic.InitializeAssignRoleVm());
             }
             catch(Exception ex)
             {

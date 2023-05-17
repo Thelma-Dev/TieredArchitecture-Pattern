@@ -67,5 +67,19 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
         {
             return _context.Users.FirstOrDefault(u => u.UserName == userName);
         }
+
+        
+        public List<string> GetUserIdsInRole(string roleName)
+        {
+            IdentityRole role = GetRoleByRoleName(roleName);
+
+            return _context.UserRoles.Where(r => r.RoleId == role.Id).Select(r => r.UserId).ToList();
+        }
+        
+
+        private IdentityRole GetRoleByRoleName(string roleName)
+        {
+            return _context.Roles.FirstOrDefault(r => r.Name == roleName);
+        }
     }
 }

@@ -12,6 +12,7 @@ using System.Web.Mvc;
 using Microsoft.CodeAnalysis.Differencing;
 using X.PagedList;
 using System.Collections.Immutable;
+using SelectListItem = Microsoft.AspNetCore.Mvc.Rendering.SelectListItem;
 
 namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 {
@@ -24,6 +25,8 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         private IRepository<Ticket> _ticketRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRepository<TicketWatcher> _ticketWatcherRepository;
+
+        public object ViewBag { get; private set; }
 
         public ProjectBusinessLogic(UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository, IHttpContextAccessor httpContextAccessor, IRepository<TicketWatcher> ticketWatcherRepository)
         {
@@ -38,6 +41,19 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
         public IPagedList<Project> Read(string? sortOrder, int? page, bool? sort, string? userId)
         {
+            List<ApplicationUser> AllDevelopers = GetAllDevelopers();
+            
+            List<SelectListItem> users = new List<SelectListItem>();
+
+
+            AllDevelopers.ForEach(au =>
+            {
+                users.Add(new SelectListItem(au.UserName, au.Id.ToString()));
+            });
+
+
+            //ViewBag.Users = users;
+
             List<Project> SortedProjects = new List<Project>();
             List<Project> Projects = _projectRepository.GetAll().ToList();
 			List<ApplicationUser> ProjectCreatedBy = _userRepository.GetAll().ToList();
@@ -101,14 +117,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 							p.Tickets = p.Tickets.Where(t => t.Owner.Id == userId).ToList();
 						});
 
-						//foreach (Project p in Projects)
-						//{
-						//	p.Tickets.Where(t => t.Owner.Id == userId);
-						//}
-                        
-						//SortedProjects = Projects.ToList();
-
-						
+											
                     }
                     else
                     {
@@ -245,8 +254,10 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
 
 
-        public CreateProjectVm ReturnCreateProjectVm(List<ApplicationUser> AllDevelopers)
+        public CreateProjectVm ReturnCreateProjectVm()
         {
+            List<ApplicationUser> AllDevelopers = GetAllDevelopers().ToList();
+            
             CreateProjectVm vm = new CreateProjectVm(AllDevelopers);
 
             return vm;
@@ -302,6 +313,9 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             {
                 throw new Exception("Error Creating Project");
             }
+
+            List<ApplicationUser> AllDevelopers = GetAllDevelopers();
+            vm.PopulateLists(AllDevelopers);
         }
 
         public EditProjectVm EditProject(int? id)
@@ -454,8 +468,24 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             return DevelopersInProject.ToList();
         }
 
-        
+        private List<ApplicationUser> GetAllDevelopers()
+        {
+            List<string> DevelopersId = _userRepository.GetUserIdsInRole("Developer");
 
-        
+
+            List<ApplicationUser> AllDevelopers = new List<ApplicationUser>();
+
+
+            DevelopersId.ForEach(id =>
+            {
+                ApplicationUser developer = _userRepository.Get(id);
+
+                AllDevelopers.Add(developer);
+            });
+
+            return AllDevelopers;
+
+        }
+
     }
 }
