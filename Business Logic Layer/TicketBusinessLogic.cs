@@ -22,8 +22,9 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         private IRepository<Ticket> _ticketRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRepository<TicketWatcher> _ticketWatcherRepository;
+        private readonly IRepository<Comment> _commentRepository;
 
-        public TicketBusinessLogic(UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository, IHttpContextAccessor httpContextAccessor, IRepository<TicketWatcher> ticketWatcherRepository, IUserProjectRepository userProjectRepository)
+        public TicketBusinessLogic(UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository, IHttpContextAccessor httpContextAccessor, IRepository<TicketWatcher> ticketWatcherRepository, IUserProjectRepository userProjectRepository, IRepository<Comment> commentRepository)
         {
             _userManager = userManager;
             _projectRepository = projectRepository;
@@ -32,6 +33,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             _httpContextAccessor = httpContextAccessor;
             _ticketWatcherRepository = ticketWatcherRepository;
             _userProjectRepository = userProjectRepository;
+            _commentRepository = commentRepository;
         }
 
         public List<Ticket> Read()
@@ -60,6 +62,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             else
             {
                 Ticket? ticket = _ticketRepository.Get(id);
+                List<Comment> comments = _commentRepository.GetAll().ToList();
 
                 if(ticket == null)
                 {
@@ -334,10 +337,12 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
                 newComment.Ticket = ticket;
                 newComment.TicketId = ticket.Id;
 
+                _commentRepository.Create(newComment);
+
                 user.Comments.Add(newComment);
                 ticket.Comments.Add(newComment);
                 
-                //_context.comment.Add(newComment);
+                
             }
             
         }

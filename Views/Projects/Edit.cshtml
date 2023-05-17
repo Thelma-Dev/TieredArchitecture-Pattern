@@ -28,7 +28,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model.Project.AssignedTo) {
+                    @foreach (UserProject item in Model.Project.AssignedTo) {
                         <tr>
                             <td>
                                 @Html.DisplayFor(modelItem => item.User.UserName)
@@ -42,7 +42,6 @@
             </table>
             <div class="form-group">
                 <input type="hidden" value=@Model.Project.Id name="ticketId" />
-                <label asp-for="AssignedUserId" class="control-label"></label>
                 <br />
                 <div class="form-group mt-4">
                     <label asp-for="AssignedUserId" class="control-label"></label>
