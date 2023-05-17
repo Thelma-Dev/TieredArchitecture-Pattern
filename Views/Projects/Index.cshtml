@@ -1,4 +1,4 @@
-﻿@model IPagedList<SD_340_W22SD_Final_Project_Group6.Models.Project>
+﻿@model SD_340_W22SD_Final_Project_Group6.Models.ViewModel.FilterVM
 @using X.PagedList;
 @using X.PagedList.Mvc.Bootstrap4.Core
 @using X.PagedList.Mvc.Core;
@@ -21,7 +21,7 @@
 				<input type="submit" value="Filter by User" class="btn" style="background-color: #E4BCB9" />
 			</div>
 			<div class="form-group" style="display: inline">
-				<select name="userId" asp-items=@ViewBag.Users></select>
+				<select name="userId" asp-items=@Model.AllDevelopers></select>
 				<span class="text-danger"></span>
 			</div>
 			@*<select asp-for="us" asp-items="Model.AllDevelopers" class="mt-2" style="border-radius: 5px; width:180px; height: 46px; padding: 5px">
@@ -48,7 +48,7 @@
 
 
 <div>
-	@foreach (Project item in Model)
+	@foreach (Project item in Model.Projects)
 	{
 		<div style="margin-bottom: 2rem; border: 1px solid gray; border-radius: 10px; padding: 1rem; background-color: white">
 			<div style="display:flex; flex-direction: row; justify-content: space-between; border-bottom: solid 1px gray; padding-bottom: 1rem; margin-bottom: 1rem">
@@ -131,7 +131,7 @@
 
 </div>
 <div>
-	@Html.PagedListPager(Model, page => Url.Action("Index", new { page }), Bootstrap4PagedListRenderOptions.PageNumbersOnly)
+	@Html.PagedListPager(Model.Projects, page => Url.Action("Index", new { page }), Bootstrap4PagedListRenderOptions.PageNumbersOnly)
 </div>
 
 
