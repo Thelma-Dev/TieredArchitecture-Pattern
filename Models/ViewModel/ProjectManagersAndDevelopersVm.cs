@@ -6,5 +6,7 @@
         public ICollection<ApplicationUser> devs { get; set; } = new HashSet<ApplicationUser>();
         public ICollection<ApplicationUser> allUsers { get; set; } = new HashSet<ApplicationUser>();
         public ICollection<string> roles { get; set; } = new HashSet<string>();
+
+        public ProjectManagersAndDevelopersVm() { }
     }
 }

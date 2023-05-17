@@ -14,10 +14,14 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
     public class AdminBusinessLogic
     {
         private IUserRepository _userRepository;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AdminBusinessLogic(IUserRepository userRepository)
+        public AdminBusinessLogic(IUserRepository userRepository, RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
         {
             _userRepository = userRepository;
+            _roleManager = roleManager;
+            _userManager = userManager;
         }
 
         public ICollection<ApplicationUser> GetAllUsers()
@@ -28,6 +32,60 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         public ApplicationUser GetUser(string userId)
         {
             return _userRepository.Get(userId);
+        }
+
+        public ProjectManagersAndDevelopersVm GetAllProjectManagersAndDevelopers()
+        {
+            ProjectManagersAndDevelopersVm vm = new ProjectManagersAndDevelopersVm();
+
+            
+            List<string> DevelopersId = _userRepository.GetUserIdsInRole("Developer");
+
+            List<string> ProjectManagersId = _userRepository.GetUserIdsInRole("ProjectManager");
+
+            // Get the objects
+            List<ApplicationUser> AllDevelopers = new List<ApplicationUser>();
+
+            List<ApplicationUser> AllProjectManagers = new List<ApplicationUser>();
+
+            List<ApplicationUser> AllUsers = GetAllUsers().ToList();
+
+            DevelopersId.ForEach(id =>
+            {
+                ApplicationUser developer = _userRepository.Get(id);
+
+                AllDevelopers.Add(developer);
+            });
+
+            ProjectManagersId.ForEach(id =>
+            {
+                ApplicationUser projectManager = _userRepository.Get(id);
+
+                AllProjectManagers.Add(projectManager);
+
+            });
+
+            
+            vm.ProjectManagers = AllProjectManagers;
+            vm.devs = AllDevelopers;
+            vm.allUsers = AllUsers;
+
+            return vm;
+        }
+
+        public async Task<IdentityRole> GetRoleByRoleNameAsync(string roleName)
+        {
+            return await _roleManager.FindByNameAsync(roleName);
+        }
+
+        public AssignRoleVm InitializeAssignRoleVm()
+        {
+            List<ApplicationUser> allUsers = GetAllUsers().ToList();
+            HashSet<IdentityRole> AllRoles = _roleManager.Roles.ToHashSet();
+
+            AssignRoleVm vm = new AssignRoleVm(AllRoles, allUsers);
+
+            return vm;
         }
 
         public async Task AssignRole(string roleId, string userId)
