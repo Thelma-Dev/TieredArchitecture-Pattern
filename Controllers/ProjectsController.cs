@@ -28,6 +28,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         private readonly IRepository<Ticket> _ticketRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRepository<TicketWatcher> _ticketWatcherRepository;
+        
 
         public ProjectsController(UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository, IHttpContextAccessor httpContextAccessor, IRepository<TicketWatcher> ticketWatcherRepository)
         {

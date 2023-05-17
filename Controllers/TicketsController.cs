@@ -29,14 +29,15 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         private readonly TicketBusinessLogic _ticketBusinessLogic;
         private readonly IUserProjectRepository _userProjectRepository;
         private readonly IRepository<TicketWatcher> _ticketWatcherRepository;
+        private readonly IRepository<Comment> _commentRepository;
 
-        public TicketsController(IRepository<Project> projectRepository, IRepository<Ticket> ticketRepository, IUserRepository userRepository, UserManager<ApplicationUser> userManager, IUserProjectRepository userProjectRepository, IHttpContextAccessor httpContextAccessor, IRepository<TicketWatcher> ticketWatcherRepository)
+        public TicketsController(IRepository<Project> projectRepository, IRepository<Ticket> ticketRepository, IUserRepository userRepository, UserManager<ApplicationUser> userManager, IUserProjectRepository userProjectRepository, IHttpContextAccessor httpContextAccessor, IRepository<TicketWatcher> ticketWatcherRepository, IRepository<Comment> commentRepository)
         {
             _projectRepository = projectRepository;
             _ticketRepository = ticketRepository;
             _userRepository = userRepository;
             _userProjectRepository = userProjectRepository;
-            _ticketBusinessLogic = new TicketBusinessLogic(userManager, projectRepository, userRepository, ticketRepository, httpContextAccessor, ticketWatcherRepository, userProjectRepository);
+            _ticketBusinessLogic = new TicketBusinessLogic(userManager, projectRepository, userRepository, ticketRepository, httpContextAccessor, ticketWatcherRepository, userProjectRepository, commentRepository);
         }
 
 

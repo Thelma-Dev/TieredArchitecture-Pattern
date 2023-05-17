@@ -16,6 +16,7 @@ using SelectListItem = Microsoft.AspNetCore.Mvc.Rendering.SelectListItem;
 
 namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 {
+
 	public class ProjectBusinessLogic
 	{
 		private readonly UserManager<ApplicationUser> _userManager;
@@ -26,7 +27,6 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 		private readonly IHttpContextAccessor _httpContextAccessor;
 		private readonly IRepository<TicketWatcher> _ticketWatcherRepository;
 
-		public object ViewBag { get; private set; }
 
 		public ProjectBusinessLogic(UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository, IHttpContextAccessor httpContextAccessor, IRepository<TicketWatcher> ticketWatcherRepository)
 		{
@@ -53,10 +53,11 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 			});
 
 
-			//ViewBag.Users = users;
+			
 
 			List<Project> SortedProjects = new List<Project>();
 			List<Project> Projects = _projectRepository.GetAll().ToList();
+
 			List<ApplicationUser> ProjectCreatedBy = _userRepository.GetAll().ToList();
 			List<UserProject> ProjectAssignedTo = _userProjectRepository.GetAll().ToList();
 			List<Ticket> ProjectTicket = _ticketRepository.GetAll().ToList();

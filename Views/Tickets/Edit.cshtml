@@ -16,17 +16,17 @@
             <input type="hidden" asp-for="TicketId" />
             <div class="form-group">
                 <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
+                <input asp-for="Title" value="@Model.Ticket.Title" class="form-control" />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Body" class="control-label"></label>
-                <input asp-for="Body" class="form-control" />
+                <input asp-for="Body" value="@Model.Ticket.Body" class="form-control" />
                 <span asp-validation-for="Body" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="RequiredHours" class="control-label"></label>
-                <input asp-for="RequiredHours" class="form-control" />
+                <input asp-for="RequiredHours" value="@Model.Ticket.RequiredHours" class="form-control" />
                 <span asp-validation-for="RequiredHours" class="text-danger"></span>
             </div>
             <table class="table">
