@@ -8,11 +8,11 @@ namespace SD_340_W22SD_Final_Project_Group6.Models.ViewModel
 	{
 		public Project Project { get; set; }
 
-		public List<Project> Projects { get; set; }
+		//public List<Project> Projects { get; set; }
 
 		public List<SelectListItem> AllDevelopers = new List<SelectListItem>();
 
-		public IPagedList<Project> Logs { get; set; }
+		public IPagedList<Project> Projects { get; set; }
 
 
 		//public void PopulateLists(List<ApplicationUser> users)
