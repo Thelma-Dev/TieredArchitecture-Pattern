@@ -414,7 +414,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
                     userLoggedIn.TicketWatching.Remove(currentTicketWatcher);
                     _ticketWatcherRepository.SaveChanges();
 
-                    // Save changes to the database
+                    
                 }
                 else
                 {
@@ -455,7 +455,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         {
             if(ticketId == null)
             {
-                throw new Exception("Ticket not found");
+                throw new ArgumentNullException("Ticket not found");
             }
             else
             {

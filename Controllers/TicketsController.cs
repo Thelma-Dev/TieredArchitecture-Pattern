@@ -57,7 +57,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             }
             catch(Exception ex)
             {
-                return BadRequest();
+                return Problem(ex.Message);
             }
            
         }
@@ -110,7 +110,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             }
             catch(Exception exe)
             {
-                return BadRequest();
+                return Problem(exe.Message);
             }
         }
 
@@ -136,7 +136,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             }
             catch(Exception exe)
             {
-                return BadRequest();
+                return Problem(exe.Message);
             }
         }
 
@@ -152,7 +152,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             }
             catch(Exception exe)
             {
-                return BadRequest();
+                return Problem(exe.Message);
             }
         }
 

@@ -171,23 +171,31 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
 		public Project GetProjectDetails(int id)
 		{
-			Project? project = _projectRepository.Get(id);
-
-			if (project == null)
+			if(id == null)
 			{
-				throw new Exception("Project not found");
+				throw new ArgumentNullException();
 			}
 			else
 			{
-				return project;
-			}
+                Project? project = _projectRepository.Get(id);
+
+                if (project == null)
+                {
+                    throw new Exception("Project not found");
+                }
+                else
+                {
+                    return project;
+                }
+            }
+			
 		}
 
 		public Project DeleteProject(int id)
 		{
 			if (id == null)
 			{
-				throw new Exception("Project not found");
+				throw new ArgumentNullException("Project not found");
 			}
 			else
 			{
@@ -324,7 +332,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 		{
 			if (id == null)
 			{
-				throw new Exception("Project not found");
+				throw new ArgumentNullException("Project not found");
 			}
 			else
 			{
@@ -420,7 +428,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 		{
 			if (userId == null)
 			{
-				throw new Exception("No user found");
+				throw new ArgumentNullException("No user found");
 			}
 			else
 			{

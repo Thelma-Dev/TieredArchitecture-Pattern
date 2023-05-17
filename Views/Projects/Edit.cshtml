@@ -16,7 +16,7 @@
             <input type="hidden" asp-for="ProjectId" />
             <div class="form-group">
                 <label asp-for="ProjectName" class="control-label"></label>
-                <input asp-for="ProjectName" class="form-control" />
+                <input asp-for="ProjectName" value="@Model.Project.ProjectName" class="form-control" />
                 <span asp-validation-for="ProjectName" class="text-danger"></span>
             </div>
             <table class="table">
