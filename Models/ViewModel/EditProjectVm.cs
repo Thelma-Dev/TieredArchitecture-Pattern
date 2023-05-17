@@ -8,7 +8,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Models.ViewModel
     {
         public List<SelectListItem> AllDevelopers = new List<SelectListItem>();
 
-        [Required]
+        [Required(AllowEmptyStrings = false)]
         [DisplayName("Project Name :")]
         public string ProjectName { get; set; }
 
@@ -18,7 +18,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Models.ViewModel
 
         
         [DisplayName("Assign User :")]
-        public string? AssignedUserId { get; set; }
+        public string AssignedUserId { get; set; }
 
         public ApplicationUser? AssignedUser { get; set; }
 
