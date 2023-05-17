@@ -39,8 +39,9 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             _ticketWatcherRepository = ticketWatcherRepository;
         }
 
-        public IPagedList<Project> Read(string? sortOrder, int? page, bool? sort, string? userId)
+        public FilterVM Read(string? sortOrder, int? page, bool? sort, string? userId)
         {
+
             List<ApplicationUser> AllDevelopers = GetAllDevelopers();
             
             List<SelectListItem> users = new List<SelectListItem>();
@@ -162,9 +163,17 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
                 AssinedProject = SortedProjects;
             }
 
-            X.PagedList.IPagedList<Project> projList = Projects.ToPagedList(page ?? 1, 3);
+            FilterVM vm = new FilterVM();
+            vm.Projects = Projects;
+            vm.Logs = Projects.ToPagedList();
+            vm.AllDevelopers = users;
 
-            return projList;
+            //vm.Logs = Projects;
+
+            //X.PagedList.IPagedList<Project> projList = vm.Logs.ToPagedList();
+
+
+            return vm;
         }
 
         public Project GetProjectDetails(int id)

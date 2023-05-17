@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using SD_340_W22SD_Final_Project_Group6.Areas.Identity.Pages.Account;
+using X.PagedList;
 
 namespace SD_340_W22SD_Final_Project_Group6.Models.ViewModel
 {
@@ -10,21 +12,24 @@ namespace SD_340_W22SD_Final_Project_Group6.Models.ViewModel
 
 		public List<SelectListItem> AllDevelopers = new List<SelectListItem>();
 
-		public void PopulateLists(List<ApplicationUser> users)
-		{
-			users.ForEach(u =>
-			{
-				AllDevelopers.Add(new SelectListItem(u.UserName, u.Id.ToString()));
-			});
-		}
+		public IPagedList<Project> Logs { get; set; }
+
+
+		//public void PopulateLists(List<ApplicationUser> users)
+		//{
+		//	users.ForEach(u =>
+		//	{
+		//		AllDevelopers.Add(new SelectListItem(u.UserName, u.Id.ToString()));
+		//	});
+		//}
 
 		public string userId { get; set; }
 
 		public FilterVM() { }
 
-		public FilterVM(List<ApplicationUser> users)
-		{
-			PopulateLists(users);
-		}
+		//public FilterVM(List<ApplicationUser> users)
+		//{
+		//	PopulateLists(users);
+		//}
 	}
 }
