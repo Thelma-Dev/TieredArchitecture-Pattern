@@ -106,7 +106,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
                     Projects.ForEach(p =>
                     {
-                        p.Tickets = p.Tickets.OrderByDescending(t => t.Completed).ToList();
+                        p.Tickets = p.Tickets.Where(t => t.Completed == true).ToList();
                     });
                     break;
                 default:
