@@ -40,16 +40,12 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         {
             List<Ticket> tickets = _ticketRepository.GetAll().ToList();
 
-            List<Project> TicketProject = new List<Project>();
+            // To populate related tables
+            List<Project> AllProject = _projectRepository.GetAll().ToList() ;
 
-            List<ApplicationUser> TicketOwners = new List<ApplicationUser>();
+            List<ApplicationUser> TicketOwners = _userRepository.GetAll().ToList();
 
-            foreach(Ticket ticket in tickets)
-            {
-                TicketOwners.Add(ticket.Owner);
-                TicketProject.Add(ticket.Project);
-            }
-
+            
             return tickets;
         }
 
