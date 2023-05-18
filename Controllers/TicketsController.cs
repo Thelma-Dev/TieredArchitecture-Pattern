@@ -25,19 +25,18 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         private readonly IRepository<Project> _projectRepository;
         private readonly IUserRepository _userRepository;
         private readonly IRepository<Ticket> _ticketRepository;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly TicketBusinessLogic _ticketBusinessLogic;
         private readonly IUserProjectRepository _userProjectRepository;
         private readonly IRepository<TicketWatcher> _ticketWatcherRepository;
         private readonly IRepository<Comment> _commentRepository;
 
-        public TicketsController(IRepository<Project> projectRepository, IRepository<Ticket> ticketRepository, IUserRepository userRepository, UserManager<ApplicationUser> userManager, IUserProjectRepository userProjectRepository, IHttpContextAccessor httpContextAccessor, IRepository<TicketWatcher> ticketWatcherRepository, IRepository<Comment> commentRepository)
+        public TicketsController(IRepository<Project> projectRepository, IRepository<Ticket> ticketRepository, IUserRepository userRepository, UserManager<ApplicationUser> userManager, IUserProjectRepository userProjectRepository, IRepository<TicketWatcher> ticketWatcherRepository, IRepository<Comment> commentRepository)
         {
             _projectRepository = projectRepository;
             _ticketRepository = ticketRepository;
             _userRepository = userRepository;
             _userProjectRepository = userProjectRepository;
-            _ticketBusinessLogic = new TicketBusinessLogic(userManager, projectRepository, userRepository, ticketRepository, httpContextAccessor, ticketWatcherRepository, userProjectRepository, commentRepository);
+            _ticketBusinessLogic = new TicketBusinessLogic(userManager, projectRepository, userRepository, ticketRepository,ticketWatcherRepository, userProjectRepository, commentRepository);
         }
 
 
@@ -158,12 +157,14 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         {
             try
             {
+                string username = User.Identity.Name;
+
                 if (TaskId == null || TaskText == null)
                 {
                     return RedirectToAction("Index");
                 }
                     
-                _ticketBusinessLogic.CommentOnTask(TaskId, TaskText);
+                _ticketBusinessLogic.CommentOnTask(TaskId, TaskText, username);
                     
                 return RedirectToAction("Details", new {id = TaskId});
 
@@ -204,12 +205,14 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                         
             try
             {
+                string username = User.Identity.Name;
+
                 if (id == null)
                 {
                     return RedirectToAction("Index");
                 }
 
-                _ticketBusinessLogic.AddToWatch(id);
+                _ticketBusinessLogic.AddToWatch(id, username);
                 
                 return RedirectToAction("Details", new { id = id });
 
@@ -227,12 +230,15 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                         
             try
             {
+                string username = User.Identity.Name;
+
+
                 if (id == null)
                 {
                     return RedirectToAction("Index");
                 }
 
-                _ticketBusinessLogic.Unwatch(id);
+                _ticketBusinessLogic.Unwatch(id, username);
 
                 return RedirectToAction("Details", new { id = id });
 
