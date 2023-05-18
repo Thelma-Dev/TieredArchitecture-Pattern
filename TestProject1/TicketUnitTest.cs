@@ -1,7 +1,7 @@
-namespace TestProject1
+namespace TieredArchitectureUnitTest
 {
     [TestClass]
-    public class UnitTest1
+    public class TicketUnitTest
     {
         [TestMethod]
         public void TestMethod1()
