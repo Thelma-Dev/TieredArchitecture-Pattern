@@ -79,6 +79,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             List<Comment> comments = _commentRepository.GetAll().ToList();            
             List<Project> allProjects = _projectRepository.GetAll().ToList();
             List<ApplicationUser> allUsers = _userRepository.GetAll().ToList();
+            List<TicketWatcher> AllTicketWatchers = _ticketWatcherRepository.GetAll().ToList();
 
 
             TicketWatcher ticketWatcher = ticket.TicketWatchers.FirstOrDefault(tw => tw.TicketId == ticket.Id);
