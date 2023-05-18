@@ -197,7 +197,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             }
         }
 
-        public void UpdateTicket(EditTicketVm vm)
+        public void UpdateEditedTicket(EditTicketVm vm)
         {
             Ticket ticket = _ticketRepository.Get(vm.TicketId);
 
@@ -451,7 +451,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             }            
         }
 
-        public void ConfirmDeleteTicket(int ticketId, int ProjectId)
+        public void TicketDeleteConfirmed(int ticketId, int ProjectId)
         {
             if(ticketId == null)
             {

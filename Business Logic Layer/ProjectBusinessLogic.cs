@@ -213,7 +213,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
         }
 
-        public void ConfirmProjectDelete(int projectId)
+        public void ProjectDeleteConfirmed(int projectId)
         {
             Project project = _projectRepository.Get(projectId);
 
@@ -359,7 +359,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
         }
 
-        public void UpdateProject(EditProjectVm vm)
+        public void UpdateEditedProject(EditProjectVm vm)
         {
 
             Project project = _projectRepository.Get(vm.ProjectId);

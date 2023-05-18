@@ -122,7 +122,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                 if (ModelState.IsValid)
                 {
                     
-                    _ticketBusinessLogic.UpdateTicket(vm);
+                    _ticketBusinessLogic.UpdateEditedTicket(vm);
 
 					return RedirectToAction(nameof(Edit), new { id = vm.TicketId });
 				}
@@ -299,7 +299,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         {
             try
             {
-                _ticketBusinessLogic.ConfirmDeleteTicket(id, projectId);
+                _ticketBusinessLogic.TicketDeleteConfirmed(id, projectId);
 
                 return RedirectToAction("Index", "Projects");
             }

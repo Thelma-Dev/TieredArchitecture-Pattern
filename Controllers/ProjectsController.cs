@@ -146,12 +146,12 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             {
                 vm.ProjectDevelopersId = Request.Form["AssignedUserId"].ToList();
 
-                _projectBusinessLogic.UpdateProject(vm);
+                _projectBusinessLogic.UpdateEditedProject(vm);
 
                 if (ModelState.IsValid)
                 {
 
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Edit), new {id = vm.ProjectId});
                 }
                 else
                 {
@@ -189,7 +189,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         {
             try
             {
-                _projectBusinessLogic.ConfirmProjectDelete(id);
+                _projectBusinessLogic.ProjectDeleteConfirmed(id);
 
                 return RedirectToAction(nameof(Index));
             }
