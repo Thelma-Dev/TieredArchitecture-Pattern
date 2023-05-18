@@ -14,6 +14,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Models
 
             RoleManager<IdentityRole> roleManager =
                 serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
             UserManager<ApplicationUser> userManager =
                 serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
@@ -44,7 +45,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Models
                 };
 
                 var password3 = new PasswordHasher<ApplicationUser>();
-                var hashed3 = password3.HashPassword(seedAdminUser, "P@ssW0rd");
+                var hashed3 = password3.HashPassword(seedAdminUser, "Password");
                 seedAdminUser.PasswordHash = hashed3;
                 await userManager.CreateAsync(seedAdminUser);
                 await userManager.AddToRoleAsync(seedAdminUser, "Admin");

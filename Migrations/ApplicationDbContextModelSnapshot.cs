@@ -3,41 +3,24 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SD_340_W22SD_Final_Project_Group6.Data;
 
 #nullable disable
 
-namespace SD_340_W22SD_Final_Project_Group6.Data.Migrations
+namespace SD_340_W22SD_Final_Project_Group6.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220913213223_FixPriorityEnumOnTicketModel")]
-    partial class FixPriorityEnumOnTicketModel
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.8")
+                .HasAnnotation("ProductVersion", "6.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
-
-            modelBuilder.Entity("ApplicationUserTicket", b =>
-                {
-                    b.Property<string>("AssignedUsersId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("TicketsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("AssignedUsersId", "TicketsId");
-
-                    b.HasIndex("TicketsId");
-
-                    b.ToTable("ApplicationUserTicket");
-                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -201,10 +184,6 @@ namespace SD_340_W22SD_Final_Project_Group6.Data.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -253,21 +232,23 @@ namespace SD_340_W22SD_Final_Project_Group6.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("CreatedById")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<int>("TicketId")
                         .HasColumnType("int");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedById");
-
                     b.HasIndex("TicketId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Comments");
                 });
@@ -281,6 +262,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("CreatedById")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProjectName")
@@ -303,17 +285,23 @@ namespace SD_340_W22SD_Final_Project_Group6.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<string>("ApplicationUser")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Body")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ProjectId")
+                    b.Property<bool?>("Completed")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("ProjectId")
                         .HasColumnType("int");
 
                     b.Property<int>("RequiredHours")
                         .HasColumnType("int");
 
-                    b.Property<int>("TicketPriority")
+                    b.Property<int?>("TicketPriority")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
@@ -323,24 +311,58 @@ namespace SD_340_W22SD_Final_Project_Group6.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ApplicationUser");
+
                     b.HasIndex("ProjectId");
 
                     b.ToTable("Tickets");
                 });
 
-            modelBuilder.Entity("ApplicationUserTicket", b =>
+            modelBuilder.Entity("SD_340_W22SD_Final_Project_Group6.Models.TicketWatcher", b =>
                 {
-                    b.HasOne("SD_340_W22SD_Final_Project_Group6.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("AssignedUsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
-                    b.HasOne("SD_340_W22SD_Final_Project_Group6.Models.Ticket", null)
-                        .WithMany()
-                        .HasForeignKey("TicketsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("TicketId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("WatcherId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
+
+                    b.HasIndex("WatcherId");
+
+                    b.ToTable("TicketWatchers");
+                });
+
+            modelBuilder.Entity("SD_340_W22SD_Final_Project_Group6.Models.UserProject", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int?>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserProjects");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -396,44 +418,106 @@ namespace SD_340_W22SD_Final_Project_Group6.Data.Migrations
 
             modelBuilder.Entity("SD_340_W22SD_Final_Project_Group6.Models.Comment", b =>
                 {
-                    b.HasOne("SD_340_W22SD_Final_Project_Group6.Models.ApplicationUser", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
                     b.HasOne("SD_340_W22SD_Final_Project_Group6.Models.Ticket", "Ticket")
-                        .WithMany()
+                        .WithMany("Comments")
                         .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("CreatedBy");
+                    b.HasOne("SD_340_W22SD_Final_Project_Group6.Models.ApplicationUser", "User")
+                        .WithMany("Comments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Ticket");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SD_340_W22SD_Final_Project_Group6.Models.Project", b =>
                 {
                     b.HasOne("SD_340_W22SD_Final_Project_Group6.Models.ApplicationUser", "CreatedBy")
-                        .WithMany("Projects")
-                        .HasForeignKey("CreatedById");
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("CreatedBy");
                 });
 
             modelBuilder.Entity("SD_340_W22SD_Final_Project_Group6.Models.Ticket", b =>
                 {
+                    b.HasOne("SD_340_W22SD_Final_Project_Group6.Models.ApplicationUser", "Owner")
+                        .WithMany("Tickets")
+                        .HasForeignKey("ApplicationUser");
+
                     b.HasOne("SD_340_W22SD_Final_Project_Group6.Models.Project", "Project")
-                        .WithMany()
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("Tickets")
+                        .HasForeignKey("ProjectId");
+
+                    b.Navigation("Owner");
 
                     b.Navigation("Project");
                 });
 
+            modelBuilder.Entity("SD_340_W22SD_Final_Project_Group6.Models.TicketWatcher", b =>
+                {
+                    b.HasOne("SD_340_W22SD_Final_Project_Group6.Models.Ticket", "Ticket")
+                        .WithMany("TicketWatchers")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SD_340_W22SD_Final_Project_Group6.Models.ApplicationUser", "Watcher")
+                        .WithMany("TicketWatching")
+                        .HasForeignKey("WatcherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+
+                    b.Navigation("Watcher");
+                });
+
+            modelBuilder.Entity("SD_340_W22SD_Final_Project_Group6.Models.UserProject", b =>
+                {
+                    b.HasOne("SD_340_W22SD_Final_Project_Group6.Models.Project", "Project")
+                        .WithMany("AssignedTo")
+                        .HasForeignKey("ProjectId");
+
+                    b.HasOne("SD_340_W22SD_Final_Project_Group6.Models.ApplicationUser", "User")
+                        .WithMany("Projects")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Project");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("SD_340_W22SD_Final_Project_Group6.Models.ApplicationUser", b =>
                 {
+                    b.Navigation("Comments");
+
                     b.Navigation("Projects");
+
+                    b.Navigation("TicketWatching");
+
+                    b.Navigation("Tickets");
+                });
+
+            modelBuilder.Entity("SD_340_W22SD_Final_Project_Group6.Models.Project", b =>
+                {
+                    b.Navigation("AssignedTo");
+
+                    b.Navigation("Tickets");
+                });
+
+            modelBuilder.Entity("SD_340_W22SD_Final_Project_Group6.Models.Ticket", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("TicketWatchers");
                 });
 #pragma warning restore 612, 618
         }

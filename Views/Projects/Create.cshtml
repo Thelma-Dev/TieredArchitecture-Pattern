@@ -1,4 +1,4 @@
-﻿@model SD_340_W22SD_Final_Project_Group6.Models.Project
+﻿@model SD_340_W22SD_Final_Project_Group6.Models.ViewModel.CreateProjectVm
 
 
 
@@ -7,9 +7,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
-
-<h4>Project</h4>
+<h1>Create Project</h1>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -20,12 +18,14 @@
                 <input asp-for="ProjectName" class="form-control" />
                 <span asp-validation-for="ProjectName" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <p>Assigned User</p>
-				<label class="control-label"></label>
-                 <select name="userIds" asp-for="AssignedTo" asp-items=@ViewBag.Users></select>
-				<span class="text-danger"></span>
-			</div>
+
+            <div class="form-group mt-4">
+                <label asp-for="AssignedUserId" class="control-label"></label>
+                <br />
+                @Html.ListBoxFor(model => model.AssignedUserId, new MultiSelectList(Model.AllDevelopers, "Value", "Text", @Model.AssignedUserId)
+                ,new {@class= "form-control developerslist mt-3",multiple="multiple", id="DevelopersList_Dropdown"})
+            </div>
+            
             <div class="form-group">
                 <input type="submit" value="Create" class="btn" style="background-color: #E4BCB9" />
             </div>
@@ -37,6 +37,20 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+@section Scripts{
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $('.developerslist').multiselect();
+        });
+    </script>
+            @{
+                await Html.RenderPartialAsync("_ValidationScriptsPartial");
+            }
 }

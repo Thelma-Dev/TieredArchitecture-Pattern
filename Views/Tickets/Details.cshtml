@@ -67,11 +67,11 @@
 			</span>
 			<h5>Comments</h5>
 			<ol>
-				@foreach (var comment in Model.Comments)
+				@foreach (Comment comment in Model.Comments)
 				{
 					<li>
 						@comment.Description
-						By @comment.CreatedBy.Email
+						By @comment.User.Email
 					</li>
 				}
 			</ol>
@@ -121,11 +121,11 @@
 			</span>
 			<h5>Comments</h5>
 			<ol>
-				@foreach (var comment in Model.Comments)
+				@foreach (Comment comment in Model.Comments)
 				{
 					<li>
 						@comment.Description
-						By @comment.CreatedBy
+						By @comment.User
 					</li>
 				}
 			</ol>
@@ -194,11 +194,11 @@
 
 			<h5>Comments</h5>
 			<ol>
-				@foreach (var comment in Model.Comments)
+				@foreach (Comment comment in Model.Comments)
 				{
 					<li>
 						@comment.Description
-						By @comment.CreatedBy
+						By @comment.User
 					</li>
 				}
 			</ol>
