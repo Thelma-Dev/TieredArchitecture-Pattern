@@ -1,0 +1,24 @@
+﻿@model ICollection<ApplicationUser>
+
+<form asp-action="ReassignRole" asp-controller="Admin">
+    <div class="form-group">
+	<label class="control-label">Choose a User</label>
+	<select name="userId" asp-items=@ViewBag.Users></select>
+	<span class="text-danger"></span>
+</div>
+
+<div  class="form-group">
+	<label  class="control-label" for="roles">Choose a role</label>
+	<select name="role">
+		<option value="Admin">Admin</option>
+		<option value="ProjectManager">Project Manager</option>
+		<option value="Developer" >Developer</option>
+	</select>
+</div>
+
+<div class="form-group">
+	<input type="submit" value="ReassignRole" class="btn" style="background-color: #E4BCB9" />
+</div>
+</form>
+
+

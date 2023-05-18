@@ -1,0 +1,137 @@
+﻿@model SD_340_W22SD_Final_Project_Group6.Models.ViewModel.PaginationVM
+@using X.PagedList;
+@using X.PagedList.Mvc.Bootstrap4.Core
+@using X.PagedList.Mvc.Core;
+@using X.PagedList.Mvc.Bootstrap4;
+
+@{
+	ViewData["Title"] = "Index";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; margin-bottom: 1rem">
+	<div style="display: flex; align-content: center; gap: .5rem">
+		<h4 style="display: inline">Projects</h4>
+		<a asp-action="Create" class="btn" style="background-color: #E4BCB9">Create New</a>
+		<a asp-action="Index" asp-route-sortOrder="default" class="btn" style="background-color: #E4BCB9" name="sortOrder">Show All</a>
+		<a asp-action="Index" asp-route-sortOrder="Completed" class="btn" style="background-color: #E4BCB9" name="sortOrder">Show Completed</a>
+		<form asp-action="Index">
+			<div class="form-group" style="display: inline">
+				<input type="submit" value="Filter by User" class="btn" style="background-color: #E4BCB9" />
+			</div>
+			<div class="form-group" style="display: inline">
+				<select name="userId" asp-items=@Model.AllDevelopers></select>
+				<span class="text-danger"></span>
+			</div>
+			@*<select asp-for="us" asp-items="Model.AllDevelopers" class="mt-2" style="border-radius: 5px; width:180px; height: 46px; padding: 5px">
+				<option value="" hidden disabled selected>Select a Role</option>
+			</select>*@
+		</form>
+	</div>
+
+	<div style="display: flex">
+		<div>
+			<p style="display: inline">Sort Priority:</p>
+			<a asp-action="Index" asp-route-sortOrder="Priority" asp-route-sort=true name="sortOrder">&#128077</a>
+			<a asp-action="Index" asp-route-sortOrder="Priority" asp-route-sort=false name="sortOrder">&#128078</a>
+		</div>
+		<div>
+			<p style="display: inline">Sort Required Hrs:</p>
+			<a asp-action="Index" asp-route-sortOrder="RequiredHrs" asp-route-sort=true name="sortOrder">&#128077</a>
+			<a asp-action="Index" asp-route-sortOrder="RequiredHrs" asp-route-sort=false name="sortOrder">&#128078</a>
+		</div>
+	</div>
+
+
+</div>
+
+
+<div>
+	@foreach (Project item in Model.Projects)
+	{
+		<div style="margin-bottom: 2rem; border: 1px solid gray; border-radius: 10px; padding: 1rem; background-color: white">
+			<div style="display:flex; flex-direction: row; justify-content: space-between; border-bottom: solid 1px gray; padding-bottom: 1rem; margin-bottom: 1rem">
+				<h4>Project Name: @item.ProjectName</h4>
+				<h4>Created By: @item.CreatedBy</h4>
+				<h4>Assigned To</h4>
+				<ol>
+					@foreach (UserProject user in item.AssignedTo)
+					{
+						<li>@user.User.UserName</li>
+					}
+				</ol>
+				<div>
+					<form>
+						<input asp-action="Edit" asp-controller="Projects" asp-route-id=@item.Id type="submit" class="btn btn-dark" value="Edit" />
+						<input asp-action="Delete" asp-controller="Projects" asp-route-id=@item.Id type="submit" class="btn btn-danger" value="Delete" />
+					</form>
+				</div>
+
+			</div>
+
+
+			<h4>Tickets</h4>
+
+
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Ticket Name</th>
+						<th>Owner</th>
+						<th>Required Hours</th>
+						<th>Priority</th>
+
+						<th>Watching</th>
+						<th>Completed</th>
+						<th>Settings</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (Ticket ticket in item.Tickets)
+					{
+						<tr>
+							<td><a asp-action="Details" asp-controller="Tickets" asp-route-id="@ticket.Id">@ticket.Title</a></td>
+							<td>@ticket.Owner</td>
+							<td>@ticket.RequiredHours</td>
+							<td>@ticket.TicketPriority</td>
+
+							@if (ticket.TicketWatchers.Any(tw => tw.Watcher.UserName == User.Identity.Name) || User.Identity.Name == ticket.Owner.UserName)
+							{
+								<td>&#9989</td>
+							}
+							else
+							{
+								<td></td>
+							}
+
+							@if (ticket.Completed == true)
+							{
+								<td>&#10024</td>
+							}
+							else
+							{
+								<td></td>
+							}
+
+							<td>
+								<a asp-action="Edit" asp-controller="Tickets" asp-route-id="@ticket.Id">&#9999</a> |
+								<a asp-action="Delete" asp-controller="Tickets" asp-route-id="@ticket.Id">&#128465</a>
+							</td>
+						</tr>
+					}
+
+				</tbody>
+			</table>
+			<p>
+				<a asp-action="Create" asp-controller="Tickets" asp-route-projectId="@item.Id" name="projectId" class="btn" style="background-color: #E4BCB9">Create New Ticket</a>
+			</p>
+		</div>
+	}
+
+</div>
+<div>
+	@Html.PagedListPager(Model.Projects, page => Url.Action("Index", new { page }), Bootstrap4PagedListRenderOptions.PageNumbersOnly)
+</div>
+
+

@@ -1,0 +1,78 @@
+﻿@model SD_340_W22SD_Final_Project_Group6.Models.ViewModel.CreateTicketVm
+
+
+@{
+	ViewData["Title"] = "Create";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Create Ticket</h1>
+
+<h4>Ticket for @Model.Project.ProjectName</h4>
+
+<hr />
+<div class="row">
+	<div>
+		<form asp-action="Create" method="post">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+
+			<div class="form-group">
+				<label asp-for="Title" class="control-label"></label>
+				<input asp-for="Title" class="form-control" />
+				<span asp-validation-for="Title" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Body" class="control-label"></label>
+				<textarea asp-for="Body" id="mytextarea" required="required">Enter Text Here</textarea>
+				<span asp-validation-for="Body" class="text-danger"></span>
+			</div>
+			<div class="row">
+				<div class="col-2" style="gap: 1rem; display:flex; flex-direction:column">
+					<div class="form-group">
+						<label asp-for="RequiredHours" class="control-label"></label>
+						<input asp-for="RequiredHours" class="form-control" />
+						<span asp-validation-for="RequiredHours" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label asp-for="ProjectId" class="control-label"></label>
+						<input type="hidden" value="@Model.ProjectId" name="projectId" />
+						<p style="font-weight: bold; display: inline">@Model.Project</p>
+						<span asp-validation-for="Project" class="text-danger"></span>
+					</div>
+
+
+				</div>
+				<div class="col-8" style="gap: 1rem; display:flex; flex-direction:column">
+					<div class="form-group">
+						<label asp-for="TicketPriority" class="control-label"></label>
+						<select asp-for="TicketPriority" asp-items="Html.GetEnumSelectList<Ticket.Priority>()"></select>
+						<span asp-validation-for="TicketPriority" class="text-danger"></span>
+					</div>
+					<div class="form-group mt-4">
+						<label asp-for="OwnerId" class="control-label"></label>
+						<br />
+						<select asp-for="OwnerId" asp-items="Model.AllDevelopers" class="mt-2" style="border-radius: 5px; width:180px; height: 46px; padding: 5px">
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<input type="submit" value="Create" class="btn" style="background-color: #E4BCB9" />
+			</div>
+
+
+		</form>
+	</div>
+</div>
+
+<div>
+	<a asp-action="Index" asp-controller="Projects">Back to List</a>
+</div>
+
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+	}
