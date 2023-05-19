@@ -39,6 +39,32 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             _ticketWatcherRepository = ticketWatcherRepository;
         }
 
+        public ProjectBusinessLogic(IRepository<Project> projectRepository) 
+        {
+            _projectRepository = projectRepository;
+        }
+
+        public Project GetProject(int? id)
+        {
+            if(id == null)
+            {
+                throw new ArgumentNullException("ProjectId is null");
+            }
+            else
+            {
+                Project project = _projectRepository.Get(id);
+
+                if(project == null)
+                {
+                    throw new InvalidOperationException("Project not found");
+                }
+                else
+                {
+                    return project;
+                }
+            }
+        }
+
         public PaginationVM Read(string? sortOrder, int? page, bool? sort, string? userId)
         {
 
@@ -171,95 +197,55 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
         public Project GetProjectDetails(int id)
         {
-            if (id == null)
-            {
-                throw new Exception();
-            }
-            else
-            {
-                Project? project = _projectRepository.Get(id);
+            Project project = GetProject(id);
 
-                if (project == null)
-                {
-                    throw new Exception("Project not found");
-                }
-                else
-                {
-                    return project;
-                }
-            }
-
+            return project;
         }
 
         public Project DeleteProject(int id)
         {
-            if (id == null)
-            {
-                throw new Exception("Project not found");
-            }
-            else
-            {
-                Project project = _projectRepository.Get(id);
+            Project project = GetProject(id);
 
-                if (project == null)
-                {
-                    throw new Exception("Project not found");
-                }
-                else
-                {
-                    return project;
-                }
-            }
-
+            return project;
         }
 
         public void ProjectDeleteConfirmed(int projectId)
         {
-            Project project = _projectRepository.Get(projectId);
+            Project project = GetProject(projectId);
 
             HashSet<Ticket> ticketList = _ticketRepository.GetAll().ToHashSet();
 
-            if (project == null)
+            
+            List<Ticket> tickets = GetTicketsInProject(projectId);
+
+            List<UserProject> userProjects = new List<UserProject>();
+
+            if (tickets.Count != 0)
             {
-                throw new Exception("Project not found");
+                tickets.ForEach(ticket =>
+                {
+                    _ticketRepository.Delete(ticket);
+                });
+
+                userProjects = _userProjectRepository.GetProjects(projectId);
+
+                userProjects.ForEach(userProj =>
+                {
+                    _userProjectRepository.RemoveUserProject(userProj);
+                });
+
             }
             else
             {
-                List<Ticket> tickets = GetTicketsInProject(projectId);
+                userProjects = _userProjectRepository.GetProjects(projectId);
 
-                List<UserProject> userProjects = new List<UserProject>();
-
-                if (tickets.Count != 0)
+                userProjects.ForEach(userProj =>
                 {
-                    tickets.ForEach(ticket =>
-                    {
-                        _ticketRepository.Delete(ticket);
-                    });
-
-                    userProjects = _userProjectRepository.GetProjects(projectId);
-
-                    userProjects.ForEach(userProj =>
-                    {
-                        _userProjectRepository.RemoveUserProject(userProj);
-                    });
-
-                }
-                else
-                {
-                    userProjects = _userProjectRepository.GetProjects(projectId);
-
-                    userProjects.ForEach(userProj =>
-                    {
-                        _userProjectRepository.RemoveUserProject(userProj);
-                    });
-                }
-
-                _projectRepository.Delete(project);
-
+                    _userProjectRepository.RemoveUserProject(userProj);
+                });
             }
 
-
-
+            _projectRepository.Delete(project);
         }
 
 
@@ -331,32 +317,18 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
         public EditProjectVm EditProject(int? id)
         {
-            if (id == null)
-            {
-                throw new Exception("Project not found");
-            }
-            else
-            {
-                Project project = _projectRepository.Get(id);
+            
+            Project project = GetProject(id);
+                
+            List<UserProject> usersProjects = _userProjectRepository.GetProjects(project.Id);
 
-                if (project == null)
-                {
-                    throw new Exception("Project not found");
-                }
-                else
-                {
-                    List<UserProject> usersProjects = _userProjectRepository.GetProjects(project.Id);
+            List<ApplicationUser> allUsers = _userRepository.GetAll().ToList();
 
-                    List<ApplicationUser> allUsers = _userRepository.GetAll().ToList();
+            EditProjectVm vm = new EditProjectVm(allUsers);
+            vm.Project = project;
+            vm.ProjectId = project.Id;
 
-                    EditProjectVm vm = new EditProjectVm(allUsers);
-                    vm.Project = project;
-                    vm.ProjectId = project.Id;
-
-                    return vm;
-                }
-            }
-
+            return vm;
         }
 
         public void UpdateEditedProject(EditProjectVm vm)
