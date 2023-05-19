@@ -26,14 +26,13 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         private readonly IRepository<Project> _projectRepository;
         private readonly IUserRepository _userRepository;
         private readonly IRepository<Ticket> _ticketRepository;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRepository<TicketWatcher> _ticketWatcherRepository;
         
 
-        public ProjectsController(UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository, IHttpContextAccessor httpContextAccessor, IRepository<TicketWatcher> ticketWatcherRepository)
+        public ProjectsController(UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository, IRepository<TicketWatcher> ticketWatcherRepository)
         {
             _userManager = userManager;
-            _projectBusinessLogic = new ProjectBusinessLogic(userManager, projectRepository, userProjectRepository, userRepository, ticketRepository, httpContextAccessor, ticketWatcherRepository);
+            _projectBusinessLogic = new ProjectBusinessLogic(userManager, projectRepository, userProjectRepository, userRepository, ticketRepository, ticketWatcherRepository);
             
         }
         
@@ -42,7 +41,9 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         {
             try
             {
-                return View(_projectBusinessLogic.Read(sortOrder, page, sort, userId));
+                string LoggedInUserName = User.Identity.Name;
+
+                return View(_projectBusinessLogic.Read(sortOrder, page, sort, userId,LoggedInUserName));
             }
             catch (Exception ex)
             {
@@ -189,7 +190,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         {
             try
             {
-                _projectBusinessLogic.ProjectDeleteConfirmed(id);
+                _projectBusinessLogic.DeleteProjectConfrimed(id);
 
                 return RedirectToAction(nameof(Index));
             }

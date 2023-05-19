@@ -24,22 +24,41 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         private IUserProjectRepository _userProjectRepository;
         private IUserRepository _userRepository;
         private IRepository<Ticket> _ticketRepository;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRepository<TicketWatcher> _ticketWatcherRepository;
 
 
-        public ProjectBusinessLogic(UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository, IHttpContextAccessor httpContextAccessor, IRepository<TicketWatcher> ticketWatcherRepository)
+        public ProjectBusinessLogic(UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository, IRepository<TicketWatcher> ticketWatcherRepository)
         {
             _userManager = userManager;
             _projectRepository = projectRepository;
             _userProjectRepository = userProjectRepository;
             _userRepository = userRepository;
             _ticketRepository = ticketRepository;
-            _httpContextAccessor = httpContextAccessor;
             _ticketWatcherRepository = ticketWatcherRepository;
         }
 
-        public PaginationVM Read(string? sortOrder, int? page, bool? sort, string? userId)
+        public Project GetProject(int? id)
+        {
+            if (id == null)
+            {
+                throw new Exception("ProjectId is null");
+            }
+            else
+            {
+                Project? project = _projectRepository.Get(id);
+
+                if (project == null)
+                {
+                    throw new Exception("Project not found");
+                }
+                else
+                {
+                    return project;
+                }
+            }
+        }
+
+        public PaginationVM Read(string? sortOrder, int? page, bool? sort, string? userId, string loggedInUserName)
         {
 
             List<ApplicationUser> AllDevelopers = GetAllDevelopers();
@@ -133,13 +152,12 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
             //check if User is PM or Develoer
 
-            string LoggedUserId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            ApplicationUser user = _userRepository.Get(LoggedUserId);
+            ApplicationUser user = _userRepository.GetUserByUserName(loggedInUserName);
 
 
             // Get the role the user is in
-            string roleId = _userRepository.GetUserRole(LoggedUserId);
+            string roleId = _userRepository.GetUserRole(user.Id);
 
             IdentityRole role = _userRepository.GetRole(roleId);
 
@@ -171,49 +189,19 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
         public Project GetProjectDetails(int id)
         {
-            if (id == null)
-            {
-                throw new Exception();
-            }
-            else
-            {
-                Project? project = _projectRepository.Get(id);
-
-                if (project == null)
-                {
-                    throw new Exception("Project not found");
-                }
-                else
-                {
-                    return project;
-                }
-            }
-
+            Project project = GetProject(id);
+                            
+            return project; 
         }
 
         public Project DeleteProject(int id)
         {
-            if (id == null)
-            {
-                throw new Exception("Project not found");
-            }
-            else
-            {
-                Project project = _projectRepository.Get(id);
+            Project project = GetProject(id);
 
-                if (project == null)
-                {
-                    throw new Exception("Project not found");
-                }
-                else
-                {
-                    return project;
-                }
-            }
-
+            return project;
         }
 
-        public void ProjectDeleteConfirmed(int projectId)
+        public void DeleteProjectConfrimed(int projectId)
         {
             Project project = _projectRepository.Get(projectId);
 

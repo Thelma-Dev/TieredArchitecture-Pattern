@@ -413,7 +413,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             }            
         }
 
-        public void TicketDeleteConfirmed(int ticketId, int ProjectId)
+        public void DeleteTicketConfirmed(int ticketId, int ProjectId)
         {
             if(ticketId == null)
             {

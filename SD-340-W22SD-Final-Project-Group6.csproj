@@ -9,6 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Refactored-Project\**" />
+    <Compile Remove="TestProject1\**" />
+    <Content Remove="Refactored-Project\**" />
+    <Content Remove="TestProject1\**" />
+    <EmbeddedResource Remove="Refactored-Project\**" />
+    <EmbeddedResource Remove="TestProject1\**" />
+    <None Remove="Refactored-Project\**" />
+    <None Remove="TestProject1\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.9" />
