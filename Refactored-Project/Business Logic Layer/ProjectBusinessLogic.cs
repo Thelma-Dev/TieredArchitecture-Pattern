@@ -19,30 +19,38 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
     public class ProjectBusinessLogic
     {
-        private readonly UserManager<ApplicationUser> _userManager;
+       
         private IRepository<Project> _projectRepository;
         private IUserProjectRepository _userProjectRepository;
         private IUserRepository _userRepository;
         private IRepository<Ticket> _ticketRepository;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRepository<TicketWatcher> _ticketWatcherRepository;
 
 
-        public ProjectBusinessLogic(UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository, IHttpContextAccessor httpContextAccessor, IRepository<TicketWatcher> ticketWatcherRepository)
+        public ProjectBusinessLogic(IRepository<Project> projectRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository, IRepository<TicketWatcher> ticketWatcherRepository)
         {
-            _userManager = userManager;
+            
             _projectRepository = projectRepository;
             _userProjectRepository = userProjectRepository;
             _userRepository = userRepository;
             _ticketRepository = ticketRepository;
-            _httpContextAccessor = httpContextAccessor;
             _ticketWatcherRepository = ticketWatcherRepository;
         }
 
-        public ProjectBusinessLogic(IRepository<Project> projectRepository) 
+        public ProjectBusinessLogic(IRepository<Project> projectRepository, IRepository<Ticket> ticketRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository) 
+        {
+            _projectRepository = projectRepository;
+            _ticketRepository = ticketRepository;
+            _userProjectRepository = userProjectRepository;
+            _userRepository = userRepository;
+        }
+
+        public ProjectBusinessLogic(IRepository<Project> projectRepository)
         {
             _projectRepository = projectRepository;
         }
+
+        public ProjectBusinessLogic() { }
 
         public Project GetProject(int? id)
         {
@@ -65,7 +73,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             }
         }
 
-        public PaginationVM Read(string? sortOrder, int? page, bool? sort, string? userId)
+        public PaginationVM Read(string? sortOrder, int? page, bool? sort, string? userId, string loggedInUserName)
         {
 
             List<ApplicationUser> AllDevelopers = GetAllDevelopers();
@@ -159,13 +167,11 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
             //check if User is PM or Develoer
 
-            string LoggedUserId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            ApplicationUser user = _userRepository.Get(LoggedUserId);
+            ApplicationUser user = _userRepository.GetUserByUserName(loggedInUserName);
 
 
             // Get the role the user is in
-            string roleId = _userRepository.GetUserRole(LoggedUserId);
+            string roleId = _userRepository.GetUserRole(user.Id);
 
             IdentityRole role = _userRepository.GetRole(roleId);
 
@@ -209,7 +215,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             return project;
         }
 
-        public void ProjectDeleteConfirmed(int projectId)
+        public void DeleteProjectConfirmed(int projectId)
         {
             Project project = GetProject(projectId);
 
@@ -290,29 +296,36 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
                 {
                     _projectRepository.Create(newProject);
 
-                    foreach (ApplicationUser dev in ProjectDevelopers)
-                    {
-                        UserProject newUserProject = new UserProject();
-
-                        newUserProject.User = dev;
-                        newUserProject.UserId = dev.Id;
-                        newUserProject.Project = newProject;
-                        newUserProject.ProjectId = newProject.Id;
-
-                        newProject.AssignedTo.Add(newUserProject);
-
-                        _userProjectRepository.CreateUserProject(newUserProject);
-                    }
+                    AddUserToProject(newProject, ProjectDevelopers);
 
                 }
                 else
                 {
-                    throw new Exception("Error Creating Project");
+                    throw new ArgumentException("Error Creating Project");
                 }
             }
+            else
+            {
+                List<ApplicationUser> AllDevelopers = GetAllDevelopers();
+                vm.PopulateLists(AllDevelopers);
+            }            
+        }
 
-            List<ApplicationUser> AllDevelopers = GetAllDevelopers();
-            vm.PopulateLists(AllDevelopers);
+        public void AddUserToProject(Project project, List<ApplicationUser> ProjectAssignees)
+        {
+            foreach (ApplicationUser dev in ProjectAssignees)
+            {
+                UserProject newUserProject = new UserProject();
+
+                newUserProject.User = dev;
+                newUserProject.UserId = dev.Id;
+                newUserProject.Project = project;
+                newUserProject.ProjectId = project.Id;
+
+                project.AssignedTo.Add(newUserProject);
+
+                _userProjectRepository.CreateUserProject(newUserProject);
+            }
         }
 
         public EditProjectVm EditProject(int? id)
@@ -385,35 +398,42 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             }
         }
 
-        public void RemoveAssignedUser(string userId, int projectId)
+        public ApplicationUser GetUserToBeRemovedFromProject(string userId)
         {
-            if (userId == null)
+            if(userId == null)
             {
-                throw new Exception("No user found");
+                throw new ArgumentNullException("userId not found");
             }
             else
             {
-                ApplicationUser user = _userRepository.Get(userId);
+                ApplicationUser userToBeRemoved = _userRepository.Get(userId);
 
-                if (user == null)
+                if (userToBeRemoved != null)
                 {
-                    throw new Exception("User not found");
+                    return userToBeRemoved;
                 }
                 else
                 {
-                    UserProject currentUserProject = _userProjectRepository.GetUserProject(projectId, userId);
-
-                    if (currentUserProject == null)
-                    {
-                        throw new Exception("User Project not found");
-                    }
-                    else
-                    {
-                        _userProjectRepository.RemoveUserProject(currentUserProject);
-                    }
+                    throw new InvalidOperationException("User not found");
                 }
             }
+        }
 
+        public void RemoveAssignedUser(string userId, int projectId)
+        {
+            
+            ApplicationUser user = GetUserToBeRemovedFromProject(userId);
+
+            UserProject currentUserProject = _userProjectRepository.GetUserProject(projectId, userId);
+
+            if (currentUserProject == null)
+            {
+                throw new InvalidOperationException("User Project not found");
+            }
+            else
+            {
+                _userProjectRepository.RemoveUserProject(currentUserProject);
+            }
         }
 
         private List<Ticket> GetTicketsInProject(int projectId)
