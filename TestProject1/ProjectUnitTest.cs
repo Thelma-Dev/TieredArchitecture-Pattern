@@ -159,7 +159,7 @@ namespace TieredArchitectureUnitTest
         }
 
         [TestMethod]
-        public void GetProject_OnNoArgument_ThrowsArgumetNullException()
+        public void GetProject_OnNoArgument_ThrowsArgumentNullException()
         {
             Assert.ThrowsException<ArgumentNullException>(() => ProjectBusinessLogic.GetProject(null));
         }
@@ -206,10 +206,27 @@ namespace TieredArchitectureUnitTest
 
 
         [TestMethod]
-        [DataRow(1)]
-        public void RemoveAssignedUser_WithFoundUserIdAndFoundProjectId_RemovesTheUserFromTheUserProjectTable(string userId, int projectId)
+        public void GetUserToBeRemovedFromProject_OnNoArgument_ThrowsArgumentNullException()
         {
+            Assert.ThrowsException<ArgumentNullException>(() => ProjectBusinessLogic.GetUserToBeRemovedFromProject(null));
+        }
 
+
+        [TestMethod]
+        [DataRow(Int32.MaxValue)]
+        public void GetUserToBeRemovedFromProject_OnNoFoundUserId_ThrowsAnInvalidOperationException(int userId)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => ProjectBusinessLogic.GetUserToBeRemovedFromProject(userId.ToString()));
+        }
+
+
+        [TestMethod]
+        [DataRow(1, 2)]
+        public void RemoveAssignedUser_WithArgumentFoundUserIdAndProjectId_RemovesTheUserFromTheUserProjectTable(int userId, int projectId)
+        {
+            ProjectBusinessLogic.RemoveAssignedUser(userId.ToString(), projectId);
+
+            Assert.IsTrue(userProjectData.Count == 2);
         }
 
         /*
