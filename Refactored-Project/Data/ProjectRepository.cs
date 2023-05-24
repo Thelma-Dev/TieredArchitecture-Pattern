@@ -13,20 +13,20 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
         }
         public void Create(Project entity)
         {
-            _context.Add(entity);
+            _context.CreateProject(entity);
             _context.SaveChanges();
 
         }
 
         public void Delete(Project entity)
         {
-            _context.Remove(entity);
+            _context.DeleteProject(entity);
             _context.SaveChanges();
         }
 
         public Project? Get(int? id)
         {
-            return _context.Projects.First(p => p.Id == id);
+            return _context.Projects.FirstOrDefault(p => p.Id == id);
         }
 
 

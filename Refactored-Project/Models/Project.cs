@@ -20,5 +20,16 @@ namespace SD_340_W22SD_Final_Project_Group6.Models
 
         public ICollection<Ticket>? Tickets { get; set; } = new HashSet<Ticket>();
 
+        public Project(string projectName, ApplicationUser createdBy)
+        {
+            ProjectName = projectName;
+
+            CreatedBy = createdBy;
+            CreatedById = createdBy.Id;
+
+        }
+
+        public Project() { }
+
     }
 }
