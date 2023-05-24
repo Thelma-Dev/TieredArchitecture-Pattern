@@ -79,7 +79,7 @@ namespace TieredArchitectureUnitTest
             createProjectVmData = new List<CreateProjectVm>
             {
                 new CreateProjectVm{ProjectName = "ProjectName", ProjectDevelopersId = {"1","2"}, LoggedInUsername = "manager14@gmail.com"},
-                new CreateProjectVm{ProjectName = "ProjectName", ProjectDevelopersId = {}, LoggedInUsername = "manager14@gmail.com" }
+                new CreateProjectVm{ProjectName = "ProjectName", ProjectDevelopersId = {"1", "2"}, LoggedInUsername = "unknown@gmail.com"}
 
             }.ToList();
 
@@ -225,7 +225,23 @@ namespace TieredArchitectureUnitTest
             Assert.ThrowsException<ArgumentNullException>(() => ProjectBusinessLogic.GetProject(null));
         }
 
-        
+
+        [TestMethod]
+        [DataRow("unknown@gmail.com")]
+        public void GetUserByUsername_OnNoFoundUser_ThrowsIvalidOperationException(string username)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => ProjectBusinessLogic.GetUserByUsername(username));
+        }
+
+        [TestMethod]
+        public void GetUserByUsername_OnNoArgument_ThrowsArgumentNullException()
+        {
+            Assert.ThrowsException<ArgumentNullException>(() => ProjectBusinessLogic.GetUserByUsername(null));
+        }
+
+
+
+
         [TestMethod]
         [DataRow(Int32.MaxValue)]
         public void GetProjectDetails_WithNoFoundId_ThrowsIvalidOperationException(int projectId)
@@ -303,6 +319,22 @@ namespace TieredArchitectureUnitTest
             Assert.AreEqual(projectData.Count(), initialCount - 1);
 
         }
+
+        [TestMethod]
+        public async Task CreateProject_WithCreateProjectVmAndNoFoundLoggedInUser_ThrowsInvalidOperationException()
+        {
+            // Assert
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => ProjectBusinessLogic.CreateProject(createProjectVmData.Last()));
+        }
+
+
+        
+        [TestMethod]
+        public void ReturnCreateProjectVm_WithCreateProjectVmAndNoListOfDevelopers_ThrowsArgumentOutOfRangeException()
+        {
+            Assert.IsInstanceOfType(ProjectBusinessLogic.ReturnCreateProjectVm(), typeof(CreateProjectVm));
+        }
+        
 
 
         [TestMethod]
@@ -431,7 +463,15 @@ namespace TieredArchitectureUnitTest
         }
 
 
-        
+        [TestMethod]
+        [DataRow(null, 1, null, null, "unknown@gmail.com")]
+        public void Read_WithPageAndNoFoundLoggedInUser_ThrowsInvalidOperationException(string? sortOrder, int? page, bool? sort, string? userId, string loggedInUserName)
+        {            
+            // Act & Assert
+            Assert.ThrowsException<InvalidOperationException>(() => ProjectBusinessLogic.Read(sortOrder, page, sort, userId, loggedInUserName));
+        }
+
+
         [TestMethod]
         [DataRow(null,1,null,null,3 )]
         public void Read_WithPageAndLoggedInUserIdArgumentsOnly_ReturnsAPaginationViewModelWithProjectOrderedByProjectNameAscending(string? sortOrder, int? page, bool? sort, string? userId, int loggedInUserId)

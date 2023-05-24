@@ -59,6 +59,28 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             }
         }
 
+        public ApplicationUser GetUserByUsername(string username)
+        {
+            if(username == null) 
+            {
+                throw new ArgumentNullException();
+            }
+            else
+            {
+                ApplicationUser user = _userRepository.GetUserByUserName(username);
+
+                if(user == null)
+                {
+                    throw new InvalidOperationException();
+                }
+                else
+                {
+                    return user;
+                }
+            }
+
+        }
+
         public PaginationVM Read(string? sortOrder, int? page, bool? sort, string? userId, string loggedInUserName)
         {
 
@@ -153,7 +175,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
             //check if User is PM or Develoer
 
-            ApplicationUser user = _userRepository.GetUserByUserName(loggedInUserName);
+            ApplicationUser user = GetUserByUsername(loggedInUserName);
 
 
             // Get the role the user is in
@@ -257,7 +279,8 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         public async Task CreateProject(CreateProjectVm vm)
         {
 
-            ApplicationUser user = _userRepository.GetUserByUserName(vm.LoggedInUsername);
+            ApplicationUser user = GetUserByUsername(vm.LoggedInUsername);
+
 
             List<string> ProjectDevelopersId = vm.ProjectDevelopersId.ToList();
 
@@ -464,6 +487,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             return AllDevelopers;
 
         }
+
 
     }
 }
