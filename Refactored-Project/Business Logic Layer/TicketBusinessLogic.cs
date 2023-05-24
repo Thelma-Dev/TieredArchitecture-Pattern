@@ -20,6 +20,10 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         private IUserProjectRepository _userProjectRepository;
         private IUserRepository _userRepository;
         private IRepository<Ticket> _ticketRepository;
+        private UserProjectRepository userProjectRepository;
+        private UserRepository userRepository;
+        private TicketRepository ticketRepository1;
+        private TicketWatchersRepository ticketWatchersRepository;
         private readonly IRepository<TicketWatcher> _ticketWatcherRepository;
         private readonly IRepository<Comment> _commentRepository;
 
@@ -36,6 +40,14 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         public TicketBusinessLogic( IRepository<Ticket> ticketRepository)
         {
             _ticketRepository= ticketRepository;
+        }
+
+        public TicketBusinessLogic(IRepository<Ticket> ticketRepository, UserProjectRepository userProjectRepository, UserRepository userRepository, TicketRepository ticketRepository1, TicketWatchersRepository ticketWatchersRepository) : this(ticketRepository)
+        {
+            this.userProjectRepository = userProjectRepository;
+            this.userRepository = userRepository;
+            this.ticketRepository1 = ticketRepository1;
+            this.ticketWatchersRepository = ticketWatchersRepository;
         }
 
         public Ticket GetTicket(int? id)
