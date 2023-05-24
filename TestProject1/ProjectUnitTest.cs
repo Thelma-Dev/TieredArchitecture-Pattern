@@ -32,11 +32,8 @@ namespace TieredArchitectureUnitTest
         List<CreateProjectVm> createProjectVmData { get; set; }
         List<EditProjectVm> editProjectVmData { get; set;}
         List<TicketWatcher> ticketWatcherData { get; set; }
-
         List<PaginationVM> paginationVMData { get; set; }
-
         List<IdentityRole> roleData { get; set; }
-
         List<IdentityUserRole<string>> identityUserRoleData { get; set; }
 
         [TestInitialize]
@@ -46,14 +43,14 @@ namespace TieredArchitectureUnitTest
             {
                 new Project{Id = 1,ProjectName = "Zion Project 1"},
                 new Project{Id = 2, ProjectName = "Alpha Project 2"},
-                new Project{Id = 3, ProjectName = "Butter Project 3"}
+                new Project{Id = 3, ProjectName = "Butter Project 3"} 
             }.ToList();
 
             ticketData = new List<Ticket>
             {
-                new Ticket{Id = 1, Project =projectData.First(), RequiredHours=8, TicketPriority=Ticket.Priority.High, Completed=true, Owner=applicationUserData.Last()},
-                new Ticket{Id = 2, Project = projectData.First(), RequiredHours = 20, TicketPriority=Ticket.Priority.Medium, Completed= false, Owner=applicationUserData.First()},
-                new Ticket{Id = 3,Project = projectData.Last(), RequiredHours = 12, TicketPriority = Ticket.Priority.Low, Completed = false, Owner = applicationUserData.First()}
+                new Ticket{Id = 1,RequiredHours=8, TicketPriority=Ticket.Priority.High, Completed=true},
+                new Ticket{Id = 2, RequiredHours = 20, TicketPriority=Ticket.Priority.Medium, Completed= false},
+                new Ticket{Id = 3, RequiredHours = 12, TicketPriority = Ticket.Priority.Low, Completed = false}
 
             }.ToList();
 
@@ -96,7 +93,6 @@ namespace TieredArchitectureUnitTest
                 new PaginationVM{Projects= projectData.ToPagedList(pageNumber: 1, pageSize: 3)}
             }.ToList();
 
-
             roleData = new List<IdentityRole>()
             {
                 new IdentityRole{Id="1", Name = "ProjectManager" },
@@ -113,15 +109,13 @@ namespace TieredArchitectureUnitTest
             }.ToList();
 
 
-            Mock<RoleManager<IdentityRole>> mockRoleManager = new Mock<RoleManager<IdentityRole>>(
-                new Mock<IRoleStore<IdentityRole>>().Object,
-                new IRoleValidator<IdentityRole>[0],
-                new Mock<ILookupNormalizer>().Object,
-                new Mock<IdentityErrorDescriber>().Object,
-                new Mock<ILogger<RoleManager<IdentityRole>>>().Object);
+            // Creating tickets for projects
+            projectData.First().Tickets.Add(ticketData.First(t => t.Id == 1));
+            projectData.First().Tickets.Add(ticketData.First(t => t.Id == 2));
+            projectData.Last().Tickets.Add(ticketData.First(t => t.Id == 3));
+
+
             
-
-
             // Create a copy of the Project,Ticket,and UserProject, and ApplicationUser table
             Mock<DbSet<Project>> mockProjectSet = new Mock<DbSet<Project>>();
             Mock<DbSet<Ticket>> mockTicketSet = new Mock<DbSet<Ticket>>();
@@ -205,7 +199,7 @@ namespace TieredArchitectureUnitTest
 
 
             
-            ProjectBusinessLogic = new ProjectBusinessLogic(new ProjectRepository(mockContext.Object), new TicketRepository(mockContext.Object), new UserProjectRepository(mockContext.Object), new UserRepository(mockContext.Object, manager.Object),new TicketWatchersRepository(mockContext.Object));
+            ProjectBusinessLogic = new ProjectBusinessLogic(new ProjectRepository(mockContext.Object), new UserProjectRepository(mockContext.Object), new UserRepository(mockContext.Object, manager.Object), new TicketRepository(mockContext.Object),new TicketWatchersRepository(mockContext.Object));
 
         }
 
@@ -281,7 +275,7 @@ namespace TieredArchitectureUnitTest
 
         [TestMethod]
         [DataRow(1, 2)]
-        public void RemoveAssignedUser_WithArgumentFoundUserIdAndProjectId_RemovesTheUserFromTheUserProjectTable(int userId, int projectId)
+        public void RemoveAssignedUser_WithFoundUserIdAndProjectId_RemovesTheUserFromTheUserProjectTable(int userId, int projectId)
         {
             ProjectBusinessLogic.RemoveAssignedUser(userId.ToString(), projectId);
 
@@ -290,7 +284,7 @@ namespace TieredArchitectureUnitTest
 
 
         [TestMethod]
-        public void UpdateEditedProject_WithEditProjectVmHavingProjectNameAndListOfDevelopers_UpdatesExistingProject()
+        public void UpdateEditedProject_WithEditProjectViewModelHavingProjectNameAndListOfDevelopers_UpdatesExistingProject()
         {
             // Act
             ProjectBusinessLogic.UpdateEditedProject(editProjectVmData.First());
@@ -322,8 +316,9 @@ namespace TieredArchitectureUnitTest
 
         [TestMethod]
         [DataRow(null,1,null,null,3 )]
-        public void Read_WithArgument_ReturnsAPaginationVmWithListOfDevelopersAndProjects(string? sortOrder, int? page, bool? sort, string? userId, int loggedInUserId)
+        public void Read_WithPageAndLoggedInUserIdArgumentsOnly_ReturnsAPaginationViewModelWithProjectOrderedByProjectNameAscending(string? sortOrder, int? page, bool? sort, string? userId, int loggedInUserId)
         {
+            // Arrange
             List<Project> ActualVmProjects = paginationVMData.First().Projects.OrderBy(p => p.ProjectName).ToList();
 
 
@@ -338,28 +333,33 @@ namespace TieredArchitectureUnitTest
         }
 
 
-        /*
+        
         [TestMethod]
-        [DataRow(null, 1, null, null, 3)]
-        public void Read_WithArgument_ReturnsAPaginationVmWithListOfDevelopersAndProjects(string? sortOrder, int? page, bool? sort, string? userId, int loggedInUserId)
+        [DataRow("Priority", 1, true, null, 3)]
+        public void Read_WithPrioritySortOrderSetToTrue_ReturnsAPaginationViewModelWithTicketsOrderedByPriorityLevelDescending(string sortOrder, int page, bool sort, string? userId, int loggedInUserId)
         {
-            PaginationVM vm = paginationVMData.First();
+
+            // Arrange
+            List<Project> ActualVmProjects = paginationVMData.First().Projects.ToList();
+
+            ActualVmProjects.ForEach(p =>
+            {
+                p.Tickets = p.Tickets.OrderByDescending(t => t.TicketPriority).ToList();
+            });
 
             ApplicationUser user = applicationUserData.First(u => u.Id == loggedInUserId.ToString());
 
 
-            ProjectBusinessLogic.Read(sortOrder, page, sort, userId, user.UserName);
+            // Act
+            PaginationVM vm = ProjectBusinessLogic.Read(sortOrder, page, sort, userId, user.UserName);
 
-            //List<Ticket> ticket = new List<Ticket>();
 
-            //foreach(Project p in vm.Projects)
-            {
-                //ticket = p.Tickets.OrderByDescending(p => p.TicketPriority).ToList();
-            }
+            // Assert
+            Assert.IsTrue(vm.Projects.SequenceEqual(ActualVmProjects));
 
-            Assert.IsTrue(vm.Projects.Any());
+            
         }
-        */
+        
 
     }
 }

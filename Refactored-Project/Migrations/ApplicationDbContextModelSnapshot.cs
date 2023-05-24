@@ -250,7 +250,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("SD_340_W22SD_Final_Project_Group6.Models.Project", b =>
@@ -274,7 +274,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Migrations
 
                     b.HasIndex("CreatedById");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Projects", (string)null);
                 });
 
             modelBuilder.Entity("SD_340_W22SD_Final_Project_Group6.Models.Ticket", b =>
@@ -315,7 +315,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Tickets");
+                    b.ToTable("Tickets", (string)null);
                 });
 
             modelBuilder.Entity("SD_340_W22SD_Final_Project_Group6.Models.TicketWatcher", b =>
@@ -339,7 +339,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Migrations
 
                     b.HasIndex("WatcherId");
 
-                    b.ToTable("TicketWatchers");
+                    b.ToTable("TicketWatchers", (string)null);
                 });
 
             modelBuilder.Entity("SD_340_W22SD_Final_Project_Group6.Models.UserProject", b =>
@@ -362,7 +362,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserProjects");
+                    b.ToTable("UserProjects", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

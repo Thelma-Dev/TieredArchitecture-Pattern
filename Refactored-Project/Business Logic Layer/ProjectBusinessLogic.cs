@@ -37,17 +37,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             _ticketWatcherRepository = ticketWatcherRepository;
         }
 
-        // Instantiated another constructor for unit testing
-        public ProjectBusinessLogic(IRepository<Project> projectRepository, IRepository<Ticket> ticketRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<TicketWatcher> ticketWatcherRepository) 
-        {
-            _projectRepository = projectRepository;
-            _ticketRepository = ticketRepository;
-            _userProjectRepository = userProjectRepository;
-            _userRepository = userRepository;
-            _ticketWatcherRepository = ticketWatcherRepository;
-        }
-
-        
+                
         public Project GetProject(int? id)
         {
             if(id == null)
