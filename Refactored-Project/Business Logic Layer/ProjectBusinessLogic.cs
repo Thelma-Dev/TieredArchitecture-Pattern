@@ -251,6 +251,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             CreateProjectVm vm = new CreateProjectVm(AllDevelopers);
 
             return vm;
+                      
         }
 
         public async Task CreateProject(CreateProjectVm vm)
@@ -389,21 +390,37 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             }
         }
 
-        public void RemoveAssignedUser(string userId, int projectId)
+        public void RemoveAssignedUser(string userId, int? projectId)
         {
             
             ApplicationUser user = GetUserToBeRemovedFromProject(userId);
 
-            UserProject currentUserProject = _userProjectRepository.GetUserProject(projectId, userId);
+            UserProject currentUserProject = GetCurrentUserProject(projectId, userId);
+          
+            _userProjectRepository.RemoveUserProject(currentUserProject);
+            
+        }
 
-            if (currentUserProject == null)
+        public UserProject GetCurrentUserProject(int? projectId, string userId)
+        {
+            if(projectId == null)
             {
-                throw new InvalidOperationException("User Project not found");
+                throw new ArgumentNullException("ProjectId not found");
             }
             else
             {
-                _userProjectRepository.RemoveUserProject(currentUserProject);
+                UserProject currentUserProject = _userProjectRepository.GetUserProject(projectId, userId);
+
+                if(currentUserProject == null)
+                {
+                    throw new InvalidOperationException("User Project not found");
+                }
+                else
+                {
+                    return currentUserProject;
+                }
             }
+            
         }
 
         private List<Ticket> GetTicketsInProject(int projectId)

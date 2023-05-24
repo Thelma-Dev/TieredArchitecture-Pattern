@@ -11,7 +11,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
             _context = context;
         }
 
-        public UserProject GetUserProject(int projectId, string userId)
+        public UserProject GetUserProject(int? projectId, string userId)
         {
             return _context.UserProjects.First(up => up.ProjectId == projectId && up.UserId == userId);
         }

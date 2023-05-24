@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -35,6 +36,8 @@ namespace TieredArchitectureUnitTest
         List<PaginationVM> paginationVMData { get; set; }
         List<IdentityRole> roleData { get; set; }
         List<IdentityUserRole<string>> identityUserRoleData { get; set; }
+
+        int initialCount = 0;
 
         [TestInitialize]
         public void Initialize()
@@ -72,7 +75,8 @@ namespace TieredArchitectureUnitTest
 
             createProjectVmData = new List<CreateProjectVm>
             {
-                new CreateProjectVm{ProjectName = "ProjectName", ProjectDevelopersId = {"1","2"}, LoggedInUsername = "manager14@gmail.com"}
+                new CreateProjectVm{ProjectName = "ProjectName", ProjectDevelopersId = {"1","2"}, LoggedInUsername = "manager14@gmail.com"},
+                new CreateProjectVm{ProjectName = "ProjectName", ProjectDevelopersId = {}, LoggedInUsername = "manager14@gmail.com" }
 
             }.ToList();
 
@@ -235,14 +239,16 @@ namespace TieredArchitectureUnitTest
             Assert.IsTrue(ActualProject.Equals(ProjectBusinessLogic.DeleteProject(projectId)));
         }
 
+
         [TestMethod]
         public async Task CreateProject_WithCreateProjectVmHavingProjectNameLoggedInUserNameAndListOfDevelopers_CreatesAProject()
         {
+            initialCount = projectData.Count;
             // Act
             await ProjectBusinessLogic.CreateProject(createProjectVmData.First());
 
             // Assert
-            Assert.IsTrue(projectData.Count == 4);
+            Assert.AreEqual(projectData.Count, initialCount + 1);
         }
 
 
@@ -274,12 +280,37 @@ namespace TieredArchitectureUnitTest
 
 
         [TestMethod]
+        [DataRow(1, null)]
+        public void RemoveAssignedUser_WithFoundUserIdAndNoProjectIdArgument_ThrowsArgumentNullException(int userId, int? projectId)
+        {
+            Assert.ThrowsException<ArgumentNullException>(() => ProjectBusinessLogic.RemoveAssignedUser(userId.ToString(), projectId));
+        }
+
+
+        [TestMethod]
+        [DataRow(1, Int32.MaxValue)]
+        public void RemoveAssignedUser_WithNoFoundUserProject_ThrowsAnInvalidOperationException(int userId, int projectId)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => ProjectBusinessLogic.RemoveAssignedUser(userId.ToString(), projectId));
+        }
+
+
+
+        [TestMethod]
         [DataRow(1, 2)]
         public void RemoveAssignedUser_WithFoundUserIdAndProjectId_RemovesTheUserFromTheUserProjectTable(int userId, int projectId)
         {
             ProjectBusinessLogic.RemoveAssignedUser(userId.ToString(), projectId);
 
             Assert.IsTrue(userProjectData.Count == 2);
+        }
+
+
+        [TestMethod]
+        [DataRow(Int32.MaxValue)]
+        public void EditProject_WithNoFoundId_ThrowsAnInvalidOperationException(int projectId)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => ProjectBusinessLogic.EditProject(projectId));
         }
 
 
@@ -301,6 +332,7 @@ namespace TieredArchitectureUnitTest
         [DataRow(3)]
         public void DeleteProjectConfirmed_WithArgumentAndFoundId_DeletesTheProject(int projectId)
         {
+            initialCount = projectData.Count;
             Project ActualProject = projectData.First(p => p.Id == projectId);
 
             // Act
@@ -308,7 +340,7 @@ namespace TieredArchitectureUnitTest
            
             
             // Assert
-            Assert.AreEqual(projectData.Count(), 2);
+            Assert.AreEqual(projectData.Count(), initialCount - 1);
             
             Assert.ThrowsException<InvalidOperationException>(() => ProjectBusinessLogic.GetProject(ActualProject.Id));
         }
