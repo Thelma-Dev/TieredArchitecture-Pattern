@@ -26,7 +26,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
 
         public Project? Get(int? id)
         {
-            return _context.Projects.First(p => p.Id == id);
+            return _context.Projects.FirstOrDefault(p => p.Id == id);
         }
 
 

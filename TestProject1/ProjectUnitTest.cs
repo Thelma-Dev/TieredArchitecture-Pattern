@@ -257,24 +257,14 @@ namespace TieredArchitectureUnitTest
         {
             Project ActualProject = projectData.First(p => p.Id == projectId);
 
+            // Act
             ProjectBusinessLogic.DeleteProjectConfirmed(projectId);
-
+           
             
-            Mock<ApplicationDbContext> mockContext = new Mock<ApplicationDbContext>();
-
-
-            
-
-            //mockContext.VerifyGet(x => x.Projects, Times.Exactly(2));
-
-            mockContext.Verify(m => m.Remove(It.IsAny<Project>()), Times.Once());
-
-            
-            
+            // Assert
             Assert.AreEqual(projectData.Count(), 2);
             
-
-            Assert.IsNull(ProjectBusinessLogic.GetProject(ActualProject.Id));
+            Assert.ThrowsException<InvalidOperationException>(() => ProjectBusinessLogic.GetProject(ActualProject.Id));
         }
         
     }
