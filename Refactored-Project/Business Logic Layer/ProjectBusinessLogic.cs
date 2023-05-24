@@ -189,21 +189,21 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             return vm;
         }
 
-        public Project GetProjectDetails(int id)
+        public Project GetProjectDetails(int? id)
         {
             Project project = GetProject(id);
 
             return project;
         }
 
-        public Project DeleteProject(int id)
+        public Project DeleteProject(int? id)
         {
             Project project = GetProject(id);
 
             return project;
         }
 
-        public void DeleteProjectConfirmed(int projectId)
+        public void DeleteProjectConfirmed(int? projectId)
         {
             Project project = GetProject(projectId);
 
@@ -423,7 +423,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             
         }
 
-        private List<Ticket> GetTicketsInProject(int projectId)
+        private List<Ticket> GetTicketsInProject(int? projectId)
         {
             Project project = _projectRepository.Get(projectId);
 

@@ -8,7 +8,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
 
         void RemoveUserProject(UserProject userProject);
 
-        List<UserProject> GetProjects(int projectId);
+        List<UserProject> GetProjects(int? projectId);
 
         void CreateUserProject(UserProject userProject);
 
