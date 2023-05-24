@@ -42,12 +42,13 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             _ticketRepository= ticketRepository;
         }
 
-        public TicketBusinessLogic(IRepository<Ticket> ticketRepository, UserProjectRepository userProjectRepository, UserRepository userRepository, TicketRepository ticketRepository1, TicketWatchersRepository ticketWatchersRepository) : this(ticketRepository)
+        public TicketBusinessLogic(IRepository<Ticket> ticketRepository, UserProjectRepository userProjectRepository, UserRepository userRepository, TicketRepository ticketRepository1, TicketWatchersRepository ticketWatchersRepository, ProjectRepository ProjectRepository) : this(ticketRepository)
         {
-            this.userProjectRepository = userProjectRepository;
-            this.userRepository = userRepository;
-            this.ticketRepository1 = ticketRepository1;
-            this.ticketWatchersRepository = ticketWatchersRepository;
+            _userProjectRepository = userProjectRepository;
+            _userRepository = userRepository;
+            _ticketRepository = ticketRepository1;
+            _ticketWatcherRepository = ticketWatchersRepository;
+            _projectRepository = ProjectRepository;
         }
 
         public Ticket GetTicket(int? id)
@@ -334,6 +335,9 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             if(ticket == null)
             {
                 throw new Exception("Ticket not found");
+            } else if (hrs < 1 || hrs > 999)
+            {
+                throw new InvalidOperationException();
             }
             else
             {

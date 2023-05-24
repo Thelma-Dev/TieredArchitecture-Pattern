@@ -13,13 +13,13 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
 
         public void Create(Ticket entity)
         {
-            _context.Tickets.Add(entity);
+            _context.CreateTicket(entity);
             _context.SaveChanges();
         }
 
         public void Delete(Ticket entity)
         {
-            _context.Tickets.Remove(entity);
+            _context.DeleteTicket(entity);
             _context.SaveChanges();
         }
 

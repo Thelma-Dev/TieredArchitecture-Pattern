@@ -25,9 +25,19 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
             Projects.Remove(project);
         }
 
+        public virtual void DeleteTicket(Ticket ticket)
+        {
+            Tickets.Remove(ticket);
+        }
+
         public virtual void CreateProject(Project project)
         {
             Projects.Add(project);
+        }
+
+        public virtual void CreateTicket(Ticket ticket)
+        {
+            Tickets.Add(ticket);
         }
 
         public virtual void RemoveUserProject(UserProject Userproject)
