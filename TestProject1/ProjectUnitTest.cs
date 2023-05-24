@@ -22,11 +22,12 @@ namespace TieredArchitectureUnitTest
         public ProjectBusinessLogic ProjectBusinessLogic { get; set; }
 
         List<Project> projectData { get; set; }
-        IQueryable<Ticket> ticketData { get; set;}
+        List<Ticket> ticketData { get; set;}
         List<UserProject> userProjectData { get; set;}
         List<ApplicationUser> applicationUserData { get; set; }
         IQueryable<IdentityRole> identityRoleData { get; set; }
         List<CreateProjectVm> createProjectVmData { get; set; }
+        List<EditProjectVm> editProjectVmData { get; set;}
 
         [TestInitialize]
         public void Initialize()
@@ -43,13 +44,13 @@ namespace TieredArchitectureUnitTest
                 new Ticket{Id = 1},
                 new Ticket{Id = 2},
                 new Ticket{Id = 3}
-            }.AsQueryable();
+            }.ToList();
 
             userProjectData = new List<UserProject>
             {
                 new UserProject{Id = 1, ProjectId = 2, UserId = "1"},
                 new UserProject{Id = 2, ProjectId = 2, UserId = "2"},
-                new UserProject{Id = 3, ProjectId = 3}
+                new UserProject{Id = 3, ProjectId = 3, UserId = "3"}
             }.ToList();
 
             applicationUserData = new List<ApplicationUser>
@@ -63,6 +64,12 @@ namespace TieredArchitectureUnitTest
             createProjectVmData = new List<CreateProjectVm>
             {
                 new CreateProjectVm{ProjectName = "ProjectName", ProjectDevelopersId = {"1","2"}, LoggedInUsername = "manager14@gmail.com"}
+
+            }.ToList();
+
+            editProjectVmData = new List<EditProjectVm>
+            {
+                new EditProjectVm{ProjectName = "Edited Project Name", ProjectId = 3, ProjectDevelopersId= {"1","2"}}
 
             }.ToList();
 
@@ -118,9 +125,9 @@ namespace TieredArchitectureUnitTest
             mockApplicationUserSet.As<IQueryable<ApplicationUser>>().Setup(m => m.GetEnumerator()).Returns(applicationUserData.GetEnumerator());
 
 
-            mockTicketSet.As<IQueryable<Ticket>>().Setup(m => m.Provider).Returns(ticketData.Provider);
-            mockTicketSet.As<IQueryable<Ticket>>().Setup(m => m.Expression).Returns(ticketData.Expression);
-            mockTicketSet.As<IQueryable<Ticket>>().Setup(m => m.ElementType).Returns(ticketData.ElementType);
+            mockTicketSet.As<IQueryable<Ticket>>().Setup(m => m.Provider).Returns(ticketData.AsQueryable().Provider);
+            mockTicketSet.As<IQueryable<Ticket>>().Setup(m => m.Expression).Returns(ticketData.AsQueryable().Expression);
+            mockTicketSet.As<IQueryable<Ticket>>().Setup(m => m.ElementType).Returns(ticketData.AsQueryable().ElementType);
             mockTicketSet.As<IQueryable<Ticket>>().Setup(m => m.GetEnumerator()).Returns(ticketData.GetEnumerator());
 
 
@@ -195,7 +202,7 @@ namespace TieredArchitectureUnitTest
 
         [TestMethod]
         [DataRow(1)]
-        public void CreateUserProject_WithAProjectAndListOfDevelopers_CreatesAUserProjectForEachDveloper(int ProjectId)
+        public void AddUserToProject_WithAProjectAndListOfDevelopers_CreatesAUserProjectForEachDveloper(int ProjectId)
         {
             Project project = projectData.First(p => p.Id == ProjectId);
 
@@ -229,35 +236,46 @@ namespace TieredArchitectureUnitTest
             Assert.IsTrue(userProjectData.Count == 2);
         }
 
-        /*
+
+        [TestMethod]
+        public void UpdateEditedProject_WithEditProjectVmHavingProjectNameAndListOfDevelopers_UpdatesExistingProject()
+        {
+            // Act
+            ProjectBusinessLogic.UpdateEditedProject(editProjectVmData.First());
+
+            Project project = projectData.First(p => p.Id == editProjectVmData.First().ProjectId);
+
+            // Assert
+            Assert.IsTrue(editProjectVmData.First().Project.Equals(project));
+        }
+
+
+        
         [TestMethod]
         [DataRow(3)]
         public void DeleteProjectConfirmed_WithArgumentAndFoundId_DeletesTheProject(int projectId)
         {
-            Project ActualProject = data.First(p => p.Id == projectId);
+            Project ActualProject = projectData.First(p => p.Id == projectId);
 
-            ProjectBusinessLogic.DeleteProjectFinally(ActualProject);
+            ProjectBusinessLogic.DeleteProjectConfirmed(projectId);
 
-            Mock<DbSet<Project>> mockProjectSet = new Mock<DbSet<Project>>();
+            
             Mock<ApplicationDbContext> mockContext = new Mock<ApplicationDbContext>();
 
 
-            mockContext.Setup(c => c.Projects).Returns(mockProjectSet.Object);
+            
 
             //mockContext.VerifyGet(x => x.Projects, Times.Exactly(2));
 
             mockContext.Verify(m => m.Remove(It.IsAny<Project>()), Times.Once());
 
-            //mockContext.Verify(m => m.SaveChanges(), Times.Once());
+            
+            
+            Assert.AreEqual(projectData.Count(), 2);
+            
 
-
-            // add this Assert
-            Assert.AreEqual(data.Count(), 2);
-            // or
-            //Assert.IsFalse(data.Any(x => x.Id == projectId));
-
-            //Assert.IsNull(ProjectBusinessLogic.GetProject(ActualProject.Id));
+            Assert.IsNull(ProjectBusinessLogic.GetProject(ActualProject.Id));
         }
-        */
+        
     }
 }

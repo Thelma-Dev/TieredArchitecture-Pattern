@@ -347,55 +347,37 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         public void UpdateEditedProject(EditProjectVm vm)
         {
 
-            Project project = _projectRepository.Get(vm.ProjectId);
+            Project project = GetProject(vm.ProjectId);
+            
+            List<string> ProjectDevelopersId = vm.ProjectDevelopersId.ToList();
 
-
-            if (project == null)
+            if (ProjectDevelopersId.Count != 0)
             {
-                throw new Exception("Project not found");
-            }
-            else
-            {
-                List<string> ProjectDevelopersId = vm.ProjectDevelopersId.ToList();
+                List<ApplicationUser> ProjectDevelopers = new List<ApplicationUser>();
 
-                if (ProjectDevelopersId.Count != 0)
+                foreach (string pd in ProjectDevelopersId)
                 {
-                    List<ApplicationUser> ProjectDevelopers = new List<ApplicationUser>();
 
-                    foreach (string pd in ProjectDevelopersId)
+                    ApplicationUser developer = _userRepository.Get(pd);
+
+                    if (developer != null)
                     {
-
-                        ApplicationUser developer = _userRepository.Get(pd);
-
-                        if (developer != null)
-                        {
-                            ProjectDevelopers.Add(developer);
-                        }
+                        ProjectDevelopers.Add(developer);
                     }
-
-                    foreach (ApplicationUser dev in ProjectDevelopers)
-                    {
-                        UserProject newUserProject = new UserProject();
-
-                        newUserProject.User = dev;
-                        newUserProject.UserId = dev.Id;
-                        newUserProject.Project = project;
-                        newUserProject.ProjectId = project.Id;
-
-                        project.AssignedTo.Add(newUserProject);
-                        _userProjectRepository.CreateUserProject(newUserProject);
-                    }
-
-                    project.ProjectName = vm.ProjectName;
-                    _projectRepository.Update(project);
                 }
 
-                // Repopulate the vm list incase of error
-                List<ApplicationUser> allUsers = _userRepository.GetAll().ToList();
-                vm.PopulateLists(allUsers);
-                vm.Project = project;
-                vm.ProjectId = project.Id;
+                AddUserToProject(project, ProjectDevelopers);
+
+                project.ProjectName = vm.ProjectName;
+                _projectRepository.Update(project);
             }
+
+            // Repopulate the vm list incase of error
+            List<ApplicationUser> allUsers = _userRepository.GetAll().ToList();
+            vm.PopulateLists(allUsers);
+            vm.Project = project;
+            vm.ProjectId = project.Id;
+            
         }
 
         public ApplicationUser GetUserToBeRemovedFromProject(string userId)
