@@ -369,7 +369,7 @@ namespace TieredArchitectureUnitTest
 
         [TestMethod]
         [DataRow(5)]
-        public void DeleteTicket_WithNoFoundId_ReturnsExpectedTicketToBeDeleted(int ticketId)
+        public void DeleteTicket_WithNoFoundId_ThrowsInvalidOperationException(int ticketId)
         {
             Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.DeleteTicket(ticketId));
         }
@@ -393,7 +393,7 @@ namespace TieredArchitectureUnitTest
 
         [TestMethod]
         [DataRow(4, 1)]
-        public void DeleteTicketConfirmed_WithNoFoundId_DeletesTheTicket(int ticketId, int projectId)
+        public void DeleteTicketConfirmed_WithNoFoundId_ThrowsInvalidOperationException(int ticketId, int projectId)
         {
             Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.TicketDeleteConfirmed(ticketId, projectId));
 
@@ -412,7 +412,7 @@ namespace TieredArchitectureUnitTest
 
         [TestMethod]
         [DataRow(3)]
-        public void CreateTicket_Error_CreatesATicket(int projectId)
+        public void CreateTicket_WithNoFounfProject_ThrowsInvalidOperationException(int projectId)
         {
             Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.CreateTicket(createTicketVmData.FirstOrDefault(vm => vm.ProjectId == projectId)));
 
@@ -465,7 +465,7 @@ namespace TieredArchitectureUnitTest
       
         [TestMethod]
         [DataRow(Int32.MaxValue)]
-        public void EditTicket_WithNoFoundId_ThrowsAnInvalidOperationException(int ticketId)
+        public void EditTicket_WithNoFoundId_EditsTheGivenTicket(int ticketId)
         {
             Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.EditTicket(ticketId));
         }
@@ -488,13 +488,13 @@ namespace TieredArchitectureUnitTest
             Assert.IsTrue(editTicketVmData.First().TicketId.Equals(ticket.Id));
         }
         [TestMethod]
-        public void UpdateEditedTicket_throwException_UpdatesExistingTicket()
+        public void UpdateEditedTicket_WithNoFoundTicket_ThrowsInvalidOperationException()
         {
             Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.UpdateEditedTicket(editTicketVmData.Last()));
         }
 
         [TestMethod]
-        public void RepopulateDevelopersInProjectList()
+        public void RepopulateDevelopersInProjectList_WithHavingCreateTicketVM_ReturnsDevelopersOfProject()
         {
             int count = createTicketVmData.First().AllDevelopers.Count();
             TicketBusinessLogic.RepopulateDevelopersInProjectList(createTicketVmData.First());
@@ -502,13 +502,13 @@ namespace TieredArchitectureUnitTest
         }
 
         [TestMethod]
-        public void RepopulateDevelopersInProjectList_ThrowException()
+        public void RepopulateDevelopersInProjectList_WithNoFoundArgument_ThrowsInvalidOperationException()
         {
             Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.RepopulateDevelopersInProjectList(createTicketVmData.Last()));
         }
 
         [TestMethod]
-        public void RepopulateDevelopersNotInTicket()
+        public void RepopulateDevelopersNotInTicket_WithHavingEditTicketVM_ReturnsDevelopersOfProject()
         {
             Ticket ticket = ticketData.First();
             int count = editTicketVmData.First().AllDevelopers.Count();
@@ -518,13 +518,20 @@ namespace TieredArchitectureUnitTest
 
         [TestMethod]
         [DataRow(1, "john34@gmail.com")]
-        public void UnWatch(int id, string userName)
+        public void UnWatch_WithFoundTicketIdAndUsername_UnWatchTheGivenTicket(int id, string userName)
         {
             initialCount = ticketWatcherData.Count();
             TicketBusinessLogic.Unwatch(id, userName);
             Assert.AreEqual(ticketWatcherData.Count, initialCount - 1);
 
 
+        }
+
+        [TestMethod]
+        [DataRow(6, "john34@gmail.com")]
+        public void UnWatch_WithNoFoundTicket_ThrowsInvalidOperationxception(int id, string userName)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.Unwatch(id, userName));
         }
 
         [TestMethod]
@@ -540,18 +547,13 @@ namespace TieredArchitectureUnitTest
 
         [TestMethod]
         [DataRow(null, null, "john34@gmail.com")]
-        public void CommentOnTask_WithNoFoundTaskIdAndText_ThrowsNullException(int taskId, string taskText, string userName)
+        public void CommentOnTask_WithNoFoundTaskIdAndText_ThrowsInvalidOperationxception(int taskId, string taskText, string userName)
         {
             Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.CommentOnTask(taskId, taskText, userName));
         }
     
     
-        [TestMethod]
-        [DataRow(6, "john34@gmail.com")]
-        public void UnWatch_ThrowException(int id, string userName)
-        {
-            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.Unwatch(id, userName));
-        }
+       
 
         [TestMethod]
         [DataRow(1)]
@@ -562,7 +564,7 @@ namespace TieredArchitectureUnitTest
 
         [TestMethod]
         [DataRow(6)]
-        public void InitializeCreateTicketMethod_WithNotFoundProjectId_ReturnsACreateTickettViewModelType(int projectId)
+        public void InitializeCreateTicketMethod_WithNotFoundProjectId_ThrowsInvalidOperationxception(int projectId)
         {
             Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.InitializeCreateTicketMethod(projectId));
         }
