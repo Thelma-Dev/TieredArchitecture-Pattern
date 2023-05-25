@@ -42,19 +42,41 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             _ticketRepository= ticketRepository;
         }
 
-        public TicketBusinessLogic(IRepository<Ticket> ticketRepository, UserProjectRepository userProjectRepository, UserRepository userRepository, TicketRepository ticketRepository1, TicketWatchersRepository ticketWatchersRepository) : this(ticketRepository)
+        public TicketBusinessLogic(IRepository<Ticket> ticketRepository, UserProjectRepository userProjectRepository, UserRepository userRepository, TicketRepository ticketRepository1, TicketWatchersRepository ticketWatchersRepository, ProjectRepository ProjectRepository) : this(ticketRepository)
         {
-            this.userProjectRepository = userProjectRepository;
-            this.userRepository = userRepository;
-            this.ticketRepository1 = ticketRepository1;
-            this.ticketWatchersRepository = ticketWatchersRepository;
+            _userProjectRepository = userProjectRepository;
+            _userRepository = userRepository;
+            _ticketRepository = ticketRepository1;
+            _ticketWatcherRepository = ticketWatchersRepository;
+            _projectRepository = ProjectRepository;
+        }
+
+        public Project GetProject(int? id)
+        {
+            if (id == null)
+            {
+                throw new ArgumentNullException("ProjectId is null");
+            }
+            else
+            {
+                Project project = _projectRepository.Get(id);
+
+                if (project == null)
+                {
+                    throw new InvalidOperationException("Project not found");
+                }
+                else
+                {
+                    return project;
+                }
+            }
         }
 
         public Ticket GetTicket(int? id)
         {
             if(id == null)
             {
-                throw new Exception("TicketId is null");
+                throw new ArgumentNullException("TicketId is null");
             }
             else
             {
@@ -62,7 +84,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
                 if(ticket == null)
                 {
-                    throw new Exception("Ticket not found");
+                    throw new InvalidOperationException("Ticket not found");
                 }
                 else
                 {
@@ -121,11 +143,11 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
         public CreateTicketVm InitializeCreateTicketMethod(int projectId)
         {
-            Project CurrentProject = _projectRepository.Get(projectId);
+            Project CurrentProject = GetProject(projectId);
 
             if(CurrentProject == null)
             {
-                throw new Exception("Project is null");
+                throw new InvalidOperationException("Project is null");
             }
             else
             {
@@ -143,16 +165,24 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
         public void CreateTicket(CreateTicketVm vm)
         {
-            Project CurrentProject = _projectRepository.Get(vm.ProjectId);
+            Project CurrentProject = GetProject(vm.ProjectId);
 
             if (CurrentProject == null)
             {
-                throw new Exception("Project not found");
+                throw new InvalidOperationException("Project not found");
             }
             else
             {
 
-                ApplicationUser owner = _userRepository.Get(vm.OwnerId);
+                ApplicationUser owner = vm.Owner;
+
+                if (owner == null)
+                {
+                    throw new InvalidOperationException();
+                } else
+                {
+                    owner = _userRepository.Get(vm.OwnerId);
+                }
 
                 Ticket newTicket = new Ticket();
 
@@ -167,12 +197,13 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
                 _ticketRepository.Create(newTicket);
                 CurrentProject.Tickets.Add(newTicket);
                 _ticketRepository.SaveChanges();
+
             }           
         }
 
         public CreateTicketVm RepopulateDevelopersInProjectList(CreateTicketVm vm)
         {
-            Project currentProject = _projectRepository.Get(vm.ProjectId);
+            Project currentProject = GetProject(vm.ProjectId);
 
             List<ApplicationUser> DevelopersAssignedToProject = _userProjectRepository.GetUsersAssignedToProject(currentProject);
 
@@ -182,6 +213,8 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
             return vm;
         }
+
+
 
         public EditTicketVm EditTicket(int? id)
         {
@@ -206,11 +239,11 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
         public void UpdateEditedTicket(EditTicketVm vm)
         {
-            Ticket ticket = _ticketRepository.Get(vm.TicketId);
+            Ticket ticket = GetTicket(vm.TicketId);
 
             if (ticket == null)
             {
-                throw new Exception("Ticket not found");
+                throw new InvalidOperationException("Ticket not found");
             }
             else
             {
@@ -230,7 +263,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
         public EditTicketVm RepopulateDevelopersNotInTicket(EditTicketVm vm)
         {
-            Ticket ticket = _ticketRepository.Get(vm.TicketId);
+            Ticket ticket = GetTicket(vm.TicketId);
 
             ApplicationUser owner = ticket.Owner;
 
@@ -247,7 +280,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         {
             if (id == null)
             {
-                throw new  Exception("UserId is null");
+                throw new ArgumentNullException("UserId is null");
             }
             else
             {
@@ -255,15 +288,15 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
                 if(currentTicketOwner == null)
                 {
-                    throw new Exception("User not found");
+                    throw new InvalidOperationException("User not found");
                 }
                 else
                 {
-                    Ticket currentTicket = _ticketRepository.Get(ticketId); 
+                    Ticket currentTicket = GetTicket(ticketId); 
                     
                     if(currentTicket == null)
                     {
-                        throw new Exception("Ticket not found");
+                        throw new InvalidOperationException("Ticket not found");
                     }
                     else
                     {
@@ -309,7 +342,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
                 Comment newComment = new Comment();
 
-                Ticket ticket = _ticketRepository.Get(TaskId);
+                Ticket ticket = GetTicket(TaskId);
 
                 newComment.User = user;
                 newComment.UserId = user.Id;
@@ -329,11 +362,15 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
         public void UpdateRequiredHours(int id, int hrs)
         {
-            Ticket ticket = _ticketRepository.Get(id);
+            Ticket ticket = GetTicket(id);
 
             if(ticket == null)
             {
-                throw new Exception("Ticket not found");
+                throw new InvalidOperationException("Ticket not found");
+
+            } else if (hrs < 1 || hrs > 999)
+            {
+                throw new InvalidOperationException();
             }
             else
             {
@@ -345,11 +382,11 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
         public void AddToWatch(int id, string username)
         {
-            Ticket ticket = _ticketRepository.Get(id);
+            Ticket ticket = GetTicket(id);
 
             if(ticket == null)
             {
-                throw new Exception("Ticket not found");
+                throw new InvalidOperationException("Ticket not found");
             }
             else
             {
@@ -372,11 +409,11 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
         public void Unwatch(int id, string username)
         {
-            Ticket ticket = _ticketRepository.Get(id);
+            Ticket ticket = GetTicket(id);
 
             if(ticket == null)
             {
-                throw new Exception("Ticket not found");
+                throw new InvalidOperationException("Ticket not found");
             }
             else
             {
@@ -407,18 +444,18 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         {
             if (id == null )
             {
-                throw new Exception("Ticket not found");
+                throw new ArgumentNullException("Ticket not found");
             }
             else
             {
-                Ticket? ticket = _ticketRepository.Get(id);
+                Ticket? ticket = GetTicket(id);
 
                 // To allow population of related table
 				List<Project> AllProjects = _projectRepository.GetAll().ToList();
 
 				if (ticket == null)
                 {
-                    throw new Exception("Ticket not found");
+                    throw new InvalidOperationException("Ticket not found");
                 }
                 else
                 {
@@ -433,23 +470,23 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         {
             if(ticketId == null)
             {
-                throw new Exception("Ticket not found");
+                throw new ArgumentNullException("Ticket not found");
             }
             else
             {
-                Ticket? currentTicket = _ticketRepository.Get(ticketId);
+                Ticket? currentTicket = GetTicket(ticketId);
 
                 if (currentTicket == null)
                 {
-                    throw new Exception("Ticket not found");
+                    throw new InvalidOperationException("Ticket not found");
                 }
                 else
                 {
-                    Project? projectWithCurrentTicket = _projectRepository.Get(ProjectId);
+                    Project? projectWithCurrentTicket = GetProject(ProjectId);
 
                     if(projectWithCurrentTicket == null)
                     {
-                        throw new Exception("Project not found");
+                        throw new InvalidOperationException("Project not found");
                     }
                     else
                     {
