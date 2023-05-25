@@ -327,12 +327,19 @@ namespace TieredArchitectureUnitTest
         }
 
         [TestMethod]
-        [DataRow(1, "Test Comment","john34@gmail.com")]
-
-        public void CommentOnTicket(int ticketId, string comment, string userName)
+        [DataRow(1)]
+        public void InitializeCreateTicketMethod_WithFoundProjectId_ReturnsACreateTickettViewModelType(int projectId)
         {
-
+            Assert.IsInstanceOfType(TicketBusinessLogic.InitializeCreateTicketMethod(projectId), typeof(CreateTicketVm));
         }
+
+        [TestMethod]
+        [DataRow(6)]
+        public void InitializeCreateTicketMethod_WithNotFoundProjectId_ReturnsACreateTickettViewModelType(int projectId)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.InitializeCreateTicketMethod(projectId));
+        }
+
     }
 
 

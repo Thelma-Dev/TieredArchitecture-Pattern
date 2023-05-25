@@ -147,7 +147,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
             if(CurrentProject == null)
             {
-                throw new Exception("Project is null");
+                throw new InvalidOperationException("Project is null");
             }
             else
             {
