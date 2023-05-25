@@ -15,28 +15,12 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 {
     public class TicketBusinessLogic
     {
-        private readonly UserManager<ApplicationUser> _userManager;
         private IRepository<Project> _projectRepository;
         private IUserProjectRepository _userProjectRepository;
         private IUserRepository _userRepository;
         private IRepository<Ticket> _ticketRepository;
-        private UserProjectRepository userProjectRepository;
-        private UserRepository userRepository;
-        private TicketRepository ticketRepository1;
-        private TicketWatchersRepository ticketWatchersRepository;
         private readonly IRepository<TicketWatcher> _ticketWatcherRepository;
         private readonly IRepository<Comment> _commentRepository;
-
-        //public TicketBusinessLogic(UserManager<ApplicationUser> userManager, IRepository<Project> projectRepository, IUserRepository userRepository, IRepository<Ticket> ticketRepository, IRepository<TicketWatcher> ticketWatcherRepository, IUserProjectRepository userProjectRepository, IRepository<Comment> commentRepository)
-        //{
-        //    _userManager = userManager;
-        //    _projectRepository = projectRepository;
-        //    _userRepository = userRepository;
-        //    _ticketRepository = ticketRepository;
-        //    _ticketWatcherRepository = ticketWatcherRepository;
-        //    _userProjectRepository = userProjectRepository;
-        //    _commentRepository = commentRepository;
-        //}
         public TicketBusinessLogic(IRepository<Ticket> ticketRepository, UserProjectRepository userProjectRepository, UserRepository userRepository, ProjectRepository ProjectRepository, CommentRepository CommentRepository, TicketWatchersRepository ticketWatchersRepository)
         {
             _userProjectRepository = userProjectRepository;
