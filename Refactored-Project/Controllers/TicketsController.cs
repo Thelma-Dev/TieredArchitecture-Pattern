@@ -36,7 +36,8 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             _ticketRepository = ticketRepository;
             _userRepository = userRepository;
             _userProjectRepository = userProjectRepository;
-            _ticketBusinessLogic = new TicketBusinessLogic(userManager, projectRepository, userRepository, ticketRepository,ticketWatcherRepository, userProjectRepository, commentRepository);
+            _ticketWatcherRepository = ticketWatcherRepository;
+            _commentRepository = commentRepository;
         }
 
 

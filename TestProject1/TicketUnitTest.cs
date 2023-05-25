@@ -66,7 +66,12 @@ namespace TieredArchitectureUnitTest
 
             }.ToList();
 
+            commentData = new List<Comment>
+            {
+                new Comment {Id = 1,Description = "Good Comment",UserId = "1", TicketId = 1 },
+                new Comment {Id = 2,Description = "Good Comment",UserId = "1", TicketId = 2 }
 
+            }.ToList();
 
 
             createTicketVmData = new List<CreateTicketVm>
@@ -120,12 +125,16 @@ namespace TieredArchitectureUnitTest
             projectData.First().Tickets.Add(ticketData.First(t => t.Id == 1));
             projectData.Last().Tickets.Add(ticketData.First(t => t.Id == 3));
 
+            // Adding comments to tickets
+            ticketData.First().Comments.Add(commentData.First(c => c.Id == 1));
+            ticketData.First().Comments.Add(commentData.First(c => c.Id == 2));
 
 
 
             // Create a copy of the Project,Ticket,and UserProject, and ApplicationUser table
             Mock<DbSet<Project>> mockProjectSet = new Mock<DbSet<Project>>();
             Mock<DbSet<Ticket>> mockTicketSet = new Mock<DbSet<Ticket>>();
+            Mock<DbSet<Comment>> mockCommentSet = new Mock<DbSet<Comment>>();
             Mock<DbSet<UserProject>> mockUserProjectSet = new Mock<DbSet<UserProject>>();
             Mock<DbSet<ApplicationUser>> mockApplicationUserSet = new Mock<DbSet<ApplicationUser>>();
             Mock<DbSet<TicketWatcher>> mockTicketWatcherSet = new Mock<DbSet<TicketWatcher>>();
@@ -164,6 +173,12 @@ namespace TieredArchitectureUnitTest
             mockTicketSet.As<IQueryable<Ticket>>().Setup(m => m.GetEnumerator()).Returns(ticketData.GetEnumerator());
 
 
+            mockCommentSet.As<IQueryable<Comment>>().Setup(c => c.Provider).Returns(commentData.AsQueryable().Provider);
+            mockCommentSet.As<IQueryable<Comment>>().Setup(c => c.Expression).Returns(commentData.AsQueryable().Expression);
+            mockCommentSet.As<IQueryable<Comment>>().Setup(c => c.ElementType).Returns(commentData.AsQueryable().ElementType);
+            mockCommentSet.As<IQueryable<Comment>>().Setup(c => c.GetEnumerator()).Returns(commentData.GetEnumerator());
+
+
             mockUserProjectSet.As<IQueryable<UserProject>>().Setup(m => m.Provider).Returns(userProjectData.AsQueryable().Provider);
             mockUserProjectSet.As<IQueryable<UserProject>>().Setup(m => m.Expression).Returns(userProjectData.AsQueryable().Expression);
             mockUserProjectSet.As<IQueryable<UserProject>>().Setup(m => m.ElementType).Returns(userProjectData.AsQueryable().ElementType);
@@ -195,6 +210,7 @@ namespace TieredArchitectureUnitTest
             // Mocked context should return an object of the mocked sets
             mockContext.Setup(c => c.Projects).Returns(mockProjectSet.Object);
             mockContext.Setup(c => c.Tickets).Returns(mockTicketSet.Object);
+            mockContext.Setup(c => c.Comments).Returns(mockCommentSet.Object);
             mockContext.Setup(c => c.UserProjects).Returns(mockUserProjectSet.Object);
             mockContext.Setup(c => c.Users).Returns(mockApplicationUserSet.Object);
             mockContext.Setup(c => c.TicketWatchers).Returns(mockTicketWatcherSet.Object);
@@ -205,12 +221,13 @@ namespace TieredArchitectureUnitTest
             mockContext.Setup(c => c.CreateProject(It.IsAny<Project>())).Callback<Project>(p => projectData.Add(p));
             mockContext.Setup(c => c.CreateTicket(It.IsAny<Ticket>())).Callback<Ticket>(t => ticketData.Add(t));
             mockContext.Setup(c => c.CreateTicketWatcher(It.IsAny<TicketWatcher>())).Callback<TicketWatcher>(tw => ticketWatcherData.Add(tw));
+            mockContext.Setup(c => c.CreateComment(It.IsAny<Comment>())).Callback<Comment>(c => commentData.Add(c));
             mockContext.Setup(c => c.Roles).Returns(mockIdentityRoleSet.Object);
             mockContext.Setup(c => c.UserRoles).Returns(mockIdentityUserRoleSet.Object);
 
 
 
-            TicketBusinessLogic = new TicketBusinessLogic(new TicketRepository(mockContext.Object), new UserProjectRepository(mockContext.Object), new UserRepository(mockContext.Object, manager.Object), new TicketRepository(mockContext.Object), new ProjectRepository(mockContext.Object), new CommentRepository(mockContext.Object), new TicketWatchersRepository(mockContext.Object));
+            TicketBusinessLogic = new TicketBusinessLogic(new TicketRepository(mockContext.Object), new UserProjectRepository(mockContext.Object), new UserRepository(mockContext.Object, manager.Object),  new ProjectRepository(mockContext.Object), new CommentRepository(mockContext.Object), new TicketWatchersRepository(mockContext.Object));
 
 
         }
@@ -240,7 +257,7 @@ namespace TieredArchitectureUnitTest
         
 
         [TestMethod]
-        [DataRow(2)]
+        [DataRow(1)]
         public void GetTicketDetails_WithFoundIdArgument_ReturnsExpectedTicket(int ticketId)
         {
             Ticket actualTicket = ticketData.First(x => x.Id == ticketId);
