@@ -51,6 +51,27 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             _projectRepository = ProjectRepository;
         }
 
+        public Project GetProject(int? id)
+        {
+            if (id == null)
+            {
+                throw new ArgumentNullException("ProjectId is null");
+            }
+            else
+            {
+                Project project = _projectRepository.Get(id);
+
+                if (project == null)
+                {
+                    throw new InvalidOperationException("Project not found");
+                }
+                else
+                {
+                    return project;
+                }
+            }
+        }
+
         public Ticket GetTicket(int? id)
         {
             if(id == null)
@@ -122,7 +143,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
         public CreateTicketVm InitializeCreateTicketMethod(int projectId)
         {
-            Project CurrentProject = _projectRepository.Get(projectId);
+            Project CurrentProject = GetProject(projectId);
 
             if(CurrentProject == null)
             {
@@ -144,7 +165,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
         public void CreateTicket(CreateTicketVm vm)
         {
-            Project CurrentProject = _projectRepository.Get(vm.ProjectId);
+            Project CurrentProject = GetProject(vm.ProjectId);
 
             if (CurrentProject == null)
             {
@@ -153,7 +174,15 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             else
             {
 
-                ApplicationUser owner = _userRepository.Get(vm.OwnerId);
+                ApplicationUser owner = vm.Owner;
+
+                if (owner == null)
+                {
+                    throw new InvalidOperationException();
+                } else
+                {
+                    owner = _userRepository.Get(vm.OwnerId);
+                }
 
                 Ticket newTicket = new Ticket();
 
@@ -168,12 +197,13 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
                 _ticketRepository.Create(newTicket);
                 CurrentProject.Tickets.Add(newTicket);
                 _ticketRepository.SaveChanges();
+
             }           
         }
 
         public CreateTicketVm RepopulateDevelopersInProjectList(CreateTicketVm vm)
         {
-            Project currentProject = _projectRepository.Get(vm.ProjectId);
+            Project currentProject = GetProject(vm.ProjectId);
 
             List<ApplicationUser> DevelopersAssignedToProject = _userProjectRepository.GetUsersAssignedToProject(currentProject);
 
@@ -183,6 +213,8 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
             return vm;
         }
+
+
 
         public EditTicketVm EditTicket(int? id)
         {

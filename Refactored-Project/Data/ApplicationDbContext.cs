@@ -30,6 +30,11 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
             Tickets.Remove(ticket);
         }
 
+        public virtual void DeleteTicketWatcher(TicketWatcher ticketWatcher)
+        {
+            TicketWatchers.Remove(ticketWatcher);
+        }
+
         public virtual void CreateProject(Project project)
         {
             Projects.Add(project);
@@ -38,6 +43,11 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
         public virtual void CreateTicket(Ticket ticket)
         {
             Tickets.Add(ticket);
+        }
+
+        public virtual void CreateTicketWatcher(TicketWatcher ticketWatcher)
+        {
+            TicketWatchers.Add(ticketWatcher);
         }
 
         public virtual void RemoveUserProject(UserProject Userproject)
