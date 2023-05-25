@@ -235,7 +235,7 @@ namespace TieredArchitectureUnitTest
 
         [TestMethod]
         [DataRow("unknown@gmail.com")]
-        public void GetUserByUsername_WithNoFoundUser_ThrowsInvalidOperationException(string username)
+        public void GetUserByUsername_WithNoFoundLoggedInUser_ThrowsInvalidOperationException(string username)
         {
             // Act & Assert
             Assert.ThrowsException<InvalidOperationException>(() => ProjectBusinessLogic.GetUserByUsername(username));
