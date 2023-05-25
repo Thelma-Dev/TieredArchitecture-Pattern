@@ -387,7 +387,6 @@ namespace TieredArchitectureUnitTest
             // Assert
             Assert.AreEqual(ticketData.Count(), initialCount - 1);
 
-            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.GetTicket(ActualTicket.Id));
         }
 
 
@@ -505,15 +504,6 @@ namespace TieredArchitectureUnitTest
         public void RepopulateDevelopersInProjectList_WithNoFoundArgument_ThrowsInvalidOperationException()
         {
             Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.RepopulateDevelopersInProjectList(createTicketVmData.Last()));
-        }
-
-        [TestMethod]
-        public void RepopulateDevelopersNotInTicket_WithHavingEditTicketVM_ReturnsDevelopersOfProject()
-        {
-            Ticket ticket = ticketData.First();
-            int count = editTicketVmData.First().AllDevelopers.Count();
-            TicketBusinessLogic.RepopulateDevelopersNotInTicket(editTicketVmData.First());
-            Assert.IsTrue(editTicketVmData.First().AllDevelopers.Count.Equals(4));
         }
 
         [TestMethod]

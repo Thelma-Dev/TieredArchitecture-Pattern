@@ -195,7 +195,6 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
                 newTicket.TicketPriority = vm.TicketPriority;
                 newTicket.Owner = owner;
                 
-
                 _ticketRepository.Create(newTicket);
                 CurrentProject.Tickets.Add(newTicket);
                 _ticketRepository.SaveChanges();
