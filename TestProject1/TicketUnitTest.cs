@@ -19,6 +19,8 @@ namespace TieredArchitectureUnitTest
         public TicketBusinessLogic TicketBusinessLogic { get; set; }
         List<Project> projectData { get; set; }
         List<Ticket> ticketData { get; set; }
+
+        private List<Comment> commentData;
         List<UserProject> userProjectData { get; set; }
         List<ApplicationUser> applicationUserData { get; set; }
         List<CreateTicketVm> createTicketVmData { get; set; }
@@ -56,13 +58,44 @@ namespace TieredArchitectureUnitTest
                 new Project{Id = 3, ProjectName = "Butter Project 3"}
             }.ToList();
 
+            applicationUserData = new List<ApplicationUser>
+            {
+                new ApplicationUser{Id="1" ,UserName = "john34@gmail.com", PasswordHash="John@34"},
+                new ApplicationUser{Id="2", UserName = "brenda21@gmail.com", PasswordHash="brenda@21"},
+                new ApplicationUser{Id="3", UserName = "manager14@gmail.com", PasswordHash= "manager@14"},
+                new ApplicationUser{Id="4", UserName = "amanda12@gmail.com", PasswordHash="amanda@12"},
+
+            }.ToList();
+
+
             ticketData = new List<Ticket>
             {
+
+                new Ticket{Id = 1, Owner=applicationUserData.First(),RequiredHours=8, TicketPriority=Ticket.Priority.High, Completed=true},
                 new Ticket{Id = 1,RequiredHours=8, TicketPriority=Ticket.Priority.High, Completed=true, Project = projectData.First()},
+
                 new Ticket{Id = 2, RequiredHours = 20, TicketPriority=Ticket.Priority.Medium, Completed= false},
                 new Ticket{Id = 3, RequiredHours = 12, TicketPriority = Ticket.Priority.Low, Completed = false}
 
             }.ToList();
+
+
+            commentData = new List<Comment>
+            {
+                new Comment {Id = 1,Description = "Good Comment",UserId = "1", TicketId = 1 },
+                new Comment {Id = 2,Description = "Good Comment",UserId = "1", TicketId = 2 }
+
+            }.ToList();
+
+            userProjectData = new List<UserProject>
+            {
+                new UserProject{Id = 1, ProjectId = 2, UserId = "1"},
+                new UserProject{Id = 2, ProjectId = 2, UserId = "2"},
+                new UserProject{Id = 3, ProjectId = 3, UserId = "3"}
+            }.ToList();
+
+            
+            createProjectVmData = new List<CreateProjectVm>
 
            
            
@@ -78,6 +111,7 @@ namespace TieredArchitectureUnitTest
             }.ToList();
 
             editTicketVmData = new List<EditTicketVm>
+
             {
                 //new EditProjectVm{ProjectName = "Edited Project Name", ProjectId = 3, ProjectDevelopersId= {"1","2"}}
 
@@ -118,12 +152,18 @@ namespace TieredArchitectureUnitTest
             projectData.First().Tickets.Add(ticketData.First(t => t.Id == 1));
             projectData.Last().Tickets.Add(ticketData.First(t => t.Id == 3));
 
+            // Adding comments to tickets
+            ticketData.First().Comments.Add(commentData.First(c => c.Id == 1));
+            ticketData.First().Comments.Add(commentData.First(c => c.Id == 2));
+
+
 
 
 
             // Create a copy of the Project,Ticket,and UserProject, and ApplicationUser table
             Mock<DbSet<Project>> mockProjectSet = new Mock<DbSet<Project>>();
             Mock<DbSet<Ticket>> mockTicketSet = new Mock<DbSet<Ticket>>();
+            Mock<DbSet<Comment>> mockCommentSet = new Mock<DbSet<Comment>>();
             Mock<DbSet<UserProject>> mockUserProjectSet = new Mock<DbSet<UserProject>>();
             Mock<DbSet<ApplicationUser>> mockApplicationUserSet = new Mock<DbSet<ApplicationUser>>();
             Mock<DbSet<TicketWatcher>> mockTicketWatcherSet = new Mock<DbSet<TicketWatcher>>();
@@ -161,6 +201,10 @@ namespace TieredArchitectureUnitTest
             mockTicketSet.As<IQueryable<Ticket>>().Setup(m => m.ElementType).Returns(ticketData.AsQueryable().ElementType);
             mockTicketSet.As<IQueryable<Ticket>>().Setup(m => m.GetEnumerator()).Returns(ticketData.GetEnumerator());
 
+            mockCommentSet.As<IQueryable<Comment>>().Setup(c => c.Provider).Returns(commentData.AsQueryable().Provider);
+            mockCommentSet.As<IQueryable<Comment>>().Setup(c => c.Expression).Returns(commentData.AsQueryable().Expression);
+            mockCommentSet.As<IQueryable<Comment>>().Setup(c => c.ElementType).Returns(commentData.AsQueryable().ElementType);
+            mockCommentSet.As<IQueryable<Comment>>().Setup(c => c.GetEnumerator()).Returns(commentData.GetEnumerator());
 
             mockUserProjectSet.As<IQueryable<UserProject>>().Setup(m => m.Provider).Returns(userProjectData.AsQueryable().Provider);
             mockUserProjectSet.As<IQueryable<UserProject>>().Setup(m => m.Expression).Returns(userProjectData.AsQueryable().Expression);
@@ -193,6 +237,7 @@ namespace TieredArchitectureUnitTest
             // Mocked context should return an object of the mocked sets
             mockContext.Setup(c => c.Projects).Returns(mockProjectSet.Object);
             mockContext.Setup(c => c.Tickets).Returns(mockTicketSet.Object);
+            mockContext.Setup(c => c.Comments).Returns(mockCommentSet.Object);
             mockContext.Setup(c => c.UserProjects).Returns(mockUserProjectSet.Object);
             mockContext.Setup(c => c.Users).Returns(mockApplicationUserSet.Object);
             mockContext.Setup(c => c.TicketWatchers).Returns(mockTicketWatcherSet.Object);
@@ -201,17 +246,25 @@ namespace TieredArchitectureUnitTest
             mockContext.Setup(c => c.DeleteTicketWatcher(It.IsAny<TicketWatcher>())).Callback<TicketWatcher>(tw => ticketWatcherData.Remove(tw));
             mockContext.Setup(c => c.RemoveUserProject(It.IsAny<UserProject>())).Callback<UserProject>(up => userProjectData.Remove(up));
             mockContext.Setup(c => c.CreateProject(It.IsAny<Project>())).Callback<Project>(p => projectData.Add(p));
+
+            mockContext.Setup(c => c.CreateTicketWatcher(It.IsAny<TicketWatcher>())).Callback<TicketWatcher>(tw => ticketWatcherData.Add(tw));
+            mockContext.Setup(c => c.CreateComment(It.IsAny<Comment>())).Callback<Comment>(c => commentData.Add(c));
+
+
             mockContext.Setup(c => c.CreateTicket(It.IsAny<Ticket>())).Callback<Ticket>(t => ticketData.Add(t));
             mockContext.Setup(c => c.CreateTicketWatcher(It.IsAny<TicketWatcher>())).Callback<TicketWatcher>(tw => ticketWatcherData.Add(tw));
+
             mockContext.Setup(c => c.Roles).Returns(mockIdentityRoleSet.Object);
             mockContext.Setup(c => c.UserRoles).Returns(mockIdentityUserRoleSet.Object);
 
+            TicketBusinessLogic = new TicketBusinessLogic(new TicketRepository(mockContext.Object), new UserProjectRepository(mockContext.Object), new UserRepository(mockContext.Object, manager.Object), new TicketRepository(mockContext.Object), new ProjectRepository(mockContext.Object), new CommentRepository(mockContext.Object), new TicketWatchersRepository(mockContext.Object));
 
 
-            TicketBusinessLogic = new TicketBusinessLogic(new TicketRepository(mockContext.Object), new UserProjectRepository(mockContext.Object), new UserRepository(mockContext.Object, manager.Object), new TicketRepository(mockContext.Object), new TicketWatchersRepository(mockContext.Object), new ProjectRepository(mockContext.Object));
 
 
         }
+
+      
         [TestMethod]
         public void GetTicket_WithArgumentAndFoundId_ReturnsTicketWithAnIdOfArgument()
         {
@@ -220,6 +273,74 @@ namespace TieredArchitectureUnitTest
             Assert.AreEqual(actualTicket, queriedTicket);
         }
 
+        [TestMethod]
+
+        public void GetTicket_OnNoArgument_ThrowsArgumentNullException()
+        {
+            Assert.ThrowsException<ArgumentNullException>(() => TicketBusinessLogic.GetTicket(null));
+        }
+
+        [TestMethod]
+        [DataRow(Int32.MaxValue)]
+        public void GetTicket_OnNoFoundId_ThrowsAnInvalidOperationException(int ticketId)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.GetTicket(ticketId));
+        }
+        
+
+        [TestMethod]
+        [DataRow(2)]
+        public void GetTicketDetails_WithFoundIdArgument_ReturnsExpectedTicket(int ticketId)
+        {
+           
+            Ticket actualTicket = ticketData.First(x => x.Id == ticketId);
+
+            Assert.IsTrue(actualTicket.Equals(TicketBusinessLogic.GetTicketDetails(ticketId)));
+        }
+
+        [TestMethod]
+        [DataRow(Int32.MaxValue)]
+        public void GetTicketDetails_WithNoFoundIdArgument_ThrowsInvalidException(int ticketId)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.GetTicketDetails(ticketId));
+            
+        }
+
+
+        [TestMethod]
+        [DataRow(1, 1)]
+        public void RemoveAssignedUser_WithFoundUserIdAndTicketId_MakeTheTicketOwnerNull(int userId, int ticketId)
+        {
+            Ticket ticket = ticketData.First(x => x.Id == ticketId);
+
+            TicketBusinessLogic.RemoveAssignedUser(userId.ToString(), ticketId);
+
+            Assert.IsTrue(ticket.Owner == null);
+        }
+
+        [TestMethod]
+        [DataRow(Int32.MaxValue, 1)]
+        public void RemoveAssignedUser_WithNoUserIdFound_ThrowsNullException(int userId, int ticketId)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.RemoveAssignedUser(userId.ToString(), ticketId));
+        }
+
+        [TestMethod]
+        [DataRow(Int32.MinValue, "john34@gmail.com")]
+        public void AddToWatch_WithNoFoundTicketId_ThrowsInvalidOperationException(int ticketId, string userName)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.AddToWatch(ticketId, userName));
+        }
+
+        [TestMethod]
+        [DataRow(1, "john34@gmail.com")]
+
+        public void AddToWatch_WithFoundTicketIdAndUserName_AddTicketToWatchedTicket(int ticketId, string userName)
+        {
+            initialCount = ticketWatcherData.Count();
+            TicketBusinessLogic.AddToWatch(ticketId, userName);
+            Assert.AreEqual(ticketWatcherData.Count(),initialCount + 1) ;
+        }
         [TestMethod]
         [DataRow(1, 29, 29)]
 
@@ -298,9 +419,54 @@ namespace TieredArchitectureUnitTest
         public void CreateTicket_Error_CreatesATicket(int projectId)
         {
             Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.CreateTicket(createTicketVmData.FirstOrDefault(vm => vm.ProjectId == projectId)));
+
         }
 
 
+        [TestMethod]
+
+        [DataRow(1)]
+        public void MarkAsCompleted_WithFoundTicketId_ReturnsTrue(int ticketId)
+        {
+            Ticket ticket = ticketData.First( t => t.Id == ticketId);
+            TicketBusinessLogic.MarkAsCompleted(ticket.Id);
+            Assert.IsTrue(ticket.Completed);
+
+        }
+
+        [TestMethod]
+        [DataRow(Int32.MaxValue)]
+        public void MarkAsCompleted_OnNoArgument_ThrowsNullException(int ticketId)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.MarkAsCompleted(ticketId));
+        }
+
+        [TestMethod]
+        [DataRow(1)]
+        public void UnMarkAsCompleted_WithFoundTicketId_ReturnsFalse(int ticketId)
+        {
+            Ticket ticket = ticketData.First(t => t.Id == ticketId);
+            TicketBusinessLogic.UnMarkAsCompleted(ticket.Id);
+            Assert.IsFalse(ticket.Completed);
+
+        }
+
+        [TestMethod]
+        [DataRow(Int32.MaxValue)]
+        public void UnMarkAsCompleted_WithNoFoundTicket_ThrowsInvalidException(int ticketId)
+        {
+  
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.UnMarkAsCompleted(ticketId));
+        }
+
+        [TestMethod]
+        public void Read()
+        {
+            int count = ticketData.Count();
+            TicketBusinessLogic.Read();
+            Assert.AreEqual(count, ticketData.Count());
+        }
+      
         [TestMethod]
         [DataRow(Int32.MaxValue)]
         public void EditTicket_WithNoFoundId_ThrowsAnInvalidOperationException(int ticketId)
@@ -362,8 +528,28 @@ namespace TieredArchitectureUnitTest
             TicketBusinessLogic.Unwatch(id, userName);
             Assert.AreEqual(ticketWatcherData.Count, initialCount - 1);
 
+
         }
 
+        [TestMethod]
+
+        [DataRow(1, "Comment", "john34@gmail.com")]
+        public void CommentOnTask_WithFoundAllRequiredIds_AddCommentsOnTask(int taskId,string taskText, string userName)
+        {
+            initialCount = commentData.Count();
+            TicketBusinessLogic.CommentOnTask(taskId, taskText, userName);
+            Assert.AreEqual(commentData.Count(), initialCount + 1);
+
+        }
+
+        [TestMethod]
+        [DataRow(null, null, "john34@gmail.com")]
+        public void CommentOnTask_WithNoFoundTaskIdAndText_ThrowsNullException(int taskId, string taskText, string userName)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.CommentOnTask(taskId, taskText, userName));
+        }
+    
+    
         [TestMethod]
         [DataRow(6, "john34@gmail.com")]
         public void UnWatch_ThrowException(int id, string userName)
@@ -386,6 +572,7 @@ namespace TieredArchitectureUnitTest
         }
 
     }
+
 
 
 }
