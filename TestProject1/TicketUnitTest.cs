@@ -93,10 +93,6 @@ namespace TieredArchitectureUnitTest
                 new UserProject{Id = 2, ProjectId = 2, UserId = "2"},
                 new UserProject{Id = 3, ProjectId = 3, UserId = "3"}
             }.ToList();
-
-            
-            createProjectVmData = new List<CreateProjectVm>
-
            
            
 
