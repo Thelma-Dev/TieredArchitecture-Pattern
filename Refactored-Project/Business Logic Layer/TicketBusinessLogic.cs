@@ -21,7 +21,8 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         private IRepository<Ticket> _ticketRepository;
         private readonly IRepository<TicketWatcher> _ticketWatcherRepository;
         private readonly IRepository<Comment> _commentRepository;
-        public TicketBusinessLogic(IRepository<Ticket> ticketRepository, UserProjectRepository userProjectRepository, UserRepository userRepository, ProjectRepository ProjectRepository, CommentRepository CommentRepository, TicketWatchersRepository ticketWatchersRepository)
+
+        public TicketBusinessLogic(IRepository<Ticket> ticketRepository, IUserProjectRepository userProjectRepository, IUserRepository userRepository, IRepository<Project> ProjectRepository, IRepository<Comment> CommentRepository, IRepository<TicketWatcher> ticketWatchersRepository)
         {
             _userProjectRepository = userProjectRepository;
             _userRepository = userRepository;
@@ -31,27 +32,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             _commentRepository = CommentRepository;
         }
 
-        public Project GetProject(int? id)
-        {
-            if (id == null)
-            {
-                throw new ArgumentNullException("ProjectId is null");
-            }
-            else
-            {
-                Project project = _projectRepository.Get(id);
-
-                if (project == null)
-                {
-                    throw new InvalidOperationException("Project not found");
-                }
-                else
-                {
-                    return project;
-                }
-            }
-        }
-
+        
         public Ticket GetTicket(int? id)
         {
             if(id == null)
@@ -156,11 +137,12 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             else
             {
 
-                ApplicationUser owner = vm.Owner;
+                ApplicationUser owner = _userRepository.Get(vm.OwnerId);
 
                 if (owner == null)
                 {
                     throw new InvalidOperationException();
+
                 } else
                 {
                     owner = _userRepository.Get(vm.OwnerId);
@@ -200,21 +182,21 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         public EditTicketVm EditTicket(int? id)
         {
             
-                Ticket ticket = GetTicket(id);
+            Ticket ticket = GetTicket(id);
 
-               List<ApplicationUser> user = _userRepository.GetAll().ToList();
+            List<ApplicationUser> user = _userRepository.GetAll().ToList();
                 
                 
-                ApplicationUser owner = ticket.Owner;
+            ApplicationUser owner = ticket.Owner;
 
-                List<ApplicationUser> DevelopersNotInTicket = _userRepository.GetAll().Where(u => u != ticket.Owner).ToList();
+            List<ApplicationUser> DevelopersNotInTicket = _userRepository.GetAll().Where(u => u != ticket.Owner).ToList();
 
-                EditTicketVm vm = new EditTicketVm(DevelopersNotInTicket);
-                vm.Ticket = ticket;
-                vm.TicketId = ticket.Id;
-                vm.Owner = owner;
+            EditTicketVm vm = new EditTicketVm(DevelopersNotInTicket);
+            vm.Ticket = ticket;
+            vm.TicketId = ticket.Id;
+            vm.Owner = owner;
 
-                return vm;       
+            return vm;       
             
         }
 
@@ -356,7 +338,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             }
             else
             {
-                throw new InvalidOperationException("Task not found");
+                throw new InvalidOperationException("Parameter is null");
             }
             
         }
@@ -371,7 +353,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
             } else if (hrs < 1 || hrs > 999)
             {
-                throw new InvalidOperationException();
+                throw new ArgumentOutOfRangeException();
             }
             else
             {
@@ -501,6 +483,27 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             
         }
 
-        
+        private Project GetProject(int? id)
+        {
+            if (id == null)
+            {
+                throw new ArgumentNullException("ProjectId is null");
+            }
+            else
+            {
+                Project project = _projectRepository.Get(id);
+
+                if (project == null)
+                {
+                    throw new InvalidOperationException("Project not found");
+                }
+                else
+                {
+                    return project;
+                }
+            }
+        }
+
+
     }
 }

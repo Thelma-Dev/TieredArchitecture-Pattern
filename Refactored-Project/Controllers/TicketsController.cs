@@ -21,7 +21,6 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
     public class TicketsController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ProjectBusinessLogic _projectBusinessLogic;
         private readonly IRepository<Project> _projectRepository;
         private readonly IUserRepository _userRepository;
         private readonly IRepository<Ticket> _ticketRepository;
@@ -36,8 +35,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             _ticketRepository = ticketRepository;
             _userRepository = userRepository;
             _userProjectRepository = userProjectRepository;
-            _ticketWatcherRepository = ticketWatcherRepository;
-            _commentRepository = commentRepository;
+            _ticketBusinessLogic = new TicketBusinessLogic(ticketRepository,userProjectRepository,userRepository, projectRepository,commentRepository, ticketWatcherRepository);
         }
 
 
