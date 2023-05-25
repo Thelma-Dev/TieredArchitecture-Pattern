@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Build.Evaluation;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -7,6 +9,7 @@ using SD_340_W22SD_Final_Project_Group6.Data;
 using SD_340_W22SD_Final_Project_Group6.Models;
 using SD_340_W22SD_Final_Project_Group6.Models.ViewModel;
 using X.PagedList;
+using Project = SD_340_W22SD_Final_Project_Group6.Models.Project;
 
 namespace TieredArchitectureUnitTest
 {
@@ -69,6 +72,8 @@ namespace TieredArchitectureUnitTest
                 new CreateTicketVm{Title = "TicketTitle", Body = "Ticket1", OwnerId = "1", ProjectId = 1, RequiredHours = 24 },
                 new CreateTicketVm{Title = "TicketTitle", Body = "Ticket2", ProjectId = 2, RequiredHours = 27, Owner = applicationUserData.First(), OwnerId = "1"},
                 new CreateTicketVm{Title = "TicketTitle", Body = "Ticket3", ProjectId = 3, RequiredHours = 24 },
+                new CreateTicketVm{Title = "TicketTitle", Body = "Ticket3", RequiredHours = 24 },
+
 
             }.ToList();
 
@@ -76,7 +81,8 @@ namespace TieredArchitectureUnitTest
             {
                 //new EditProjectVm{ProjectName = "Edited Project Name", ProjectId = 3, ProjectDevelopersId= {"1","2"}}
 
-                new EditTicketVm{TicketId = 1, Title = "UpdateTicket" ,Body = "UpdateTicket1", OwnerId = "1", RequiredHours = 55}
+                new EditTicketVm{TicketId = 1, Title = "UpdateTicket" ,Body = "UpdateTicket1", OwnerId = "1", RequiredHours = 55},
+                new EditTicketVm{Title = "UpdateTicket2" ,Body = "UpdateTicket2", OwnerId = "1", RequiredHours = 55}
 
 
             }.ToList();
@@ -245,6 +251,13 @@ namespace TieredArchitectureUnitTest
         }
 
         [TestMethod]
+        [DataRow(5)]
+        public void DeleteTicket_WithNoFoundId_ReturnsExpectedTicketToBeDeleted(int ticketId)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.DeleteTicket(ticketId));
+        }
+
+        [TestMethod]
         [DataRow(1, 1)]
         public void DeleteTicketConfirmed_WithArgumentAndFoundId_DeletesTheTicket(int ticketId, int projectId)
         {
@@ -261,13 +274,20 @@ namespace TieredArchitectureUnitTest
         }
 
 
+        [TestMethod]
+        [DataRow(4, 1)]
+        public void DeleteTicketConfirmed_WithNoFoundId_DeletesTheTicket(int ticketId, int projectId)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.TicketDeleteConfirmed(ticketId, projectId));
+
+        }
 
         [TestMethod]
         public void CreateTicket_WithCreateTicketVmHavingTicketNameLoggedInUserNameAndListOfDevelopers_CreatesATicket()
         {
             initialCount = ticketData.Count;
             // Act
-            TicketBusinessLogic.CreateTicket(createTicketVmData.Last());
+            TicketBusinessLogic.CreateTicket(createTicketVmData.FirstOrDefault(vm => vm.ProjectId == 2));
 
             // Assert
             Assert.AreEqual(ticketData.Count, initialCount + 1);
@@ -288,6 +308,13 @@ namespace TieredArchitectureUnitTest
             Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.EditTicket(ticketId));
         }
 
+        [TestMethod]
+        [DataRow(1)]
+        public void EditTicket_WithFoundId_ThrowsAnInvalidOperationException(int ticketId)
+        {
+            Assert.IsInstanceOfType(TicketBusinessLogic.EditTicket(ticketId), typeof(EditTicketVm));
+        }
+
 
         [TestMethod]
         public void UpdateEditedTicket_WithEditTicketViewModelHavingTicketNameAndListOfDevelopers_UpdatesExistingTicket()
@@ -298,6 +325,11 @@ namespace TieredArchitectureUnitTest
             // Assert
             Assert.IsTrue(editTicketVmData.First().TicketId.Equals(ticket.Id));
         }
+        [TestMethod]
+        public void UpdateEditedTicket_throwException_UpdatesExistingTicket()
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.UpdateEditedTicket(editTicketVmData.Last()));
+        }
 
         [TestMethod]
         public void RepopulateDevelopersInProjectList()
@@ -305,6 +337,12 @@ namespace TieredArchitectureUnitTest
             int count = createTicketVmData.First().AllDevelopers.Count();
             TicketBusinessLogic.RepopulateDevelopersInProjectList(createTicketVmData.First());
             Assert.AreEqual(createTicketVmData.First().AllDevelopers.Count(), count + 1);
+        }
+
+        [TestMethod]
+        public void RepopulateDevelopersInProjectList_ThrowException()
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.RepopulateDevelopersInProjectList(createTicketVmData.Last()));
         }
 
         [TestMethod]
@@ -324,6 +362,13 @@ namespace TieredArchitectureUnitTest
             TicketBusinessLogic.Unwatch(id, userName);
             Assert.AreEqual(ticketWatcherData.Count, initialCount - 1);
 
+        }
+
+        [TestMethod]
+        [DataRow(6, "john34@gmail.com")]
+        public void UnWatch_ThrowException(int id, string userName)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.Unwatch(id, userName));
         }
 
         [TestMethod]
