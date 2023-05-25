@@ -35,5 +35,15 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
             UserProjects.Remove(Userproject);
         }
 
+        public virtual void CreateTicketWatcher(TicketWatcher ticketWatcher)
+        {
+            TicketWatchers.Add(ticketWatcher);
+        }
+
+        public virtual void CreateComment(Comment comment)
+        {
+            Comments.Add(comment);
+        }
+
     }
 }

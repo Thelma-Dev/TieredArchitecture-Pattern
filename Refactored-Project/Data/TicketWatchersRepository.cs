@@ -12,7 +12,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
         }
         public void Create(TicketWatcher entity)
         {
-            _context.TicketWatchers.Add(entity);
+            _context.CreateTicketWatcher(entity);
             _context.SaveChanges();
         }
 

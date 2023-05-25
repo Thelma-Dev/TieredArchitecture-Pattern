@@ -42,19 +42,21 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             _ticketRepository= ticketRepository;
         }
 
-        public TicketBusinessLogic(IRepository<Ticket> ticketRepository, UserProjectRepository userProjectRepository, UserRepository userRepository, TicketRepository ticketRepository1, TicketWatchersRepository ticketWatchersRepository) : this(ticketRepository)
+        public TicketBusinessLogic(IRepository<Ticket> ticketRepository, UserProjectRepository userProjectRepository, UserRepository userRepository, TicketRepository ticketRepository1, ProjectRepository ProjectRepository, CommentRepository CommentRepository, TicketWatchersRepository ticketWatchersRepository) : this(ticketRepository)
         {
-            this.userProjectRepository = userProjectRepository;
-            this.userRepository = userRepository;
-            this.ticketRepository1 = ticketRepository1;
-            this.ticketWatchersRepository = ticketWatchersRepository;
+            _userProjectRepository = userProjectRepository;
+            _userRepository = userRepository;
+            _ticketRepository = ticketRepository1;
+            _ticketWatcherRepository = ticketWatchersRepository;
+            _projectRepository = ProjectRepository;
+            _commentRepository = CommentRepository;
         }
 
         public Ticket GetTicket(int? id)
         {
             if(id == null)
             {
-                throw new Exception("TicketId is null");
+                throw new ArgumentNullException("TicketId is null");
             }
             else
             {
@@ -62,7 +64,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
                 if(ticket == null)
                 {
-                    throw new Exception("Ticket not found");
+                    throw new ArgumentNullException("Ticket not found");
                 }
                 else
                 {
@@ -92,7 +94,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
             // Including related comment, project and Application User tables
 
-            List<Comment> comments = _commentRepository.GetAll().ToList();            
+            List<Comment> comments = _commentRepository.GetAll().ToList();
             List<Project> allProjects = _projectRepository.GetAll().ToList();
             List<ApplicationUser> allUsers = _userRepository.GetAll().ToList();
             List<TicketWatcher> AllTicketWatchers = _ticketWatcherRepository.GetAll().ToList();
@@ -247,7 +249,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
         {
             if (id == null)
             {
-                throw new  Exception("UserId is null");
+                throw new InvalidOperationException("UserId is null");
             }
             else
             {
@@ -280,23 +282,36 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             
              Ticket ticket = GetTicket(id);
 
+            if(ticket != null)
+            {
+                ticket.Completed = true;
+                _ticketRepository.Update(ticket);
                 
-             ticket.Completed = true;
-
-            _ticketRepository.Update(ticket);
-                             
+            }
+            else
+            {
+                throw new InvalidOperationException("Ticket not found");
+            }
             
+
         }
 
         public void UnMarkAsCompleted(int id)
         {
             
             Ticket ticket = GetTicket(id);
-                
-            ticket.Completed = false;
 
-            _ticketRepository.Update(ticket);
-            
+            if(ticket != null)
+            {
+                ticket.Completed = false;
+
+                _ticketRepository.Update(ticket);
+            }
+            else
+            {
+                throw new InvalidOperationException("Ticket not found");
+            }
+
         }
 
         public void CommentOnTask(int TaskId, string? TaskText, string username)
@@ -321,8 +336,12 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
                 user.Comments.Add(newComment);
                 ticket.Comments.Add(newComment);
-                
-                
+
+
+            }
+            else
+            {
+                throw new InvalidOperationException("Task not found");
             }
             
         }
@@ -349,7 +368,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
 
             if(ticket == null)
             {
-                throw new Exception("Ticket not found");
+                throw new InvalidOperationException("Ticket not found");
             }
             else
             {
