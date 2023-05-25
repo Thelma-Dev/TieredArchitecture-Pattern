@@ -37,11 +37,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer
             _userProjectRepository = userProjectRepository;
             _commentRepository = commentRepository;
         }
-        public TicketBusinessLogic( IRepository<Ticket> ticketRepository)
-        {
-            _ticketRepository= ticketRepository;
-        }
-        public TicketBusinessLogic(IRepository<Ticket> ticketRepository, UserProjectRepository userProjectRepository, UserRepository userRepository, TicketRepository ticketRepository1, ProjectRepository ProjectRepository, CommentRepository CommentRepository, TicketWatchersRepository ticketWatchersRepository) : this(ticketRepository)
+        public TicketBusinessLogic(IRepository<Ticket> ticketRepository, UserProjectRepository userProjectRepository, UserRepository userRepository, TicketRepository ticketRepository1, ProjectRepository ProjectRepository, CommentRepository CommentRepository, TicketWatchersRepository ticketWatchersRepository) 
         {
             _userProjectRepository = userProjectRepository;
             _userRepository = userRepository;

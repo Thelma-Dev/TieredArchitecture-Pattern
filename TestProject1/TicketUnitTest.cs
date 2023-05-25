@@ -32,6 +32,233 @@ namespace TieredArchitectureUnitTest
 
         int initialCount = 0;
 
+        //[TestInitialize]
+        //public void Initialize()
+        //{
+        //    applicationUserData = new List<ApplicationUser>
+        //    {
+        //        new ApplicationUser{Id="1" ,UserName = "john34@gmail.com", PasswordHash="John@34"},
+        //        new ApplicationUser{Id="2", UserName = "brenda21@gmail.com", PasswordHash="brenda@21"},
+        //        new ApplicationUser{Id="3", UserName = "manager14@gmail.com", PasswordHash= "manager@14"},
+        //        new ApplicationUser{Id="4", UserName = "amanda12@gmail.com", PasswordHash="amanda@12"},
+
+        //    }.ToList();
+
+        //    userProjectData = new List<UserProject>
+        //    {
+        //        new UserProject{Id = 1, ProjectId = 1, UserId = "1", User = applicationUserData.First()},
+        //        new UserProject{Id = 2, ProjectId = 2, UserId = "2"},
+        //        new UserProject{Id = 3, ProjectId = 3, UserId = "3"}
+        //    }.ToList();
+
+        //    projectData = new List<Project>
+        //    {
+        //        new Project{Id = 1,ProjectName = "Zion Project 1", AssignedTo = {userProjectData.First()} },
+        //        new Project{Id = 2, ProjectName = "Alpha Project 2"},
+        //        new Project{Id = 3, ProjectName = "Butter Project 3"}
+        //    }.ToList();
+
+        //    applicationUserData = new List<ApplicationUser>
+        //    {
+        //        new ApplicationUser{Id="1" ,UserName = "john34@gmail.com", PasswordHash="John@34"},
+        //        new ApplicationUser{Id="2", UserName = "brenda21@gmail.com", PasswordHash="brenda@21"},
+        //        new ApplicationUser{Id="3", UserName = "manager14@gmail.com", PasswordHash= "manager@14"},
+        //        new ApplicationUser{Id="4", UserName = "amanda12@gmail.com", PasswordHash="amanda@12"},
+
+        //    }.ToList();
+
+
+        //    ticketData = new List<Ticket>
+        //    {
+
+        //        new Ticket{Id = 1, Owner=applicationUserData.First(),RequiredHours=8, TicketPriority=Ticket.Priority.High, Completed=true},
+        //        new Ticket{Id = 1,RequiredHours=8, TicketPriority=Ticket.Priority.High, Completed=true, Project = projectData.First()},
+
+        //        new Ticket{Id = 2, RequiredHours = 20, TicketPriority=Ticket.Priority.Medium, Completed= false},
+        //        new Ticket{Id = 3, RequiredHours = 12, TicketPriority = Ticket.Priority.Low, Completed = false}
+
+        //    }.ToList();
+
+
+        //    commentData = new List<Comment>
+        //    {
+        //        new Comment {Id = 1,Description = "Good Comment",UserId = "1", TicketId = 1 },
+        //        new Comment {Id = 2,Description = "Good Comment",UserId = "1", TicketId = 2 }
+
+        //    }.ToList();
+
+        //    userProjectData = new List<UserProject>
+        //    {
+        //        new UserProject{Id = 1, ProjectId = 2, UserId = "1"},
+        //        new UserProject{Id = 2, ProjectId = 2, UserId = "2"},
+        //        new UserProject{Id = 3, ProjectId = 3, UserId = "3"}
+        //    }.ToList();
+
+
+
+        //    createTicketVmData = new List<CreateTicketVm>
+        //    {
+        //        new CreateTicketVm{Title = "TicketTitle", Body = "Ticket1", OwnerId = "1", ProjectId = 1, RequiredHours = 24 },
+        //        new CreateTicketVm{Title = "TicketTitle", Body = "Ticket2", ProjectId = 2, RequiredHours = 27, Owner = applicationUserData.First(), OwnerId = "1"},
+        //        new CreateTicketVm{Title = "TicketTitle", Body = "Ticket3", ProjectId = 3, RequiredHours = 24 },
+        //        new CreateTicketVm{Title = "TicketTitle", Body = "Ticket3", RequiredHours = 24 },
+
+
+        //    }.ToList();
+
+        //    editTicketVmData = new List<EditTicketVm>
+
+        //    {
+        //        //new EditProjectVm{ProjectName = "Edited Project Name", ProjectId = 3, ProjectDevelopersId= {"1","2"}}
+
+        //        new EditTicketVm{TicketId = 1, Title = "UpdateTicket" ,Body = "UpdateTicket1", OwnerId = "1", RequiredHours = 55},
+        //        new EditTicketVm{Title = "UpdateTicket2" ,Body = "UpdateTicket2", OwnerId = "1", RequiredHours = 55}
+
+
+        //    }.ToList();
+
+        //    ticketWatcherData = new List<TicketWatcher>
+        //    {
+        //        new TicketWatcher {TicketId = 1, WatcherId = "1"}
+
+        //    }.ToList();
+
+        //    paginationVMData = new List<PaginationVM>
+        //    {
+        //        new PaginationVM{Projects= projectData.ToPagedList(pageNumber: 1, pageSize: 3)}
+        //    }.ToList();
+
+        //    roleData = new List<IdentityRole>()
+        //    {
+        //        new IdentityRole{Id="1", Name = "ProjectManager" },
+        //        new IdentityRole{Id ="2", Name = "Developer" },
+        //        new IdentityRole{Id = "3", Name = "Admin" }
+
+        //    }.ToList();
+
+        //    identityUserRoleData = new List<IdentityUserRole<string>>()
+        //    {
+        //        new IdentityUserRole<string>{RoleId = "1", UserId= "3"},
+        //        new IdentityUserRole<string>{RoleId = "2", UserId="2"},
+        //        new IdentityUserRole<string>{RoleId = "2", UserId = "1"}
+        //    }.ToList();
+
+
+        //    // Creating tickets for projects
+        //    projectData.First().Tickets.Add(ticketData.First(t => t.Id == 1));
+        //    projectData.Last().Tickets.Add(ticketData.First(t => t.Id == 3));
+
+        //    // Adding comments to tickets
+        //    ticketData.First().Comments.Add(commentData.First(c => c.Id == 1));
+        //    ticketData.First().Comments.Add(commentData.First(c => c.Id == 2));
+
+
+
+
+
+        //    // Create a copy of the Project,Ticket,and UserProject, and ApplicationUser table
+        //    Mock<DbSet<Project>> mockProjectSet = new Mock<DbSet<Project>>();
+        //    Mock<DbSet<Ticket>> mockTicketSet = new Mock<DbSet<Ticket>>();
+        //    Mock<DbSet<Comment>> mockCommentSet = new Mock<DbSet<Comment>>();
+        //    Mock<DbSet<UserProject>> mockUserProjectSet = new Mock<DbSet<UserProject>>();
+        //    Mock<DbSet<ApplicationUser>> mockApplicationUserSet = new Mock<DbSet<ApplicationUser>>();
+        //    Mock<DbSet<TicketWatcher>> mockTicketWatcherSet = new Mock<DbSet<TicketWatcher>>();
+        //    Mock<DbSet<IdentityRole>> mockIdentityRoleSet = new Mock<DbSet<IdentityRole>>();
+        //    Mock<DbSet<IdentityUserRole<string>>> mockIdentityUserRoleSet = new Mock<DbSet<IdentityUserRole<string>>>();
+
+
+        //    //Mock user manager
+        //    Mock store = new Mock<IUserStore<ApplicationUser>>();
+        //    Mock<UserManager<ApplicationUser>> manager = new Mock<UserManager<ApplicationUser>>(store.Object, null, null, null, null, null, null, null, null);
+        //    manager.Object.UserValidators.Add(new UserValidator<ApplicationUser>());
+        //    manager.Object.PasswordValidators.Add(new PasswordValidator<ApplicationUser>());
+
+
+        //    manager.Setup(x => x.DeleteAsync(It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
+        //    manager.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>())).ReturnsAsync(IdentityResult.Success).Callback<ApplicationUser, string>((x, y) => applicationUserData.Add(x));
+        //    manager.Setup(x => x.UpdateAsync(It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
+
+
+
+        //    // providing data to the mock DbSets
+        //    mockProjectSet.As<IQueryable<Project>>().Setup(m => m.Provider).Returns(projectData.AsQueryable().Provider);
+        //    mockProjectSet.As<IQueryable<Project>>().Setup(m => m.Expression).Returns(projectData.AsQueryable().Expression);
+        //    mockProjectSet.As<IQueryable<Project>>().Setup(m => m.ElementType).Returns(projectData.AsQueryable().ElementType);
+        //    mockProjectSet.As<IQueryable<Project>>().Setup(m => m.GetEnumerator()).Returns(projectData.GetEnumerator());
+
+        //    mockApplicationUserSet.As<IQueryable<ApplicationUser>>().Setup(m => m.Provider).Returns(applicationUserData.AsQueryable().Provider);
+        //    mockApplicationUserSet.As<IQueryable<ApplicationUser>>().Setup(m => m.Expression).Returns(applicationUserData.AsQueryable().Expression);
+        //    mockApplicationUserSet.As<IQueryable<ApplicationUser>>().Setup(m => m.ElementType).Returns(applicationUserData.AsQueryable().ElementType);
+        //    mockApplicationUserSet.As<IQueryable<ApplicationUser>>().Setup(m => m.GetEnumerator()).Returns(applicationUserData.GetEnumerator());
+
+
+        //    mockTicketSet.As<IQueryable<Ticket>>().Setup(m => m.Provider).Returns(ticketData.AsQueryable().Provider);
+        //    mockTicketSet.As<IQueryable<Ticket>>().Setup(m => m.Expression).Returns(ticketData.AsQueryable().Expression);
+        //    mockTicketSet.As<IQueryable<Ticket>>().Setup(m => m.ElementType).Returns(ticketData.AsQueryable().ElementType);
+        //    mockTicketSet.As<IQueryable<Ticket>>().Setup(m => m.GetEnumerator()).Returns(ticketData.GetEnumerator());
+
+        //    mockCommentSet.As<IQueryable<Comment>>().Setup(c => c.Provider).Returns(commentData.AsQueryable().Provider);
+        //    mockCommentSet.As<IQueryable<Comment>>().Setup(c => c.Expression).Returns(commentData.AsQueryable().Expression);
+        //    mockCommentSet.As<IQueryable<Comment>>().Setup(c => c.ElementType).Returns(commentData.AsQueryable().ElementType);
+        //    mockCommentSet.As<IQueryable<Comment>>().Setup(c => c.GetEnumerator()).Returns(commentData.GetEnumerator());
+
+        //    mockUserProjectSet.As<IQueryable<UserProject>>().Setup(m => m.Provider).Returns(userProjectData.AsQueryable().Provider);
+        //    mockUserProjectSet.As<IQueryable<UserProject>>().Setup(m => m.Expression).Returns(userProjectData.AsQueryable().Expression);
+        //    mockUserProjectSet.As<IQueryable<UserProject>>().Setup(m => m.ElementType).Returns(userProjectData.AsQueryable().ElementType);
+        //    mockUserProjectSet.As<IQueryable<UserProject>>().Setup(m => m.GetEnumerator()).Returns(userProjectData.GetEnumerator());
+
+
+        //    mockTicketWatcherSet.As<IQueryable<TicketWatcher>>().Setup(m => m.Provider).Returns(ticketWatcherData.AsQueryable().Provider);
+        //    mockTicketWatcherSet.As<IQueryable<TicketWatcher>>().Setup(m => m.Expression).Returns(ticketWatcherData.AsQueryable().Expression);
+        //    mockTicketWatcherSet.As<IQueryable<TicketWatcher>>().Setup(m => m.ElementType).Returns(ticketWatcherData.AsQueryable().ElementType);
+        //    mockTicketWatcherSet.As<IQueryable<TicketWatcher>>().Setup(m => m.GetEnumerator()).Returns(ticketWatcherData.GetEnumerator());
+
+
+        //    mockIdentityRoleSet.As<IQueryable<IdentityRole>>().Setup(m => m.Provider).Returns(roleData.AsQueryable().Provider);
+        //    mockIdentityRoleSet.As<IQueryable<IdentityRole>>().Setup(m => m.Expression).Returns(roleData.AsQueryable().Expression);
+        //    mockIdentityRoleSet.As<IQueryable<IdentityRole>>().Setup(m => m.ElementType).Returns(roleData.AsQueryable().ElementType);
+        //    mockIdentityRoleSet.As<IQueryable<IdentityRole>>().Setup(r => r.GetEnumerator()).Returns(roleData.GetEnumerator());
+
+        //    mockIdentityUserRoleSet.As<IQueryable<IdentityUserRole<string>>>().Setup(m => m.Provider).Returns(identityUserRoleData.AsQueryable().Provider);
+        //    mockIdentityUserRoleSet.As<IQueryable<IdentityUserRole<string>>>().Setup(m => m.Expression).Returns(identityUserRoleData.AsQueryable().Expression);
+        //    mockIdentityUserRoleSet.As<IQueryable<IdentityUserRole<string>>>().Setup(m => m.ElementType).Returns(identityUserRoleData.AsQueryable().ElementType);
+        //    mockIdentityUserRoleSet.As<IQueryable<IdentityUserRole<string>>>().Setup(r => r.GetEnumerator()).Returns(identityUserRoleData.GetEnumerator());
+
+
+
+        //    // create a mock of the database context
+        //    Mock<ApplicationDbContext> mockContext = new Mock<ApplicationDbContext>();
+
+
+        //    // Mocked context should return an object of the mocked sets
+        //    mockContext.Setup(c => c.Projects).Returns(mockProjectSet.Object);
+        //    mockContext.Setup(c => c.Tickets).Returns(mockTicketSet.Object);
+        //    mockContext.Setup(c => c.Comments).Returns(mockCommentSet.Object);
+        //    mockContext.Setup(c => c.UserProjects).Returns(mockUserProjectSet.Object);
+        //    mockContext.Setup(c => c.Users).Returns(mockApplicationUserSet.Object);
+        //    mockContext.Setup(c => c.TicketWatchers).Returns(mockTicketWatcherSet.Object);
+        //    mockContext.Setup(c => c.DeleteProject(It.IsAny<Project>())).Callback<Project>(p => projectData.Remove(p));
+        //    mockContext.Setup(c => c.DeleteTicket(It.IsAny<Ticket>())).Callback<Ticket>(t => ticketData.Remove(t));
+        //    mockContext.Setup(c => c.DeleteTicketWatcher(It.IsAny<TicketWatcher>())).Callback<TicketWatcher>(tw => ticketWatcherData.Remove(tw));
+        //    mockContext.Setup(c => c.RemoveUserProject(It.IsAny<UserProject>())).Callback<UserProject>(up => userProjectData.Remove(up));
+        //    mockContext.Setup(c => c.CreateProject(It.IsAny<Project>())).Callback<Project>(p => projectData.Add(p));
+
+        //    mockContext.Setup(c => c.CreateTicketWatcher(It.IsAny<TicketWatcher>())).Callback<TicketWatcher>(tw => ticketWatcherData.Add(tw));
+        //    mockContext.Setup(c => c.CreateComment(It.IsAny<Comment>())).Callback<Comment>(c => commentData.Add(c));
+
+
+        //    mockContext.Setup(c => c.CreateTicket(It.IsAny<Ticket>())).Callback<Ticket>(t => ticketData.Add(t));
+        //    mockContext.Setup(c => c.CreateTicketWatcher(It.IsAny<TicketWatcher>())).Callback<TicketWatcher>(tw => ticketWatcherData.Add(tw));
+
+        //    mockContext.Setup(c => c.Roles).Returns(mockIdentityRoleSet.Object);
+        //    mockContext.Setup(c => c.UserRoles).Returns(mockIdentityUserRoleSet.Object);
+
+        //    TicketBusinessLogic = new TicketBusinessLogic(new TicketRepository(mockContext.Object), new UserProjectRepository(mockContext.Object), new UserRepository(mockContext.Object, manager.Object), new TicketRepository(mockContext.Object), new ProjectRepository(mockContext.Object), new CommentRepository(mockContext.Object), new TicketWatchersRepository(mockContext.Object));
+
+
+
+
+        //}
         [TestInitialize]
         public void Initialize()
         {
@@ -58,43 +285,16 @@ namespace TieredArchitectureUnitTest
                 new Project{Id = 3, ProjectName = "Butter Project 3"}
             }.ToList();
 
-            applicationUserData = new List<ApplicationUser>
-            {
-                new ApplicationUser{Id="1" ,UserName = "john34@gmail.com", PasswordHash="John@34"},
-                new ApplicationUser{Id="2", UserName = "brenda21@gmail.com", PasswordHash="brenda@21"},
-                new ApplicationUser{Id="3", UserName = "manager14@gmail.com", PasswordHash= "manager@14"},
-                new ApplicationUser{Id="4", UserName = "amanda12@gmail.com", PasswordHash="amanda@12"},
-
-            }.ToList();
-
-
             ticketData = new List<Ticket>
             {
-
-                new Ticket{Id = 1, Owner=applicationUserData.First(),RequiredHours=8, TicketPriority=Ticket.Priority.High, Completed=true},
                 new Ticket{Id = 1,RequiredHours=8, TicketPriority=Ticket.Priority.High, Completed=true, Project = projectData.First()},
-
                 new Ticket{Id = 2, RequiredHours = 20, TicketPriority=Ticket.Priority.Medium, Completed= false},
                 new Ticket{Id = 3, RequiredHours = 12, TicketPriority = Ticket.Priority.Low, Completed = false}
 
             }.ToList();
 
 
-            commentData = new List<Comment>
-            {
-                new Comment {Id = 1,Description = "Good Comment",UserId = "1", TicketId = 1 },
-                new Comment {Id = 2,Description = "Good Comment",UserId = "1", TicketId = 2 }
 
-            }.ToList();
-
-            userProjectData = new List<UserProject>
-            {
-                new UserProject{Id = 1, ProjectId = 2, UserId = "1"},
-                new UserProject{Id = 2, ProjectId = 2, UserId = "2"},
-                new UserProject{Id = 3, ProjectId = 3, UserId = "3"}
-            }.ToList();
-           
-           
 
             createTicketVmData = new List<CreateTicketVm>
             {
@@ -107,7 +307,6 @@ namespace TieredArchitectureUnitTest
             }.ToList();
 
             editTicketVmData = new List<EditTicketVm>
-
             {
                 //new EditProjectVm{ProjectName = "Edited Project Name", ProjectId = 3, ProjectDevelopersId= {"1","2"}}
 
@@ -148,18 +347,12 @@ namespace TieredArchitectureUnitTest
             projectData.First().Tickets.Add(ticketData.First(t => t.Id == 1));
             projectData.Last().Tickets.Add(ticketData.First(t => t.Id == 3));
 
-            // Adding comments to tickets
-            ticketData.First().Comments.Add(commentData.First(c => c.Id == 1));
-            ticketData.First().Comments.Add(commentData.First(c => c.Id == 2));
-
-
 
 
 
             // Create a copy of the Project,Ticket,and UserProject, and ApplicationUser table
             Mock<DbSet<Project>> mockProjectSet = new Mock<DbSet<Project>>();
             Mock<DbSet<Ticket>> mockTicketSet = new Mock<DbSet<Ticket>>();
-            Mock<DbSet<Comment>> mockCommentSet = new Mock<DbSet<Comment>>();
             Mock<DbSet<UserProject>> mockUserProjectSet = new Mock<DbSet<UserProject>>();
             Mock<DbSet<ApplicationUser>> mockApplicationUserSet = new Mock<DbSet<ApplicationUser>>();
             Mock<DbSet<TicketWatcher>> mockTicketWatcherSet = new Mock<DbSet<TicketWatcher>>();
@@ -197,10 +390,6 @@ namespace TieredArchitectureUnitTest
             mockTicketSet.As<IQueryable<Ticket>>().Setup(m => m.ElementType).Returns(ticketData.AsQueryable().ElementType);
             mockTicketSet.As<IQueryable<Ticket>>().Setup(m => m.GetEnumerator()).Returns(ticketData.GetEnumerator());
 
-            mockCommentSet.As<IQueryable<Comment>>().Setup(c => c.Provider).Returns(commentData.AsQueryable().Provider);
-            mockCommentSet.As<IQueryable<Comment>>().Setup(c => c.Expression).Returns(commentData.AsQueryable().Expression);
-            mockCommentSet.As<IQueryable<Comment>>().Setup(c => c.ElementType).Returns(commentData.AsQueryable().ElementType);
-            mockCommentSet.As<IQueryable<Comment>>().Setup(c => c.GetEnumerator()).Returns(commentData.GetEnumerator());
 
             mockUserProjectSet.As<IQueryable<UserProject>>().Setup(m => m.Provider).Returns(userProjectData.AsQueryable().Provider);
             mockUserProjectSet.As<IQueryable<UserProject>>().Setup(m => m.Expression).Returns(userProjectData.AsQueryable().Expression);
@@ -233,7 +422,6 @@ namespace TieredArchitectureUnitTest
             // Mocked context should return an object of the mocked sets
             mockContext.Setup(c => c.Projects).Returns(mockProjectSet.Object);
             mockContext.Setup(c => c.Tickets).Returns(mockTicketSet.Object);
-            mockContext.Setup(c => c.Comments).Returns(mockCommentSet.Object);
             mockContext.Setup(c => c.UserProjects).Returns(mockUserProjectSet.Object);
             mockContext.Setup(c => c.Users).Returns(mockApplicationUserSet.Object);
             mockContext.Setup(c => c.TicketWatchers).Returns(mockTicketWatcherSet.Object);
@@ -242,25 +430,19 @@ namespace TieredArchitectureUnitTest
             mockContext.Setup(c => c.DeleteTicketWatcher(It.IsAny<TicketWatcher>())).Callback<TicketWatcher>(tw => ticketWatcherData.Remove(tw));
             mockContext.Setup(c => c.RemoveUserProject(It.IsAny<UserProject>())).Callback<UserProject>(up => userProjectData.Remove(up));
             mockContext.Setup(c => c.CreateProject(It.IsAny<Project>())).Callback<Project>(p => projectData.Add(p));
-
-            mockContext.Setup(c => c.CreateTicketWatcher(It.IsAny<TicketWatcher>())).Callback<TicketWatcher>(tw => ticketWatcherData.Add(tw));
-            mockContext.Setup(c => c.CreateComment(It.IsAny<Comment>())).Callback<Comment>(c => commentData.Add(c));
-
-
             mockContext.Setup(c => c.CreateTicket(It.IsAny<Ticket>())).Callback<Ticket>(t => ticketData.Add(t));
             mockContext.Setup(c => c.CreateTicketWatcher(It.IsAny<TicketWatcher>())).Callback<TicketWatcher>(tw => ticketWatcherData.Add(tw));
-
             mockContext.Setup(c => c.Roles).Returns(mockIdentityRoleSet.Object);
             mockContext.Setup(c => c.UserRoles).Returns(mockIdentityUserRoleSet.Object);
+
+
 
             TicketBusinessLogic = new TicketBusinessLogic(new TicketRepository(mockContext.Object), new UserProjectRepository(mockContext.Object), new UserRepository(mockContext.Object, manager.Object), new TicketRepository(mockContext.Object), new ProjectRepository(mockContext.Object), new CommentRepository(mockContext.Object), new TicketWatchersRepository(mockContext.Object));
 
 
-
-
         }
 
-      
+
         [TestMethod]
         public void GetTicket_WithArgumentAndFoundId_ReturnsTicketWithAnIdOfArgument()
         {
