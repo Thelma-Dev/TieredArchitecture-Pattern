@@ -210,7 +210,7 @@ namespace TieredArchitectureUnitTest
 
 
 
-            TicketBusinessLogic = new TicketBusinessLogic(new TicketRepository(mockContext.Object), new UserProjectRepository(mockContext.Object), new UserRepository(mockContext.Object, manager.Object), new TicketRepository(mockContext.Object), new ProjectRepository(mockContext.Object), new CommentRepository(mockContext.Object), new TicketWatchersRepository(mockContext.Object));
+            TicketBusinessLogic = new TicketBusinessLogic(new TicketRepository(mockContext.Object), new UserProjectRepository(mockContext.Object), new UserRepository(mockContext.Object, manager.Object),  new ProjectRepository(mockContext.Object), new CommentRepository(mockContext.Object), new TicketWatchersRepository(mockContext.Object));
 
 
         }
@@ -240,7 +240,7 @@ namespace TieredArchitectureUnitTest
         
 
         [TestMethod]
-        [DataRow(2)]
+        [DataRow(1)]
         public void GetTicketDetails_WithFoundIdArgument_ReturnsExpectedTicket(int ticketId)
         {
             Ticket actualTicket = ticketData.First(x => x.Id == ticketId);
