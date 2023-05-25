@@ -256,9 +256,9 @@ namespace TieredArchitectureUnitTest
 
         [TestMethod]
         [DataRow(Int32.MaxValue)]
-        public void GetTicketDetails_WithNoFoundIdArgument_ReturnsFalse(int ticketId)
+        public void GetTicketDetails_WithNoFoundIdArgument_ThrowsInvalidException(int ticketId)
         {
-
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.GetTicketDetails(ticketId));
             
         }
 
