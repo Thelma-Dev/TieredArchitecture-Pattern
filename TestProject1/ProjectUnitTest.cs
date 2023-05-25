@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Build.Evaluation;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +20,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using X.PagedList;
+using Project = SD_340_W22SD_Final_Project_Group6.Models.Project;
 
 namespace TieredArchitectureUnitTest
 {
@@ -76,13 +79,14 @@ namespace TieredArchitectureUnitTest
             createProjectVmData = new List<CreateProjectVm>
             {
                 new CreateProjectVm{ProjectName = "ProjectName", ProjectDevelopersId = {"1","2"}, LoggedInUsername = "manager14@gmail.com"},
-                new CreateProjectVm{ProjectName = "ProjectName", ProjectDevelopersId = {}, LoggedInUsername = "manager14@gmail.com" }
+                new CreateProjectVm{ProjectName = "ProjectName", ProjectDevelopersId = {"1", "2"}, LoggedInUsername = "unknown@gmail.com"}
 
             }.ToList();
 
             editProjectVmData = new List<EditProjectVm>
             {
-                new EditProjectVm{ProjectName = "Edited Project Name", ProjectId = 3, ProjectDevelopersId= {"1","2"}}
+                new EditProjectVm{ProjectName = "Edited Project Name", ProjectId = 3, ProjectDevelopersId= {"1","2"}},
+                new EditProjectVm{ProjectName = "Edited Project Name", ProjectId = Int32.MaxValue, ProjectDevelopersId= {"1","2"}}
 
             }.ToList();
 
@@ -210,15 +214,52 @@ namespace TieredArchitectureUnitTest
 
         [TestMethod]
         [DataRow(Int32.MaxValue)]
-        public void GetProject_OnNoFoundId_ThrowsAnIvalidOperationException(int projectId)
+        public void GetProject_OnNoFoundId_ThrowsIvalidOperationException(int projectId)
         {
+            // Act & Assert
             Assert.ThrowsException<InvalidOperationException>(() => ProjectBusinessLogic.GetProject(projectId));
         }
 
         [TestMethod]
         public void GetProject_OnNoArgument_ThrowsArgumentNullException()
         {
+            // Act & Assert
             Assert.ThrowsException<ArgumentNullException>(() => ProjectBusinessLogic.GetProject(null));
+        }
+
+
+        [TestMethod]
+        [DataRow("unknown@gmail.com")]
+        public void GetUserByUsername_OnNoFoundUser_ThrowsIvalidOperationException(string username)
+        {
+            // Act & Assert
+            Assert.ThrowsException<InvalidOperationException>(() => ProjectBusinessLogic.GetUserByUsername(username));
+        }
+
+        [TestMethod]
+        public void GetUserByUsername_OnNoArgument_ThrowsArgumentNullException()
+        {
+            // Act & Assert
+            Assert.ThrowsException<ArgumentNullException>(() => ProjectBusinessLogic.GetUserByUsername(null));
+        }
+
+
+
+
+        [TestMethod]
+        [DataRow(Int32.MaxValue)]
+        public void GetProjectDetails_WithNoFoundId_ThrowsIvalidOperationException(int projectId)
+        {
+            // Act & Assert
+            Assert.ThrowsException<InvalidOperationException>(() => ProjectBusinessLogic.GetProjectDetails(projectId));
+        }
+
+        [TestMethod]
+        
+        public void GetProjectDetails_WithNoArgument_ThrowsArgumentNullException()
+        {
+            // Act & Assert
+            Assert.ThrowsException<ArgumentNullException>(() => ProjectBusinessLogic.GetProjectDetails(null));
         }
 
         [TestMethod]
@@ -226,9 +267,28 @@ namespace TieredArchitectureUnitTest
         public void GetProjectDetails_WithArgumentAndFoundId_ReturnsExpectedProjectObject(int projectId)
         {
             Project ActualProject = projectData.First(p => p.Id == projectId);
-
+            
+            // Assert
             Assert.IsTrue(ActualProject.Equals(ProjectBusinessLogic.GetProjectDetails(projectId)));
         }
+
+
+        [TestMethod]
+        public void DeleteProject_WithNoArgument_ThrowsArgumentNullException()
+        {
+            // Act & Assert
+            Assert.ThrowsException<ArgumentNullException>(() => ProjectBusinessLogic.DeleteProject(null));
+        }
+
+
+        [TestMethod]
+        [DataRow(Int32.MaxValue)]
+        public void DeleteProject_WithNoFoundId_ThrowsIvalidOperationException(int projectId)
+        {
+            // Act & Assert
+            Assert.ThrowsException<InvalidOperationException>(() => ProjectBusinessLogic.DeleteProject(projectId));
+        }
+
 
         [TestMethod]
         [DataRow(3)]
@@ -236,7 +296,54 @@ namespace TieredArchitectureUnitTest
         {
             Project ActualProject = projectData.First(p => p.Id == projectId);
 
+            // Assert
             Assert.IsTrue(ActualProject.Equals(ProjectBusinessLogic.DeleteProject(projectId)));
+        }
+
+
+        [TestMethod]
+        public void DeleteProjectConfirmed_WithNoArgument_ThrowsArgumentNullException()
+        {
+            // Act & Assert
+            Assert.ThrowsException<ArgumentNullException>(() => ProjectBusinessLogic.DeleteProjectConfirmed(null));
+        }
+
+        [TestMethod]
+        [DataRow(Int32.MaxValue)]
+        public void DeleteProjectConfirmed_WithNoFoundId_ThrowsIvalidOperationException(int projectId)
+        {
+            // Act & Assert
+            Assert.ThrowsException<InvalidOperationException>(() => ProjectBusinessLogic.DeleteProjectConfirmed(projectId));
+        }
+
+
+
+        [TestMethod]
+        [DataRow(3)]
+        public void DeleteProjectConfirmed_WithArgumentAndFoundId_DeletesTheProject(int projectId)
+        {
+            initialCount = projectData.Count;
+            
+            // Act
+            ProjectBusinessLogic.DeleteProjectConfirmed(projectId);
+
+            // Assert
+            Assert.AreEqual(projectData.Count(), initialCount - 1);
+
+        }
+
+        [TestMethod]
+        public void ReturnCreateProjectVm_RequiresNoArgument_ReturnsACreateProjectViewModelType()
+        {
+            Assert.IsInstanceOfType(ProjectBusinessLogic.ReturnCreateProjectVm(), typeof(CreateProjectVm));
+        }
+
+
+        [TestMethod]
+        public async Task CreateProject_WithCreateProjectVmArgumentAndNoFoundLoggedInUser_ThrowsInvalidOperationException()
+        {
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => ProjectBusinessLogic.CreateProject(createProjectVmData.Last()));
         }
 
 
@@ -244,6 +351,7 @@ namespace TieredArchitectureUnitTest
         public async Task CreateProject_WithCreateProjectVmHavingProjectNameLoggedInUserNameAndListOfDevelopers_CreatesAProject()
         {
             initialCount = projectData.Count;
+
             // Act
             await ProjectBusinessLogic.CreateProject(createProjectVmData.First());
 
@@ -258,8 +366,10 @@ namespace TieredArchitectureUnitTest
         {
             Project project = projectData.First(p => p.Id == ProjectId);
 
+            // Act
             ProjectBusinessLogic.AddUserToProject(project, applicationUserData.ToList());
 
+            // Assert
             Assert.IsTrue(project.AssignedTo.Count == applicationUserData.Count);
         }
 
@@ -267,15 +377,35 @@ namespace TieredArchitectureUnitTest
         [TestMethod]
         public void GetUserToBeRemovedFromProject_OnNoArgument_ThrowsArgumentNullException()
         {
+            // Act & Assert
             Assert.ThrowsException<ArgumentNullException>(() => ProjectBusinessLogic.GetUserToBeRemovedFromProject(null));
         }
 
 
         [TestMethod]
         [DataRow(Int32.MaxValue)]
-        public void GetUserToBeRemovedFromProject_OnNoFoundUserId_ThrowsAnInvalidOperationException(int userId)
+        public void GetUserToBeRemovedFromProject_OnNoFoundUserId_ThrowsInvalidOperationException(int userId)
         {
+            // Act & Assert
             Assert.ThrowsException<InvalidOperationException>(() => ProjectBusinessLogic.GetUserToBeRemovedFromProject(userId.ToString()));
+        }
+
+
+        [TestMethod]
+        [DataRow(null, 1)]
+        public void GetCurrentUserProject_WithFoundUserIdAndNoProjectIdArgument_ThrowsArgumentNullException(int? projectId, int userId)
+        {
+            // Act & Assert
+            Assert.ThrowsException<ArgumentNullException>(() => ProjectBusinessLogic.GetCurrentUserProject(projectId, userId.ToString()));
+        }
+
+
+        [TestMethod]
+        [DataRow(Int32.MaxValue, 1)]
+        public void GetCurrentUserProject_WithNoFoundUserProject_ThrowsInvalidOperationException(int projectId, int userId)
+        {
+            // Act & Assert
+            Assert.ThrowsException<InvalidOperationException>(() => ProjectBusinessLogic.GetCurrentUserProject(projectId, userId.ToString()));
         }
 
 
@@ -283,14 +413,16 @@ namespace TieredArchitectureUnitTest
         [DataRow(1, null)]
         public void RemoveAssignedUser_WithFoundUserIdAndNoProjectIdArgument_ThrowsArgumentNullException(int userId, int? projectId)
         {
+            // Act & Assert
             Assert.ThrowsException<ArgumentNullException>(() => ProjectBusinessLogic.RemoveAssignedUser(userId.ToString(), projectId));
         }
 
 
         [TestMethod]
         [DataRow(1, Int32.MaxValue)]
-        public void RemoveAssignedUser_WithNoFoundUserProject_ThrowsAnInvalidOperationException(int userId, int projectId)
+        public void RemoveAssignedUser_WithNoFoundUserProject_ThrowsInvalidOperationException(int userId, int projectId)
         {
+            // Act & Assert
             Assert.ThrowsException<InvalidOperationException>(() => ProjectBusinessLogic.RemoveAssignedUser(userId.ToString(), projectId));
         }
 
@@ -298,19 +430,42 @@ namespace TieredArchitectureUnitTest
 
         [TestMethod]
         [DataRow(1, 2)]
-        public void RemoveAssignedUser_WithFoundUserIdAndProjectId_RemovesTheUserFromTheUserProjectTable(int userId, int projectId)
+        public void RemoveAssignedUser_WithFoundUserProject_RemovesTheUserFromTheUserProjectTable(int userId, int projectId)
         {
+            initialCount = userProjectData.Count;
+
+            // Act
             ProjectBusinessLogic.RemoveAssignedUser(userId.ToString(), projectId);
 
-            Assert.IsTrue(userProjectData.Count == 2);
+            
+            // Assert
+            Assert.IsTrue(userProjectData.Count == initialCount - 1);
+        }
+
+        [TestMethod]
+        public void EditProject_WithNoArgument_ThrowsArgumentNullException()
+        {
+            // Act & Assert
+            Assert.ThrowsException<ArgumentNullException>(() => ProjectBusinessLogic.EditProject(null));
         }
 
 
         [TestMethod]
         [DataRow(Int32.MaxValue)]
-        public void EditProject_WithNoFoundId_ThrowsAnInvalidOperationException(int projectId)
+        public void EditProject_WithNoFoundId_ThrowsInvalidOperationException(int projectId)
         {
+            // Act & Assert
+
             Assert.ThrowsException<InvalidOperationException>(() => ProjectBusinessLogic.EditProject(projectId));
+        }
+
+        [TestMethod]
+        public void UpdateEditedProject_WithEditProjectViewModelAndNoFoundProject_ThrowsInvalidOperationException()
+        {
+            
+            // Act & Assert
+
+            Assert.ThrowsException<InvalidOperationException>(() => ProjectBusinessLogic.UpdateEditedProject(editProjectVmData.Last()));
         }
 
 
@@ -327,22 +482,12 @@ namespace TieredArchitectureUnitTest
         }
 
 
-        
         [TestMethod]
-        [DataRow(3)]
-        public void DeleteProjectConfirmed_WithArgumentAndFoundId_DeletesTheProject(int projectId)
-        {
-            initialCount = projectData.Count;
-            Project ActualProject = projectData.First(p => p.Id == projectId);
-
-            // Act
-            ProjectBusinessLogic.DeleteProjectConfirmed(projectId);
-           
-            
-            // Assert
-            Assert.AreEqual(projectData.Count(), initialCount - 1);
-            
-            Assert.ThrowsException<InvalidOperationException>(() => ProjectBusinessLogic.GetProject(ActualProject.Id));
+        [DataRow(null, 1, null, null, "unknown@gmail.com")]
+        public void Read_WithPageAndNoFoundLoggedInUser_ThrowsInvalidOperationException(string? sortOrder, int? page, bool? sort, string? userId, string loggedInUserName)
+        {            
+            // Act & Assert
+            Assert.ThrowsException<InvalidOperationException>(() => ProjectBusinessLogic.Read(sortOrder, page, sort, userId, loggedInUserName));
         }
 
 
@@ -387,11 +532,7 @@ namespace TieredArchitectureUnitTest
 
 
             // Assert
-            Assert.IsTrue(vm.Projects.SequenceEqual(ActualVmProjects));
-
-            
+            Assert.IsTrue(vm.Projects.SequenceEqual(ActualVmProjects));           
         }
-        
-
     }
 }

@@ -1,11 +1,15 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Build.Evaluation;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using SD_340_W22SD_Final_Project_Group6.Business_Logic_Layer;
 using SD_340_W22SD_Final_Project_Group6.Data;
 using SD_340_W22SD_Final_Project_Group6.Models;
 using SD_340_W22SD_Final_Project_Group6.Models.ViewModel;
 using X.PagedList;
+using Project = SD_340_W22SD_Final_Project_Group6.Models.Project;
 
 namespace TieredArchitectureUnitTest
 {
@@ -19,8 +23,8 @@ namespace TieredArchitectureUnitTest
         private List<Comment> commentData;
         List<UserProject> userProjectData { get; set; }
         List<ApplicationUser> applicationUserData { get; set; }
-        List<CreateProjectVm> createProjectVmData { get; set; }
-        List<EditProjectVm> editProjectVmData { get; set; }
+        List<CreateTicketVm> createTicketVmData { get; set; }
+        List<EditTicketVm> editTicketVmData { get; set; }
         List<TicketWatcher> ticketWatcherData { get; set; }
         List<PaginationVM> paginationVMData { get; set; }
         List<IdentityRole> roleData { get; set; }
@@ -31,9 +35,25 @@ namespace TieredArchitectureUnitTest
         [TestInitialize]
         public void Initialize()
         {
+            applicationUserData = new List<ApplicationUser>
+            {
+                new ApplicationUser{Id="1" ,UserName = "john34@gmail.com", PasswordHash="John@34"},
+                new ApplicationUser{Id="2", UserName = "brenda21@gmail.com", PasswordHash="brenda@21"},
+                new ApplicationUser{Id="3", UserName = "manager14@gmail.com", PasswordHash= "manager@14"},
+                new ApplicationUser{Id="4", UserName = "amanda12@gmail.com", PasswordHash="amanda@12"},
+
+            }.ToList();
+
+            userProjectData = new List<UserProject>
+            {
+                new UserProject{Id = 1, ProjectId = 1, UserId = "1", User = applicationUserData.First()},
+                new UserProject{Id = 2, ProjectId = 2, UserId = "2"},
+                new UserProject{Id = 3, ProjectId = 3, UserId = "3"}
+            }.ToList();
+
             projectData = new List<Project>
             {
-                new Project{Id = 1,ProjectName = "Zion Project 1"},
+                new Project{Id = 1,ProjectName = "Zion Project 1", AssignedTo = {userProjectData.First()} },
                 new Project{Id = 2, ProjectName = "Alpha Project 2"},
                 new Project{Id = 3, ProjectName = "Butter Project 3"}
             }.ToList();
@@ -50,11 +70,15 @@ namespace TieredArchitectureUnitTest
 
             ticketData = new List<Ticket>
             {
+
                 new Ticket{Id = 1, Owner=applicationUserData.First(),RequiredHours=8, TicketPriority=Ticket.Priority.High, Completed=true},
+                new Ticket{Id = 1,RequiredHours=8, TicketPriority=Ticket.Priority.High, Completed=true, Project = projectData.First()},
+
                 new Ticket{Id = 2, RequiredHours = 20, TicketPriority=Ticket.Priority.Medium, Completed= false},
                 new Ticket{Id = 3, RequiredHours = 12, TicketPriority = Ticket.Priority.Low, Completed = false}
 
             }.ToList();
+
 
             commentData = new List<Comment>
             {
@@ -72,21 +96,34 @@ namespace TieredArchitectureUnitTest
 
             
             createProjectVmData = new List<CreateProjectVm>
+
+           
+           
+
+            createTicketVmData = new List<CreateTicketVm>
             {
-                new CreateProjectVm{ProjectName = "ProjectName", ProjectDevelopersId = {"1","2"}, LoggedInUsername = "manager14@gmail.com"},
-                new CreateProjectVm{ProjectName = "ProjectName", ProjectDevelopersId = {}, LoggedInUsername = "manager14@gmail.com" }
+                new CreateTicketVm{Title = "TicketTitle", Body = "Ticket1", OwnerId = "1", ProjectId = 1, RequiredHours = 24 },
+                new CreateTicketVm{Title = "TicketTitle", Body = "Ticket2", ProjectId = 2, RequiredHours = 27, Owner = applicationUserData.First(), OwnerId = "1"},
+                new CreateTicketVm{Title = "TicketTitle", Body = "Ticket3", ProjectId = 3, RequiredHours = 24 },
+                new CreateTicketVm{Title = "TicketTitle", Body = "Ticket3", RequiredHours = 24 },
+
 
             }.ToList();
 
-            editProjectVmData = new List<EditProjectVm>
+            editTicketVmData = new List<EditTicketVm>
+
             {
-                new EditProjectVm{ProjectName = "Edited Project Name", ProjectId = 3, ProjectDevelopersId= {"1","2"}}
+                //new EditProjectVm{ProjectName = "Edited Project Name", ProjectId = 3, ProjectDevelopersId= {"1","2"}}
+
+                new EditTicketVm{TicketId = 1, Title = "UpdateTicket" ,Body = "UpdateTicket1", OwnerId = "1", RequiredHours = 55},
+                new EditTicketVm{Title = "UpdateTicket2" ,Body = "UpdateTicket2", OwnerId = "1", RequiredHours = 55}
+
 
             }.ToList();
 
             ticketWatcherData = new List<TicketWatcher>
             {
-                new TicketWatcher {TicketId = 1, WatcherId = "2"}
+                new TicketWatcher {TicketId = 1, WatcherId = "1"}
 
             }.ToList();
 
@@ -113,12 +150,12 @@ namespace TieredArchitectureUnitTest
 
             // Creating tickets for projects
             projectData.First().Tickets.Add(ticketData.First(t => t.Id == 1));
-            projectData.First().Tickets.Add(ticketData.First(t => t.Id == 2));
             projectData.Last().Tickets.Add(ticketData.First(t => t.Id == 3));
 
             // Adding comments to tickets
             ticketData.First().Comments.Add(commentData.First(c => c.Id == 1));
             ticketData.First().Comments.Add(commentData.First(c => c.Id == 2));
+
 
 
 
@@ -205,18 +242,24 @@ namespace TieredArchitectureUnitTest
             mockContext.Setup(c => c.Users).Returns(mockApplicationUserSet.Object);
             mockContext.Setup(c => c.TicketWatchers).Returns(mockTicketWatcherSet.Object);
             mockContext.Setup(c => c.DeleteProject(It.IsAny<Project>())).Callback<Project>(p => projectData.Remove(p));
+            mockContext.Setup(c => c.DeleteTicket(It.IsAny<Ticket>())).Callback<Ticket>(t => ticketData.Remove(t));
+            mockContext.Setup(c => c.DeleteTicketWatcher(It.IsAny<TicketWatcher>())).Callback<TicketWatcher>(tw => ticketWatcherData.Remove(tw));
             mockContext.Setup(c => c.RemoveUserProject(It.IsAny<UserProject>())).Callback<UserProject>(up => userProjectData.Remove(up));
             mockContext.Setup(c => c.CreateProject(It.IsAny<Project>())).Callback<Project>(p => projectData.Add(p));
+
             mockContext.Setup(c => c.CreateTicketWatcher(It.IsAny<TicketWatcher>())).Callback<TicketWatcher>(tw => ticketWatcherData.Add(tw));
             mockContext.Setup(c => c.CreateComment(It.IsAny<Comment>())).Callback<Comment>(c => commentData.Add(c));
+
+
+            mockContext.Setup(c => c.CreateTicket(It.IsAny<Ticket>())).Callback<Ticket>(t => ticketData.Add(t));
+            mockContext.Setup(c => c.CreateTicketWatcher(It.IsAny<TicketWatcher>())).Callback<TicketWatcher>(tw => ticketWatcherData.Add(tw));
 
             mockContext.Setup(c => c.Roles).Returns(mockIdentityRoleSet.Object);
             mockContext.Setup(c => c.UserRoles).Returns(mockIdentityUserRoleSet.Object);
 
-
-
-
             TicketBusinessLogic = new TicketBusinessLogic(new TicketRepository(mockContext.Object), new UserProjectRepository(mockContext.Object), new UserRepository(mockContext.Object, manager.Object), new TicketRepository(mockContext.Object), new ProjectRepository(mockContext.Object), new CommentRepository(mockContext.Object), new TicketWatchersRepository(mockContext.Object));
+
+
 
 
         }
@@ -231,6 +274,7 @@ namespace TieredArchitectureUnitTest
         }
 
         [TestMethod]
+
         public void GetTicket_OnNoArgument_ThrowsArgumentNullException()
         {
             Assert.ThrowsException<ArgumentNullException>(() => TicketBusinessLogic.GetTicket(null));
@@ -296,11 +340,91 @@ namespace TieredArchitectureUnitTest
             initialCount = ticketWatcherData.Count();
             TicketBusinessLogic.AddToWatch(ticketId, userName);
             Assert.AreEqual(ticketWatcherData.Count(),initialCount + 1) ;
-        
+        }
+        [TestMethod]
+        [DataRow(1, 29, 29)]
+
+        public void UpdateRequiredHours_WithArgumentAndFoundId_SetsTheTicketRequiredHours(int ticketId, int hours, int expectedHours)
+        {
+            Ticket acctualTicket = ticketData.First(t => t.Id == ticketId);
+
+            TicketBusinessLogic.UpdateRequiredHours(ticketId, hours);
+
+            Assert.AreEqual(expectedHours, acctualTicket.RequiredHours);
+        }
+        [TestMethod]
+        [DataRow(1, 1001)]
+        public void UpdateRequiredHours_ArgumentExceedsRequiredHoursLimits_ThrowsInvalidOperation(int ticketId, int hours)
+        {
+            Ticket acctualTicket = ticketData.First(t => t.Id == ticketId);
+
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.UpdateRequiredHours(ticketId, hours));
         }
 
 
         [TestMethod]
+        [DataRow(3)]
+        public void DeleteTicket_WithArgumentAndFoundId_ReturnsExpectedTicketToBeDeleted(int ticketId)
+        {
+            Ticket ActualProject = ticketData.First(p => p.Id == ticketId);
+
+            Assert.IsTrue(ActualProject.Equals(TicketBusinessLogic.DeleteTicket(ticketId)));
+        }
+
+        [TestMethod]
+        [DataRow(5)]
+        public void DeleteTicket_WithNoFoundId_ReturnsExpectedTicketToBeDeleted(int ticketId)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.DeleteTicket(ticketId));
+        }
+
+        [TestMethod]
+        [DataRow(1, 1)]
+        public void DeleteTicketConfirmed_WithArgumentAndFoundId_DeletesTheTicket(int ticketId, int projectId)
+        {
+            initialCount = ticketData.Count;
+            Ticket ActualTicket = ticketData.First(p => p.Id == ticketId);
+            // Act
+            TicketBusinessLogic.TicketDeleteConfirmed(ticketId, projectId);
+
+
+            // Assert
+            Assert.AreEqual(ticketData.Count(), initialCount - 1);
+
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.GetTicket(ActualTicket.Id));
+        }
+
+
+        [TestMethod]
+        [DataRow(4, 1)]
+        public void DeleteTicketConfirmed_WithNoFoundId_DeletesTheTicket(int ticketId, int projectId)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.TicketDeleteConfirmed(ticketId, projectId));
+
+        }
+
+        [TestMethod]
+        public void CreateTicket_WithCreateTicketVmHavingTicketNameLoggedInUserNameAndListOfDevelopers_CreatesATicket()
+        {
+            initialCount = ticketData.Count;
+            // Act
+            TicketBusinessLogic.CreateTicket(createTicketVmData.FirstOrDefault(vm => vm.ProjectId == 2));
+
+            // Assert
+            Assert.AreEqual(ticketData.Count, initialCount + 1);
+        }
+
+        [TestMethod]
+        [DataRow(3)]
+        public void CreateTicket_Error_CreatesATicket(int projectId)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.CreateTicket(createTicketVmData.FirstOrDefault(vm => vm.ProjectId == projectId)));
+
+        }
+
+
+        [TestMethod]
+
         [DataRow(1)]
         public void MarkAsCompleted_WithFoundTicketId_ReturnsTrue(int ticketId)
         {
@@ -340,11 +464,75 @@ namespace TieredArchitectureUnitTest
         {
             int count = ticketData.Count();
             TicketBusinessLogic.Read();
-            Assert.AreEqual(count, ticketData.Count()); 
+            Assert.AreEqual(count, ticketData.Count());
+        }
+      
+        [TestMethod]
+        [DataRow(Int32.MaxValue)]
+        public void EditTicket_WithNoFoundId_ThrowsAnInvalidOperationException(int ticketId)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.EditTicket(ticketId));
+        }
+
+        [TestMethod]
+        [DataRow(1)]
+        public void EditTicket_WithFoundId_ThrowsAnInvalidOperationException(int ticketId)
+        {
+            Assert.IsInstanceOfType(TicketBusinessLogic.EditTicket(ticketId), typeof(EditTicketVm));
+        }
+
+
+        [TestMethod]
+        public void UpdateEditedTicket_WithEditTicketViewModelHavingTicketNameAndListOfDevelopers_UpdatesExistingTicket()
+        {
+            // Act
+            TicketBusinessLogic.UpdateEditedTicket(editTicketVmData.First());
+            Ticket ticket = ticketData.First(t => t.Id == editTicketVmData.First().TicketId);
+            // Assert
+            Assert.IsTrue(editTicketVmData.First().TicketId.Equals(ticket.Id));
+        }
+        [TestMethod]
+        public void UpdateEditedTicket_throwException_UpdatesExistingTicket()
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.UpdateEditedTicket(editTicketVmData.Last()));
+        }
+
+        [TestMethod]
+        public void RepopulateDevelopersInProjectList()
+        {
+            int count = createTicketVmData.First().AllDevelopers.Count();
+            TicketBusinessLogic.RepopulateDevelopersInProjectList(createTicketVmData.First());
+            Assert.AreEqual(createTicketVmData.First().AllDevelopers.Count(), count + 1);
+        }
+
+        [TestMethod]
+        public void RepopulateDevelopersInProjectList_ThrowException()
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.RepopulateDevelopersInProjectList(createTicketVmData.Last()));
+        }
+
+        [TestMethod]
+        public void RepopulateDevelopersNotInTicket()
+        {
+            Ticket ticket = ticketData.First();
+            int count = editTicketVmData.First().AllDevelopers.Count();
+            TicketBusinessLogic.RepopulateDevelopersNotInTicket(editTicketVmData.First());
+            Assert.IsTrue(editTicketVmData.First().AllDevelopers.Count.Equals(4));
+        }
+
+        [TestMethod]
+        [DataRow(1, "john34@gmail.com")]
+        public void UnWatch(int id, string userName)
+        {
+            initialCount = ticketWatcherData.Count();
+            TicketBusinessLogic.Unwatch(id, userName);
+            Assert.AreEqual(ticketWatcherData.Count, initialCount - 1);
+
 
         }
 
         [TestMethod]
+
         [DataRow(1, "Comment", "john34@gmail.com")]
         public void CommentOnTask_WithFoundAllRequiredIds_AddCommentsOnTask(int taskId,string taskText, string userName)
         {
@@ -360,6 +548,31 @@ namespace TieredArchitectureUnitTest
         {
             Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.CommentOnTask(taskId, taskText, userName));
         }
-    }
     
+    
+        [TestMethod]
+        [DataRow(6, "john34@gmail.com")]
+        public void UnWatch_ThrowException(int id, string userName)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.Unwatch(id, userName));
+        }
+
+        [TestMethod]
+        [DataRow(1)]
+        public void InitializeCreateTicketMethod_WithFoundProjectId_ReturnsACreateTickettViewModelType(int projectId)
+        {
+            Assert.IsInstanceOfType(TicketBusinessLogic.InitializeCreateTicketMethod(projectId), typeof(CreateTicketVm));
+        }
+
+        [TestMethod]
+        [DataRow(6)]
+        public void InitializeCreateTicketMethod_WithNotFoundProjectId_ReturnsACreateTickettViewModelType(int projectId)
+        {
+            Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.InitializeCreateTicketMethod(projectId));
+        }
+
+    }
+
+
+
 }

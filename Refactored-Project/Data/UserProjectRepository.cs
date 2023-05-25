@@ -21,7 +21,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
             return _context.UserProjects.FirstOrDefault(up => up.ProjectId == projectId);
         }
 
-        public List<UserProject> GetProjects(int projectId)
+        public List<UserProject> GetProjects(int? projectId)
         {
             return _context.UserProjects.Where(up => up.ProjectId == projectId).ToList();
         }
