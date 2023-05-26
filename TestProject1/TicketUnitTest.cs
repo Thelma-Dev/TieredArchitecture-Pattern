@@ -84,7 +84,7 @@ namespace TieredArchitectureUnitTest
 
                 new CreateTicketVm{Title = "TicketTitle", Body = "Ticket3", ProjectId = 3, RequiredHours = 24 },
 
-                new CreateTicketVm{Title = "TicketTitle", Body = "Ticket3", RequiredHours = 24 },
+                new CreateTicketVm{Title = "TicketTitle", Body = "Ticket3", ProjectId= Int32.MaxValue, RequiredHours = 24 },
 
 
             }.ToList();
@@ -319,7 +319,7 @@ namespace TieredArchitectureUnitTest
 
         [TestMethod]
         [DataRow(1, "john34@gmail.com")]
-        public void AddToWatch_WithFoundTicketIdAndUserName_AddsTicketToTicketWatcherTable(int ticketId, string userName)
+        public void AddToWatch_WithFoundTicketIdAndUserName_AddsTicketAndUserToTicketWatcherTable(int ticketId, string userName)
         {
             initialCount = ticketWatcherData.Count();
 
@@ -335,13 +335,13 @@ namespace TieredArchitectureUnitTest
         [DataRow(1, 29, 29)]
         public void UpdateRequiredHours_WithArgumentAndFoundTicketId_UpdatesTheTicketRequiredHours(int ticketId, int hours, int expectedHours)
         {
-            Ticket acctualTicket = ticketData.First(t => t.Id == ticketId);
+            Ticket actualTicket = ticketData.First(t => t.Id == ticketId);
 
             // Act
             TicketBusinessLogic.UpdateRequiredHours(ticketId, hours);
 
             // Assert
-            Assert.AreEqual(expectedHours, acctualTicket.RequiredHours);
+            Assert.AreEqual(expectedHours, actualTicket.RequiredHours);
         }
 
 
@@ -355,7 +355,7 @@ namespace TieredArchitectureUnitTest
         }
         
         [TestMethod]
-        [DataRow(5)]
+        [DataRow(Int32.MaxValue)]
         public void DeleteTicket_WithNoFoundTicketId_ThrowsInvalidOperationException(int ticketId)
         {
             // Act & Assert
@@ -367,10 +367,10 @@ namespace TieredArchitectureUnitTest
         [DataRow(3)]
         public void DeleteTicket_WithArgumentAndFoundTicketId_ReturnsExpectedTicketObjectToBeDeleted(int ticketId)
         {
-            Ticket ActualProject = ticketData.First(p => p.Id == ticketId);
+            Ticket ActualTicket = ticketData.First(p => p.Id == ticketId);
 
-            // Assert
-            Assert.IsTrue(ActualProject.Equals(TicketBusinessLogic.DeleteTicket(ticketId)));
+            // Act & Assert
+            Assert.IsTrue(ActualTicket.Equals(TicketBusinessLogic.DeleteTicket(ticketId)));
         }
 
 
@@ -420,7 +420,7 @@ namespace TieredArchitectureUnitTest
 
 
         [TestMethod]
-        [DataRow(3)]
+        [DataRow(Int32.MaxValue)]
         public void CreateTicket_WithNoFoundProject_ThrowsInvalidOperationException(int projectId)
         {
 
@@ -502,7 +502,7 @@ namespace TieredArchitectureUnitTest
 
 
             // Act & Assert
-            Assert.AreEqual(TicketBusinessLogic.Read().Count(), ticketData.Count());
+            Assert.AreEqual(TicketBusinessLogic.Read().Count(), initialCount);
         }
 
       
@@ -552,7 +552,7 @@ namespace TieredArchitectureUnitTest
 
 
         [TestMethod]
-        public void RepopulateDevelopersInProjectList_WithCreateTicketViewModel_ReturnsAListOfDevelopersInTicketsProject()
+        public void RepopulateDevelopersInProjectList_WithCreateTicketViewModel_ReturnsAViewModelWithAListOfDevelopersInTicketsProject()
         {
             initialCount = createTicketVmData.First().AllDevelopers.Count();
             
@@ -637,6 +637,7 @@ namespace TieredArchitectureUnitTest
         [DataRow(Int32.MaxValue)]
         public void InitializeCreateTicketMethod_WithNoFoundProjectId_ThrowsInvalidOperationxception(int projectId)
         {
+            // Act & Assert
             Assert.ThrowsException<InvalidOperationException>(() => TicketBusinessLogic.InitializeCreateTicketMethod(projectId));
         }
 

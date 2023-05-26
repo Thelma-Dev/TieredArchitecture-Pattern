@@ -384,7 +384,7 @@ namespace TieredArchitectureUnitTest
 
 
         [TestMethod]
-        public void GetUserToBeRemovedFromProject_OnNoArgument_ThrowsArgumentNullException()
+        public void GetUserToBeRemovedFromProject_WithNoArgument_ThrowsArgumentNullException()
         {
 
             // Act & Assert
@@ -394,7 +394,7 @@ namespace TieredArchitectureUnitTest
 
         [TestMethod]
         [DataRow(Int32.MaxValue)]
-        public void GetUserToBeRemovedFromProject_OnNoFoundUserId_ThrowsInvalidOperationException(int userId)
+        public void GetUserToBeRemovedFromProject_WithNoFoundUserId_ThrowsInvalidOperationException(int userId)
         {
 
             // Act & Assert
@@ -452,7 +452,7 @@ namespace TieredArchitectureUnitTest
 
             
             // Assert
-            Assert.IsTrue(userProjectData.Count == initialCount - 1);
+            Assert.AreEqual(userProjectData.Count , initialCount - 1);
         }
 
         [TestMethod]
