@@ -11,7 +11,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
             _context = context;
         }
 
-        public UserProject GetUserProject(int projectId, string userId)
+        public UserProject GetUserProject(int? projectId, string userId)
         {
             return _context.UserProjects.First(up => up.ProjectId == projectId && up.UserId == userId);
         }
@@ -21,7 +21,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
             return _context.UserProjects.FirstOrDefault(up => up.ProjectId == projectId);
         }
 
-        public List<UserProject> GetProjects(int projectId)
+        public List<UserProject> GetProjects(int? projectId)
         {
             return _context.UserProjects.Where(up => up.ProjectId == projectId).ToList();
         }
@@ -38,7 +38,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
 
 		public void RemoveUserProject(UserProject userProject)
         {
-            _context.UserProjects.Remove(userProject);
+            _context.RemoveUserProject(userProject);
             _context.SaveChanges();
         }
 
